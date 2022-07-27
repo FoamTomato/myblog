@@ -1,0 +1,28 @@
+- class_name: 大佬们
+  class_desc: butterfly 主题参考博客
+  link_list:
+    - name: Akilar
+      link: https://akilar.top
+      avatar: https://npm.elemecdn.com/akilar-candyassets/image/siteicon/favicon.png
+      descr: 欢迎光临糖果屋
+
+- class_name: 友链
+  class_desc: 技术分享博主
+  link_list:
+    - name: StrokeBun
+      link: https://blog.strokebun.top
+      avatar: https://blog.strokebun.top/img/avatar.jpg
+      descr: 人类高质量包神
+    - name: 隋佬
+      link: https://blog.minram.top/
+      avatar: https://blog.minram.top/img/avatar.jpg
+      descr: 前华为工程师，现微软工程师
+    - name: 年神
+      link: https://zhoushing.github.io
+      avatar: https://pool-1305119010.cos.ap-nanjing.myqcloud.com/images/blog_images/study_fast.jpg
+      descr: 都是佬来着
+    - name: 汪汪队坐大牢
+      link: https://www.bigwer.cn
+      avatar: https://bigwer.cn/wp-content/uploads/2022/02/catO.png
+      descr: 天天卷我
+      
