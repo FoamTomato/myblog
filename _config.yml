@@ -13,7 +13,8 @@ timezone: ''
 comments: true
 # URL
 ## Set your site url here. For example, if you use GitHub Page, set url as 'https://username.github.io/project'
-url: https://foamtomato.github.io/
+url: "https://foamtomato.github.io/"
+cosUrl: "https://blog-1316004121.cos.ap-guangzhou.myqcloud.com/blogImages/"
 permalink: :year/:month/:day/:title/
 permalink_defaults:
 pretty_urls:
