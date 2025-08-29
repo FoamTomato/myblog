@@ -1,0 +1,88 @@
+# Hexo 博客部署环境变量配置
+# 复制此文件为 .env 并填写相应的值
+
+# =============== Git 配置 ===============
+# Git 用户信息（用于提交和部署）
+GIT_USER_NAME=你的GitHub用户名
+GIT_USER_EMAIL=你的GitHub邮箱
+
+# =============== 部署配置 ===============
+# 部署分支名称
+DEPLOY_BRANCH=gh-pages
+# 源代码分支
+SOURCE_BRANCH=main
+
+# =============== 域名配置 ===============
+# 自定义域名（可选，如果使用GitHub Pages默认域名可留空）
+CNAME=your-domain.com
+
+# =============== API 密钥 ===============
+# OpenAI API密钥（用于AI相关功能）
+OPENAI_API_KEY=your-openai-api-key
+# 高德地图API密钥（用于地图相关功能）
+AMAP_API_KEY=your-amap-api-key
+
+# =============== 服务器配置 ===============
+# 自定义服务器部署（可选）
+CUSTOM_SERVER_HOST=your-server.com
+CUSTOM_SERVER_USER=username
+CUSTOM_SERVER_PATH=/var/www/html
+
+# =============== 通知配置 ===============
+# Slack Webhook URL（可选，用于部署通知）
+NOTIFICATION_WEBHOOK=https://hooks.slack.com/services/xxx/yyy/zzz
+
+# =============== 构建配置 ===============
+# Node.js版本
+NODE_VERSION=18
+# 是否启用缓存
+ENABLE_CACHE=true
+# 是否启用压缩
+ENABLE_MINIFY=false
+ENABLE_COMPRESS=true
+
+# =============== 备份配置 ===============
+# 是否启用自动备份
+ENABLE_BACKUP=true
+# 备份目录
+BACKUP_DIR=.backup
+# 备份保留天数
+BACKUP_RETENTION=7
+
+# =============== 日志配置 ===============
+# 日志级别 (debug, info, warn, error)
+LOG_LEVEL=info
+# 日志文件路径
+LOG_FILE=deploy.log
+
+# =============== 高级配置 ===============
+# 部署目标 (github, custom)
+DEPLOY_TARGET=github
+# 预构建命令（可选）
+PRE_BUILD_COMMAND=
+# 后构建命令（可选）
+POST_BUILD_COMMAND=
+# 排除的文件和目录
+EXCLUDE_FILES=node_modules .git .github
+
+# =============== GitHub Actions 配置 ===============
+# GitHub Token（在GitHub Actions中使用）
+# GITHUB_TOKEN=your-github-token
+
+# =============== 数据库配置（如果需要） ===============
+# 数据库连接字符串（如果博客使用了数据库）
+# DATABASE_URL=postgresql://username:password@localhost:5432/blog_db
+
+# =============== 其他配置 ===============
+# CDN配置（如果使用了CDN）
+# CDN_URL=https://cdn.example.com
+# CDN_ENABLED=false
+
+# 搜索引擎配置
+# BING_WEBMASTER_KEY=your-bing-key
+# GOOGLE_ANALYTICS_ID=your-ga-id
+
+# 评论系统配置（如果使用了评论功能）
+# DISQUS_SHORTNAME=your-disqus-shortname
+# GITALK_CLIENT_ID=your-github-client-id
+# GITALK_CLIENT_SECRET=your-github-client-secret

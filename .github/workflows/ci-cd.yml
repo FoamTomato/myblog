@@ -1,0 +1,328 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: '部署环境'
+        required: true
+        default: 'production'
+        type: choice
+        options:
+          - production
+          - staging
+          - preview
+      skip_tests:
+        description: '跳过测试'
+        required: false
+        default: false
+        type: boolean
+
+# 设置权限
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+  actions: write
+  checks: write
+  statuses: write
+
+# 允许并发运行，但取消进行中的运行
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: '18'
+  HEXO_VERSION: '7.x'
+
+jobs:
+  # 代码质量检查
+  quality-check:
+    name: 代码质量检查
+    runs-on: ubuntu-latest
+    outputs:
+      has_changes: ${{ steps.check_changes.outputs.has_changes }}
+
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 设置Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: 安装依赖
+        run: npm ci
+
+      - name: 安装Hexo CLI
+        run: npm install -g hexo-cli
+
+      - name: 代码质量检查
+        run: |
+          # 检查配置文件
+          if [[ ! -f "_config.yml" ]]; then
+            echo "错误: 缺少 _config.yml 文件"
+            exit 1
+          fi
+
+          # 检查必要的目录
+          if [[ ! -d "source" ]]; then
+            echo "错误: 缺少 source 目录"
+            exit 1
+          fi
+
+          # 检查是否有文章
+          article_count=$(find source/_posts -name "*.md" | wc -l)
+          if [[ $article_count -eq 0 ]]; then
+            echo "警告: 没有找到文章文件"
+          else
+            echo "找到 $article_count 篇文章"
+          fi
+
+      - name: 构建测试
+        run: |
+          hexo clean
+          hexo generate --silent
+
+      - name: 检查是否有内容变更
+        id: check_changes
+        run: |
+          if [[ -n "$(git status --porcelain)" ]]; then
+            echo "has_changes=true" >> $GITHUB_OUTPUT
+          else
+            echo "has_changes=false" >> $GITHUB_OUTPUT
+          fi
+
+  # 构建和部署
+  build-and-deploy:
+    name: 构建和部署
+    runs-on: ubuntu-latest
+    needs: quality-check
+    if: |
+      (github.event_name == 'push' && github.ref == 'refs/heads/main') ||
+      (github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'production') ||
+      (github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'deploy'))
+
+    environment:
+      name: ${{ github.event.inputs.environment || 'production' }}
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          submodules: recursive
+
+      - name: 设置Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: 缓存Hexo依赖
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.npm
+            node_modules
+            .deploy_git
+          key: ${{ runner.os }}-hexo-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-hexo-
+
+      - name: 安装Hexo CLI
+        run: |
+          if ! command -v hexo &> /dev/null; then
+            npm install -g hexo-cli
+          fi
+
+      - name: 安装依赖
+        run: |
+          npm ci
+          hexo version
+
+      - name: 配置Git
+        run: |
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "action@github.com"
+
+      - name: 构建站点
+        run: |
+          echo "开始构建站点..."
+          hexo clean
+
+          if [[ "${{ github.event.inputs.skip_tests }}" != "true" ]]; then
+            hexo generate --silent
+          else
+            hexo generate
+          fi
+
+          # 检查构建结果
+          if [[ ! -d "public" ]]; then
+            echo "错误: 构建失败，未找到public目录"
+            exit 1
+          fi
+
+          # 统计构建信息
+          file_count=$(find public -type f | wc -l)
+          dir_size=$(du -sh public | cut -f1)
+          echo "构建完成: $file_count 个文件，大小: $dir_size"
+
+      - name: 构建性能报告
+        run: |
+          echo "## 📊 构建报告" > build-report.md
+          echo "- **构建时间**: $(date)" >> build-report.md
+          echo "- **文件数量**: $(find public -type f | wc -l)" >> build-report.md
+          echo "- **构建大小**: $(du -sh public | cut -f1)" >> build-report.md
+          echo "- **页面数量**: $(find public -name "*.html" | wc -l)" >> build-report.md
+          echo "- **图片数量**: $(find public -type f \( -name "*.jpg" -o -name "*.png" -o -name "*.gif" -o -name "*.webp" \) | wc -l)" >> build-report.md
+
+          cat build-report.md
+
+      - name: 部署到GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./public
+          publish_branch: gh-pages
+          cname: ${{ secrets.CNAME || '' }}
+          allow_empty_commit: false
+          keep_files: false
+          force_orphan: true
+
+      - name: 验证部署
+        run: |
+          echo "等待部署生效..."
+          sleep 30
+
+          # 检查GitHub Pages状态
+          if curl -s -I "https://api.github.com/repos/${{ github.repository }}/pages" | grep -q "200"; then
+            echo "✅ GitHub Pages 部署成功"
+          else
+            echo "⚠️  GitHub Pages 状态检查失败"
+          fi
+
+      - name: 发送部署通知
+        if: always()
+        run: |
+          # 这里可以集成通知服务
+          if [[ "${{ job.status }}" == "success" ]]; then
+            echo "🎉 部署成功！"
+            echo "访问地址: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}"
+          else
+            echo "❌ 部署失败！"
+          fi
+
+  # 性能监控
+  performance-check:
+    name: 性能监控
+    runs-on: ubuntu-latest
+    needs: build-and-deploy
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v4
+
+      - name: 性能分析
+        run: |
+          echo "## 🚀 性能分析报告" > performance-report.md
+
+          # 分析构建产物
+          echo "### 📦 构建产物分析" >> performance-report.md
+          echo "- **总文件数**: $(find public -type f | wc -l)" >> performance-report.md
+          echo "- **总大小**: $(du -sh public | cut -f1)" >> performance-report.md
+
+          # 分析页面大小
+          echo "### 📄 页面大小分析" >> performance-report.md
+          find public -name "*.html" -exec wc -c {} \; | sort -nr | head -10 | while read size file; do
+            echo "- $(basename "$file"): $(numfmt --to=iec-i --suffix=B $size)" >> performance-report.md
+          done
+
+          # 分析图片大小
+          echo "### 🖼️  图片大小分析" >> performance-report.md
+          find public -type f \( -name "*.jpg" -o -name "*.png" -o -name "*.gif" -o -name "*.webp" \) -exec wc -c {} \; | sort -nr | head -10 | while read size file; do
+            echo "- $(basename "$file"): $(numfmt --to=iec-i --suffix=B $size)" >> performance-report.md
+          done
+
+          cat performance-report.md
+
+      - name: SEO检查
+        run: |
+          echo "## 🔍 SEO 检查报告" > seo-report.md
+
+          # 检查是否有robots.txt
+          if [[ -f "public/robots.txt" ]]; then
+            echo "✅ robots.txt 存在" >> seo-report.md
+          else
+            echo "⚠️  缺少 robots.txt" >> seo-report.md
+          fi
+
+          # 检查是否有sitemap
+          if [[ -f "public/sitemap.xml" ]]; then
+            echo "✅ sitemap.xml 存在" >> seo-report.md
+          else
+            echo "⚠️  缺少 sitemap.xml" >> seo-report.md
+          fi
+
+          # 检查页面标题和描述
+          page_count=$(find public -name "*.html" | wc -l)
+          echo "- **总页面数**: $page_count" >> seo-report.md
+
+          cat seo-report.md
+
+  # 清理任务
+  cleanup:
+    name: 清理缓存
+    runs-on: ubuntu-latest
+    if: always()
+    needs: [build-and-deploy, performance-check]
+
+    steps:
+      - name: 清理构建缓存
+        run: |
+          echo "清理构建缓存..."
+          # 这里可以添加清理逻辑
+
+      - name: 发送最终报告
+        run: |
+          echo "## 📋 部署完成报告" > final-report.md
+          echo "- **工作流**: ${{ github.workflow }}" >> final-report.md
+          echo "- **分支**: ${{ github.ref }}" >> final-report.md
+          echo "- **提交**: ${{ github.sha }}" >> final-report.md
+          echo "- **时间**: $(date)" >> final-report.md
+          echo "- **状态**: ${{ job.status }}" >> final-report.md
+
+          if [[ -f "build-report.md" ]]; then
+            cat build-report.md >> final-report.md
+          fi
+
+          cat final-report.md
+
+  # 回滚任务（可选）
+  rollback:
+    name: 回滚部署
+    runs-on: ubuntu-latest
+    if: failure() && github.ref == 'refs/heads/main'
+    needs: build-and-deploy
+
+    steps:
+      - name: 回滚到上一个版本
+        run: |
+          echo "准备回滚到上一个稳定版本..."
+          # 这里可以实现回滚逻辑
+
+      - name: 发送告警通知
+        run: |
+          echo "🚨 部署失败，准备回滚"
+          # 这里可以集成告警通知
