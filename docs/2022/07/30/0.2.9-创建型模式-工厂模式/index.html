@@ -1,0 +1,344 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>创建型模式-工厂模式 | 喵喵鱼塘</title><meta name="author" content="Foam🍅"><meta name="copyright" content="Foam🍅"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="前言工厂模式是最常用的创建型模式，分为三种：简单工厂模式，工厂方法模式和抽象工厂模式 源码场景（后续补充） 线程池：ThreadFactory在线程池构建 Worker 的时候会通过调用传入线程工厂对象的 newThread() 方法创建Worker 持有的线程 日志：LoggerFactory"><link rel="shortcut icon" href="/img/favicon.ico"><link rel="canonical" href="https://foamtomato.github.io/2022/07/30/0.2.9-%E5%88%9B%E5%BB%BA%E5%9E%8B%E6%A8%A1%E5%BC%8F-%E5%B7%A5%E5%8E%82%E6%A8%A1%E5%BC%8F/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=4.13.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.json","preload":false,"top_n_per_article":1,"unescape":false,"languages":{"hits_empty":"找不到您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.11.1/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyload: true,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '创建型模式-工厂模式',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2022-07-30 20:43:10'
+}</script><script>(win=>{
+      win.saveToLocal = {
+        set: (key, value, ttl) => {
+          if (ttl === 0) return
+          const now = Date.now()
+          const expiry = now + ttl * 86400000
+          const item = {
+            value,
+            expiry
+          }
+          localStorage.setItem(key, JSON.stringify(item))
+        },
+      
+        get: key => {
+          const itemStr = localStorage.getItem(key)
+      
+          if (!itemStr) {
+            return undefined
+          }
+          const item = JSON.parse(itemStr)
+          const now = Date.now()
+      
+          if (now > item.expiry) {
+            localStorage.removeItem(key)
+            return undefined
+          }
+          return item.value
+        }
+      }
+    
+      win.getScript = (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        script.onerror = reject
+        script.onload = script.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          script.onload = script.onreadystatechange = null
+          resolve()
+        }
+
+        Object.keys(attr).forEach(key => {
+          script.setAttribute(key, attr[key])
+        })
+
+        document.head.appendChild(script)
+      })
+    
+      win.getCSS = (url, id = false) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onerror = reject
+        link.onload = link.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          link.onload = link.onreadystatechange = null
+          resolve()
+        }
+        document.head.appendChild(link)
+      })
+    
+      win.activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+        if (t === 'dark') activateDarkMode()
+        else if (t === 'light') activateLightMode()
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+      const detectApple = () => {
+        if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+          document.documentElement.classList.add('apple')
+        }
+      }
+      detectApple()
+    })(window)</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/static-butterfly/dist/css/index.min.css"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"><style>
+/* 修复JetBrains Mono字体引用 */
+@font-face {
+  font-family: 'MyFont';
+  src: url('https://cdn.jsdelivr.net/gh/JetBrains/JetBrainsMono/web/woff2/JetBrainsMono-Regular.woff2') format('woff2'),
+       url('https://cdn.jsdelivr.net/gh/JetBrains/JetBrainsMono/web/woff/JetBrainsMono-Regular.woff') format('woff');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+</style>
+<!-- hexo injector head_end start --><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper/swiper-bundle.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Zfour/Butterfly-card-history/baiduhistory/css/main.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Zfour/hexo-electric-clock@1.0.6/clock.css"><!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.3.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/img/favicon.ico" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">57</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">68</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">0</div></a></div><hr class="custom-hr"/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 鱼塘</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 喵生</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 关键词</span></a></div><div class="menus_item"><a class="site-page" href="/movies/"><i class="fa-fw fas fa-video"></i><span> 猫片</span></a></div><div class="menus_item"><a class="site-page" href="/links/"><i class="fa-fw fas fa-link"></i><span> 猫の友</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 语录</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://p3.qhimg.com/bdm/1000_618_85/t01ce5cc5dbcfbc21f7.jpg')"><nav id="nav"><span id="blog-info"><a href="/" title="喵喵鱼塘"><span class="site-name">喵喵鱼塘</span></a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search" href="javascript:void(0);"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 鱼塘</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 喵生</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 关键词</span></a></div><div class="menus_item"><a class="site-page" href="/movies/"><i class="fa-fw fas fa-video"></i><span> 猫片</span></a></div><div class="menus_item"><a class="site-page" href="/links/"><i class="fa-fw fas fa-link"></i><span> 猫の友</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 语录</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">创建型模式-工厂模式</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2022-07-30T08:44:53.000Z" title="发表于 2022-07-30 16:44:53">2022-07-30</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2022-07-30T12:43:10.431Z" title="更新于 2022-07-30 20:43:10">2022-07-30</time></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="创建型模式-工厂模式"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><p><a name="sgFbs"></a></p>
+<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>工厂模式是最常用的创建型模式，分为三种：简单工厂模式，工厂方法模式和抽象工厂模式<br><a name="oqV7O"></a></p>
+<h1 id="源码场景（后续补充）"><a href="#源码场景（后续补充）" class="headerlink" title="源码场景（后续补充）"></a>源码场景（后续补充）</h1><p><a name="LqiGF"></a></p>
+<h2 id="线程池：ThreadFactory"><a href="#线程池：ThreadFactory" class="headerlink" title="线程池：ThreadFactory"></a>线程池：ThreadFactory</h2><p>在线程池构建 Worker 的时候会通过调用传入线程工厂对象的 newThread() 方法创建Worker 持有的线程<br><a name="mqffe"></a></p>
+<h2 id="日志：LoggerFactory"><a href="#日志：LoggerFactory" class="headerlink" title="日志：LoggerFactory"></a>日志：LoggerFactory</h2><p><a name="CXGZN"></a></p>
+<h2 id="Spring：BeanFactory"><a href="#Spring：BeanFactory" class="headerlink" title="Spring：BeanFactory"></a>Spring：BeanFactory</h2><p><a name="qNxJh"></a></p>
+<h2 id="MyBatis：SqlSessionFactory"><a href="#MyBatis：SqlSessionFactory" class="headerlink" title="MyBatis：SqlSessionFactory"></a>MyBatis：SqlSessionFactory</h2><p><a name="r7g5t"></a></p>
+<h1 id="简单工厂模式"><a href="#简单工厂模式" class="headerlink" title="简单工厂模式"></a>简单工厂模式</h1><p>简单工厂模式并不属于GoF 23个经典设计模式，但通常将它作为学习其他工厂模式的基础<br><a name="cNZ2D"></a></p>
+<h2 id="角色"><a href="#角色" class="headerlink" title="角色"></a>角色</h2><p><a name="Ts8fl"></a></p>
+<h3 id="Factory-工厂角色"><a href="#Factory-工厂角色" class="headerlink" title="Factory 工厂角色"></a>Factory 工厂角色</h3><blockquote>
+<p>工厂角色即工厂类，它是简单工厂模式的核心，负责实现创建所有产品实例的内部逻辑；<br>工厂类可以被外界直接调用，创建所需的产品对象；<br>在工厂类中提供了静态的工厂方法factoryMethod()，它的返回类型为抽象产品类型Product</p>
+</blockquote>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">ChartFactory</span> &#123;  </span><br><span class="line">    <span class="comment">//静态工厂方法  </span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> Chart <span class="title function_">getChart</span><span class="params">(String type)</span> &#123;  </span><br><span class="line">        <span class="type">Chart</span> <span class="variable">chart</span> <span class="operator">=</span> <span class="literal">null</span>;  </span><br><span class="line">        <span class="keyword">if</span> (type.equalsIgnoreCase(<span class="string">&quot;histogram&quot;</span>)) &#123;  </span><br><span class="line">            chart = <span class="keyword">new</span> <span class="title class_">HistogramChart</span>();  </span><br><span class="line">            System.out.println(<span class="string">&quot;初始化设置柱状图！&quot;</span>);  </span><br><span class="line">        &#125;  </span><br><span class="line">        <span class="keyword">else</span> <span class="keyword">if</span> (type.equalsIgnoreCase(<span class="string">&quot;pie&quot;</span>)) &#123;  </span><br><span class="line">            chart = <span class="keyword">new</span> <span class="title class_">PieChart</span>();  </span><br><span class="line">            System.out.println(<span class="string">&quot;初始化设置饼状图！&quot;</span>);  </span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> chart;  </span><br><span class="line">    &#125;  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><a name="CweSk"></a></p>
+<h3 id="Product-抽象产品角色"><a href="#Product-抽象产品角色" class="headerlink" title="Product 抽象产品角色"></a>Product 抽象产品角色</h3><blockquote>
+<p>它是工厂类所创建的所有对象的父类，封装了各种产品对象的公有方法；<br>它的引入将提高系统的灵活性，使得在工厂类中只需定义一个通用的工厂方法，因为所有创建的具体产品对象都是其子类对象</p>
+</blockquote>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">interface</span> <span class="title class_">Chart</span> &#123;  </span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">display</span><span class="params">()</span>;  </span><br><span class="line">&#125;  </span><br></pre></td></tr></table></figure>
+<p><a name="VeMSj"></a></p>
+<h3 id="ConcreteProduct-具体产品角色"><a href="#ConcreteProduct-具体产品角色" class="headerlink" title="ConcreteProduct 具体产品角色"></a>ConcreteProduct 具体产品角色</h3><blockquote>
+<p>它是简单工厂模式的创建目标，所有被创建的对象都充当这个角色的某个具体类的实例；<br>每一个具体产品角色都继承了抽象产品角色，需要实现在抽象产品中声明的抽象方法</p>
+</blockquote>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">HistogramChart</span> <span class="keyword">implements</span> <span class="title class_">Chart</span> &#123;  </span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">HistogramChart</span><span class="params">()</span> &#123;  </span><br><span class="line">        System.out.println(<span class="string">&quot;创建柱状图！&quot;</span>);  </span><br><span class="line">    &#125;  </span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">display</span><span class="params">()</span> &#123;  </span><br><span class="line">        System.out.println(<span class="string">&quot;显示柱状图！&quot;</span>);  </span><br><span class="line">    &#125;  </span><br><span class="line">&#125;  </span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">PieChart</span> <span class="keyword">implements</span> <span class="title class_">Chart</span> &#123;  </span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">PieChart</span><span class="params">()</span> &#123;  </span><br><span class="line">        System.out.println(<span class="string">&quot;创建饼状图！&quot;</span>);  </span><br><span class="line">    &#125;  </span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">display</span><span class="params">()</span> &#123;  </span><br><span class="line">        System.out.println(<span class="string">&quot;显示饼状图！&quot;</span>);  </span><br><span class="line">    &#125;  </span><br><span class="line">&#125; </span><br></pre></td></tr></table></figure>
+<p><a name="jqMHU"></a></p>
+<h2 id="测试"><a href="#测试" class="headerlink" title="测试"></a>测试</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Client</span> &#123;  </span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String args[])</span> &#123;  </span><br><span class="line">        Chart chart;  </span><br><span class="line">        chart = ChartFactory.getChart(<span class="string">&quot;histogram&quot;</span>); <span class="comment">//通过静态工厂方法创建产品  </span></span><br><span class="line">        chart.display();  </span><br><span class="line">    &#125;  </span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">创建柱状图！</span><br><span class="line">初始化设置柱状图！</span><br><span class="line">显示柱状图！</span><br><span class="line"></span><br><span class="line">若需要饼状图则改为</span><br><span class="line">chart = ChartFactory.getChart(<span class="string">&quot;pie&quot;</span>);</span><br></pre></td></tr></table></figure>
+<p><a name="KHlPv"></a></p>
+<h2 id="优点"><a href="#优点" class="headerlink" title="优点"></a>优点</h2><ul>
+<li><p>增加固定类型产品的不同具体工厂比较方便</p>
+</li>
+<li><p>实现了对象创建和使用的分离，使用者不必关心类对象如何创建，明确了职责</p>
+</li>
+<li><p>在需要多个相关产品的时候，仍然只需要一个工厂对象<br><a name="C1fjB"></a></p>
+<h2 id="缺点"><a href="#缺点" class="headerlink" title="缺点"></a>缺点</h2></li>
+<li><p>由于工厂类集中了所有产品的创建逻辑，职责过重，一旦不能正常工作，整个系统都要受到影响</p>
+</li>
+<li><p>会增加系统中类的个数，增加了系统的复杂度和理解难度</p>
+</li>
+<li><p>要新增产品类的时候，就要修改工厂类的代码，违反了开放封闭原则</p>
+</li>
+<li><p>简单工厂模式由于使用了静态工厂方法，造成工厂角色无法形成基于继承的等级结构<br><a name="hmBFh"></a></p>
+<h2 id="适用场景"><a href="#适用场景" class="headerlink" title="适用场景"></a>适用场景</h2></li>
+<li><p>工厂类负责创建的对象比较少，由于创建的对象较少，不会造成工厂方法中的业务逻辑太过复杂</p>
+</li>
+<li><p>客户端只知道传入工厂类的参数，对于如何创建对象并不关心<br><a name="WzK1X"></a></p>
+<h1 id="工厂方法模式"><a href="#工厂方法模式" class="headerlink" title="工厂方法模式"></a>工厂方法模式</h1><p>简单工厂模式虽然简单，但存在一个很严重的问题<br />当系统中需要引入新产品时，由于静态工厂方法通过所传入参数的不同来创建不同的产品<br />这必定要修改工厂类的源代码，将违背“开闭原则”，如何实现增加新产品而不影响已有代码？<br />工厂方法模式应运而生。<br><a name="SWJ9b"></a></p>
+<h2 id="角色-1"><a href="#角色-1" class="headerlink" title="角色"></a>角色</h2><p><a name="fg9vc"></a></p>
+<h3 id="Product-抽象产品"><a href="#Product-抽象产品" class="headerlink" title="Product 抽象产品"></a>Product 抽象产品</h3><blockquote>
+<p>它是定义产品的接口，是工厂方法模式所创建对象的超类型，也就是产品对象的公共父类</p>
+</blockquote>
+</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">interface</span> <span class="title class_">Logger</span> &#123;  </span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">writeLog</span><span class="params">()</span>;  </span><br><span class="line">&#125;  </span><br></pre></td></tr></table></figure>
+<p><a name="yp1YA"></a></p>
+<h3 id="ConcreteProduct-具体产品"><a href="#ConcreteProduct-具体产品" class="headerlink" title="ConcreteProduct 具体产品"></a>ConcreteProduct 具体产品</h3><blockquote>
+<p>它实现了抽象产品接口，某种类型的具体产品由专门的具体工厂创建，具体工厂和具体产品之间一一对应</p>
+</blockquote>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">DatabaseLogger</span> <span class="keyword">implements</span> <span class="title class_">Logger</span> &#123;  </span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">writeLog</span><span class="params">()</span> &#123;  </span><br><span class="line">        System.out.println(<span class="string">&quot;数据库日志记录。&quot;</span>);  </span><br><span class="line">    &#125;  </span><br><span class="line">&#125;  </span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">FileLogger</span> <span class="keyword">implements</span> <span class="title class_">Logger</span> &#123;  </span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">writeLog</span><span class="params">()</span> &#123;  </span><br><span class="line">        System.out.println(<span class="string">&quot;文件日志记录。&quot;</span>);  </span><br><span class="line">    &#125;  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><a name="GSv6S"></a></p>
+<h3 id="Factory-抽象工厂"><a href="#Factory-抽象工厂" class="headerlink" title="Factory 抽象工厂"></a>Factory 抽象工厂</h3><blockquote>
+<p>在抽象工厂类中，声明了工厂方法(Factory Method)，用于返回一个产品。抽象工厂是工厂方法模式的核心，所有创建对象的工厂类都必须实现该接口</p>
+</blockquote>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">interface</span> <span class="title class_">LoggerFactory</span> &#123;  </span><br><span class="line">    <span class="keyword">public</span> Logger <span class="title function_">createLogger</span><span class="params">()</span>;  </span><br><span class="line">&#125;  </span><br></pre></td></tr></table></figure>
+<p><a name="zmCLe"></a></p>
+<h3 id="ConcreteFactory-具体工厂"><a href="#ConcreteFactory-具体工厂" class="headerlink" title="ConcreteFactory 具体工厂"></a>ConcreteFactory 具体工厂</h3><blockquote>
+<p>它是抽象工厂类的子类，实现了抽象工厂中定义的工厂方法，并可由客户端调用，返回一个具体产品类的实例</p>
+</blockquote>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">DatabaseLoggerFactory</span> <span class="keyword">implements</span> <span class="title class_">LoggerFactory</span> &#123;  </span><br><span class="line">    <span class="keyword">public</span> Logger <span class="title function_">createLogger</span><span class="params">()</span> &#123;  </span><br><span class="line">            <span class="comment">//连接数据库，代码省略  </span></span><br><span class="line">            <span class="comment">//创建数据库日志记录器对象  </span></span><br><span class="line">            <span class="type">Logger</span> <span class="variable">logger</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">DatabaseLogger</span>();   </span><br><span class="line">            <span class="comment">//初始化数据库日志记录器，代码省略  </span></span><br><span class="line">            <span class="keyword">return</span> logger;  </span><br><span class="line">    &#125;     </span><br><span class="line">&#125; </span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">FileLoggerFactory</span> <span class="keyword">implements</span> <span class="title class_">LoggerFactory</span> &#123;  </span><br><span class="line">    <span class="keyword">public</span> Logger <span class="title function_">createLogger</span><span class="params">()</span> &#123;  </span><br><span class="line">            <span class="comment">//创建文件日志记录器对象  </span></span><br><span class="line">            <span class="type">Logger</span> <span class="variable">logger</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">FileLogger</span>();   </span><br><span class="line">            <span class="comment">//创建文件，代码省略  </span></span><br><span class="line">            <span class="keyword">return</span> logger;  </span><br><span class="line">    &#125;     </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><a name="R55l1"></a></p>
+<h2 id="测试-1"><a href="#测试-1" class="headerlink" title="测试"></a>测试</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Client</span> &#123;  </span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String args[])</span> &#123;  </span><br><span class="line">        LoggerFactory factory;  </span><br><span class="line">        Logger logger;  </span><br><span class="line">        factory = <span class="keyword">new</span> <span class="title class_">FileLoggerFactory</span>();</span><br><span class="line">        logger = factory.createLogger();  </span><br><span class="line">        logger.writeLog();  </span><br><span class="line">    &#125;  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><a name="k5NkB"></a></p>
+<h2 id="优点-1"><a href="#优点-1" class="headerlink" title="优点"></a>优点</h2><ul>
+<li><p>在工厂方法模式中，工厂方法用来创建客户所需要的产品，同时还向客户隐藏了哪种具体产品类将被实例化这一细节，用户只需要关心所需产品对应的工厂，无须关心创建细节，甚至无须知道具体产品类的类名</p>
+</li>
+<li><p>基于工厂角色和产品角色的多态性设计是工厂方法模式的关键。它能够让工厂可以自主确定创建何种产品对象，而如何创建这个对象的细节则完全封装在具体工厂内部。工厂方法模式之所以又被称为多态工厂模式，就正是因为所有的具体工厂类都具有同一抽象父类</p>
+</li>
+<li><p>使用工厂方法模式的另一个优点是在系统中加入新产品时，无须修改抽象工厂和抽象产品提供的接口，无须修改客户端，也无须修改其他的具体工厂和具体产品，而只要添加一个具体工厂和具体产品就可以了，这样，系统的可扩展性也就变得非常好，完全符合“开闭原则”<br><a name="RSOiE"></a></p>
+<h2 id="缺点-1"><a href="#缺点-1" class="headerlink" title="缺点"></a>缺点</h2></li>
+<li><p>在添加新产品时，需要编写新的具体产品类，而且还要提供与之对应的具体工厂类，系统中类的个数将成对增加，在一定程度上增加了系统的复杂度，有更多的类需要编译和运行，会给系统带来一些额外的开销</p>
+</li>
+<li><p>由于考虑到系统的可扩展性，需要引入抽象层，在客户端代码中均使用抽象层进行定义，增加了系统的抽象性和理解难度，且在实现时可能需要用到DOM、反射等技术，增加了系统的实现难度<br><a name="NbhaS"></a></p>
+<h2 id="适用场景-1"><a href="#适用场景-1" class="headerlink" title="适用场景"></a>适用场景</h2></li>
+<li><p>客户端不知道它所需要的对象的类。在工厂方法模式中，客户端不需要知道具体产品类的类名，只需要知道所对应的工厂即可，具体的产品对象由具体工厂类创建，可将具体工厂类的类名存储在配置文件或数据库中</p>
+</li>
+<li><p>抽象工厂类通过其子类来指定创建哪个对象。在工厂方法模式中，对于抽象工厂类只需要提供一个创建产品的接口，而由其子类来确定具体要创建的对象，利用面向对象的多态性和里氏代换原则，在程序运行时，子类对象将覆盖父类对象，从而使得系统更容易扩展、<br><a name="mptuA"></a></p>
+<h1 id="抽象工厂模式"><a href="#抽象工厂模式" class="headerlink" title="抽象工厂模式"></a>抽象工厂模式</h1><p>工厂方法模式通过引入工厂等级结构，解决了简单工厂模式中工厂类职责太重的问题，但由于工厂方法模式中的每个工厂只生产一类产品，可能会导致系统中存在大量的工厂类，势必会增加系统的开销。<br />此时，我们可以考虑将一些相关的产品组成一个“产品族”，由同一个工厂来统一生产，这就是我们本文将要学习的抽象工厂模式的基本思想<br><a name="aieYX"></a></p>
+<h2 id="角色-2"><a href="#角色-2" class="headerlink" title="角色"></a>角色</h2><p><a name="srUR9"></a></p>
+<h2 id="AbstractFactory-抽象工厂"><a href="#AbstractFactory-抽象工厂" class="headerlink" title="AbstractFactory 抽象工厂"></a>AbstractFactory 抽象工厂</h2><blockquote>
+<p>它声明了一组用于创建一族产品的方法，每一个方法对应一种产品</p>
+</blockquote>
+</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">interface</span> <span class="title class_">SkinFactory</span> &#123;  </span><br><span class="line">    <span class="keyword">public</span> Button <span class="title function_">createButton</span><span class="params">()</span>;  </span><br><span class="line">    <span class="keyword">public</span> TextField <span class="title function_">createTextField</span><span class="params">()</span>;  </span><br><span class="line">&#125;  </span><br></pre></td></tr></table></figure>
+<p><a name="kmKQY"></a></p>
+<h2 id="ConcreteFactory-具体工厂-1"><a href="#ConcreteFactory-具体工厂-1" class="headerlink" title="ConcreteFactory 具体工厂"></a>ConcreteFactory 具体工厂</h2><blockquote>
+<p>它实现了在抽象工厂中声明的创建产品的方法，生成一组具体产品，这些产品构成了一个产品族，每一个产品都位于某个产品等级结构中</p>
+</blockquote>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">SpringSkinFactory</span> <span class="keyword">implements</span> <span class="title class_">SkinFactory</span> &#123;  </span><br><span class="line">    <span class="keyword">public</span> Button <span class="title function_">createButton</span><span class="params">()</span> &#123;  </span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">SpringButton</span>();  </span><br><span class="line">    &#125;  </span><br><span class="line">    <span class="keyword">public</span> TextField <span class="title function_">createTextField</span><span class="params">()</span> &#123;  </span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">SpringTextField</span>();  </span><br><span class="line">    &#125;  </span><br><span class="line">&#125;  </span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">SummerSkinFactory</span> <span class="keyword">implements</span> <span class="title class_">SkinFactory</span> &#123;  </span><br><span class="line">    <span class="keyword">public</span> Button <span class="title function_">createButton</span><span class="params">()</span> &#123;  </span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">SummerButton</span>();  </span><br><span class="line">    &#125;  </span><br><span class="line">    <span class="keyword">public</span> TextField <span class="title function_">createTextField</span><span class="params">()</span> &#123;  </span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">SummerTextField</span>();  </span><br><span class="line">    &#125;  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><a name="nnBME"></a></p>
+<h2 id="AbstractProduct-抽象产品"><a href="#AbstractProduct-抽象产品" class="headerlink" title="AbstractProduct 抽象产品"></a>AbstractProduct 抽象产品</h2><blockquote>
+<p>它为每种产品声明接口，在抽象产品中声明了产品所具有的业务方法</p>
+</blockquote>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">interface</span> <span class="title class_">Button</span> &#123;  </span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">display</span><span class="params">()</span>;  </span><br><span class="line">&#125;  </span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">interface</span> <span class="title class_">TextField</span> &#123;  </span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">display</span><span class="params">()</span>;  </span><br><span class="line">&#125;  </span><br></pre></td></tr></table></figure>
+<p><a name="sev9U"></a></p>
+<h2 id="ConcreteProduct-具体产品-1"><a href="#ConcreteProduct-具体产品-1" class="headerlink" title="ConcreteProduct 具体产品"></a>ConcreteProduct 具体产品</h2><blockquote>
+<p>它定义具体工厂生产的具体产品对象，实现抽象产品接口中声明的业务方法</p>
+</blockquote>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">SpringButton</span> <span class="keyword">implements</span> <span class="title class_">Button</span> &#123;  </span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">display</span><span class="params">()</span> &#123;  </span><br><span class="line">        System.out.println(<span class="string">&quot;显示浅绿色按钮。&quot;</span>);  </span><br><span class="line">    &#125;  </span><br><span class="line">&#125; </span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">SummerButton</span> <span class="keyword">implements</span> <span class="title class_">Button</span> &#123;  </span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">display</span><span class="params">()</span> &#123;  </span><br><span class="line">        System.out.println(<span class="string">&quot;显示浅蓝色按钮。&quot;</span>);  </span><br><span class="line">    &#125;     </span><br><span class="line">&#125;  </span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">SpringTextField</span> <span class="keyword">implements</span> <span class="title class_">TextField</span> &#123;  </span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">display</span><span class="params">()</span> &#123;  </span><br><span class="line">        System.out.println(<span class="string">&quot;显示绿色边框文本框。&quot;</span>);  </span><br><span class="line">    &#125;  </span><br><span class="line">&#125; </span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">SummerTextField</span> <span class="keyword">implements</span> <span class="title class_">TextField</span> &#123;  </span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">display</span><span class="params">()</span> &#123;  </span><br><span class="line">        System.out.println(<span class="string">&quot;显示蓝色边框文本框。&quot;</span>);  </span><br><span class="line">    &#125;     </span><br><span class="line">&#125; </span><br></pre></td></tr></table></figure>
+<p><a name="tSQpy"></a></p>
+<h2 id="测试-2"><a href="#测试-2" class="headerlink" title="测试"></a>测试</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Client</span> &#123;  </span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String args[])</span> &#123;  </span><br><span class="line">        <span class="comment">//使用抽象层定义  </span></span><br><span class="line">        SkinFactory factory;  </span><br><span class="line">        Button bt;  </span><br><span class="line">        TextField tf;  </span><br><span class="line">        factory = <span class="keyword">new</span> <span class="title class_">SpringSkinFactory</span>();  </span><br><span class="line">        bt = factory.createButton();  </span><br><span class="line">        tf = factory.createTextField();  </span><br><span class="line">        bt.display();  </span><br><span class="line">        tf.display();  </span><br><span class="line">    &#125;  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><a name="PTbnr"></a></p>
+<h2 id="优点-2"><a href="#优点-2" class="headerlink" title="优点"></a>优点</h2><ul>
+<li><p>抽象工厂模式隔离了具体类的生成，使得客户并不需要知道什么被创建。由于这种隔离，更换一个具体工厂就变得相对容易，所有的具体工厂都实现了抽象工厂中定义的那些公共接口，因此只需改变具体工厂的实例，就可以在某种程度上改变整个软件系统的行为</p>
+</li>
+<li><p>当一个产品族中的多个对象被设计成一起工作时，它能够保证客户端始终只使用同一个产品族中的对象</p>
+</li>
+<li><p>增加新的产品族很方便，无须修改已有系统，符合“开闭原则”<br><a name="fC6dp"></a></p>
+<h2 id="缺点-2"><a href="#缺点-2" class="headerlink" title="缺点"></a>缺点</h2></li>
+<li><p>增加新的产品等级结构麻烦，需要对原有系统进行较大的修改，甚至需要修改抽象层代码，这显然会带来较大的不便，违背了“开闭原则”<br><a name="fsGhI"></a></p>
+<h2 id="适用场景-2"><a href="#适用场景-2" class="headerlink" title="适用场景"></a>适用场景</h2></li>
+<li><p>一个系统不应当依赖于产品类实例如何被创建、组合和表达的细节，这对于所有类型的工厂模式都是很重要的，用户无须关心对象的创建过程，将对象的创建和使用解耦</p>
+</li>
+<li><p>系统中有多于一个的产品族，而每次只使用其中某一产品族。可以通过配置文件等方式来使得用户可以动态改变产品族，也可以很方便地增加新的产品族</p>
+</li>
+<li><p>属于同一个产品族的产品将在一起使用，这一约束必须在系统的设计中体现出来。同一个产品族中的产品可以是没有任何关系的对象，但是它们都具有一些共同的约束，如同一操作系统下的按钮和文本框，按钮与文本框之间没有直接关系，但它们都是属于某一操作系统的，此时具有一个共同的约束条件：操作系统的类型</p>
+</li>
+<li><p>产品等级结构稳定，设计完成之后，不会向系统中增加新的产品等级结构或者删除已有的产品等级结构</p>
+</li>
+</ul>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="https://foamtomato.github.io">Foam🍅</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="https://foamtomato.github.io/2022/07/30/0.2.9-%E5%88%9B%E5%BB%BA%E5%9E%8B%E6%A8%A1%E5%BC%8F-%E5%B7%A5%E5%8E%82%E6%A8%A1%E5%BC%8F/">https://foamtomato.github.io/2022/07/30/0.2.9-%E5%88%9B%E5%BB%BA%E5%9E%8B%E6%A8%A1%E5%BC%8F-%E5%B7%A5%E5%8E%82%E6%A8%A1%E5%BC%8F/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="https://foamtomato.github.io" target="_blank">喵喵鱼塘</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/">设计模式</a><a class="post-meta__tags" href="/tags/%E5%88%9B%E5%BB%BA%E5%9E%8B%E6%A8%A1%E5%BC%8F/">创建型模式</a></div><div class="post_share"><div class="social-share" data-image="https://p3.qhimg.com/bdm/1000_618_85/t01ce5cc5dbcfbc21f7.jpg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2022/07/30/0.3.0-%E7%BD%91%E9%A1%B5%E6%B7%BB%E5%8A%A0L2D%E7%8C%AB/" title="网页添加L2D猫"><img class="cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://p2.qhimg.com/bdm/1000_618_85/t01593f45ed70dc5fb2.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">网页添加L2D猫</div></div></a></div><div class="next-post pull-right"><a href="/2022/07/28/0.2.8-mac%E5%AE%89%E8%A3%85%E8%BD%AF%E4%BB%B6/" title="mac安装软件"><img class="cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://p3.qhimg.com/bdm/1000_618_85/t012900ec5c0c118309.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">mac安装软件</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><div><a href="/2022/05/21/0.2.3-%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F-%E5%88%9B%E5%BB%BA%E5%9E%8B%E6%A8%A1%E5%BC%8F-%E5%8E%9F%E5%9E%8B%E6%A8%A1%E5%BC%8F/" title="设计模式-创建型模式-原型模式"><img class="cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://npm.elemecdn.com/ushio-api-img-wallpaper@0.119.120/img_2019-12-29_1920x1080_96_background_normal.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2022-05-21</div><div class="title">设计模式-创建型模式-原型模式</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/img/favicon.ico" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">Foam🍅</div><div class="author-info__description">用能力换时间，用时间换能力</div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">57</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">68</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">0</div></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">工作繁忙，不会定期更新！！！</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%89%8D%E8%A8%80"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%BA%90%E7%A0%81%E5%9C%BA%E6%99%AF%EF%BC%88%E5%90%8E%E7%BB%AD%E8%A1%A5%E5%85%85%EF%BC%89"><span class="toc-number">2.</span> <span class="toc-text">源码场景（后续补充）</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%BA%BF%E7%A8%8B%E6%B1%A0%EF%BC%9AThreadFactory"><span class="toc-number">2.1.</span> <span class="toc-text">线程池：ThreadFactory</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%97%A5%E5%BF%97%EF%BC%9ALoggerFactory"><span class="toc-number">2.2.</span> <span class="toc-text">日志：LoggerFactory</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Spring%EF%BC%9ABeanFactory"><span class="toc-number">2.3.</span> <span class="toc-text">Spring：BeanFactory</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#MyBatis%EF%BC%9ASqlSessionFactory"><span class="toc-number">2.4.</span> <span class="toc-text">MyBatis：SqlSessionFactory</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E7%AE%80%E5%8D%95%E5%B7%A5%E5%8E%82%E6%A8%A1%E5%BC%8F"><span class="toc-number">3.</span> <span class="toc-text">简单工厂模式</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%A7%92%E8%89%B2"><span class="toc-number">3.1.</span> <span class="toc-text">角色</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Factory-%E5%B7%A5%E5%8E%82%E8%A7%92%E8%89%B2"><span class="toc-number">3.1.1.</span> <span class="toc-text">Factory 工厂角色</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Product-%E6%8A%BD%E8%B1%A1%E4%BA%A7%E5%93%81%E8%A7%92%E8%89%B2"><span class="toc-number">3.1.2.</span> <span class="toc-text">Product 抽象产品角色</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#ConcreteProduct-%E5%85%B7%E4%BD%93%E4%BA%A7%E5%93%81%E8%A7%92%E8%89%B2"><span class="toc-number">3.1.3.</span> <span class="toc-text">ConcreteProduct 具体产品角色</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%B5%8B%E8%AF%95"><span class="toc-number">3.2.</span> <span class="toc-text">测试</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BC%98%E7%82%B9"><span class="toc-number">3.3.</span> <span class="toc-text">优点</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%BC%BA%E7%82%B9"><span class="toc-number">3.4.</span> <span class="toc-text">缺点</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%80%82%E7%94%A8%E5%9C%BA%E6%99%AF"><span class="toc-number">3.5.</span> <span class="toc-text">适用场景</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%B7%A5%E5%8E%82%E6%96%B9%E6%B3%95%E6%A8%A1%E5%BC%8F"><span class="toc-number">4.</span> <span class="toc-text">工厂方法模式</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%A7%92%E8%89%B2-1"><span class="toc-number">4.1.</span> <span class="toc-text">角色</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Product-%E6%8A%BD%E8%B1%A1%E4%BA%A7%E5%93%81"><span class="toc-number">4.1.1.</span> <span class="toc-text">Product 抽象产品</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#ConcreteProduct-%E5%85%B7%E4%BD%93%E4%BA%A7%E5%93%81"><span class="toc-number">4.1.2.</span> <span class="toc-text">ConcreteProduct 具体产品</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Factory-%E6%8A%BD%E8%B1%A1%E5%B7%A5%E5%8E%82"><span class="toc-number">4.1.3.</span> <span class="toc-text">Factory 抽象工厂</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#ConcreteFactory-%E5%85%B7%E4%BD%93%E5%B7%A5%E5%8E%82"><span class="toc-number">4.1.4.</span> <span class="toc-text">ConcreteFactory 具体工厂</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%B5%8B%E8%AF%95-1"><span class="toc-number">4.2.</span> <span class="toc-text">测试</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BC%98%E7%82%B9-1"><span class="toc-number">4.3.</span> <span class="toc-text">优点</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%BC%BA%E7%82%B9-1"><span class="toc-number">4.4.</span> <span class="toc-text">缺点</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%80%82%E7%94%A8%E5%9C%BA%E6%99%AF-1"><span class="toc-number">4.5.</span> <span class="toc-text">适用场景</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%8A%BD%E8%B1%A1%E5%B7%A5%E5%8E%82%E6%A8%A1%E5%BC%8F"><span class="toc-number">5.</span> <span class="toc-text">抽象工厂模式</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%A7%92%E8%89%B2-2"><span class="toc-number">5.1.</span> <span class="toc-text">角色</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#AbstractFactory-%E6%8A%BD%E8%B1%A1%E5%B7%A5%E5%8E%82"><span class="toc-number">5.2.</span> <span class="toc-text">AbstractFactory 抽象工厂</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#ConcreteFactory-%E5%85%B7%E4%BD%93%E5%B7%A5%E5%8E%82-1"><span class="toc-number">5.3.</span> <span class="toc-text">ConcreteFactory 具体工厂</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#AbstractProduct-%E6%8A%BD%E8%B1%A1%E4%BA%A7%E5%93%81"><span class="toc-number">5.4.</span> <span class="toc-text">AbstractProduct 抽象产品</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#ConcreteProduct-%E5%85%B7%E4%BD%93%E4%BA%A7%E5%93%81-1"><span class="toc-number">5.5.</span> <span class="toc-text">ConcreteProduct 具体产品</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%B5%8B%E8%AF%95-2"><span class="toc-number">5.6.</span> <span class="toc-text">测试</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BC%98%E7%82%B9-2"><span class="toc-number">5.7.</span> <span class="toc-text">优点</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%BC%BA%E7%82%B9-2"><span class="toc-number">5.8.</span> <span class="toc-text">缺点</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%80%82%E7%94%A8%E5%9C%BA%E6%99%AF-2"><span class="toc-number">5.9.</span> <span class="toc-text">适用场景</span></a></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2025/08/03/0.5.7-Java+Milvus%E6%90%AD%E5%BB%BA%E4%BC%81%E4%B8%9A%E7%BA%A7RAG%E7%B3%BB%E7%BB%9F/" title="Java+Milvus搭建企业级RAG系统"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://images.unsplash.com/photo-1677442136019-21780ecad995?w=800&amp;h=600&amp;fit=crop" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Java+Milvus搭建企业级RAG系统"/></a><div class="content"><a class="title" href="/2025/08/03/0.5.7-Java+Milvus%E6%90%AD%E5%BB%BA%E4%BC%81%E4%B8%9A%E7%BA%A7RAG%E7%B3%BB%E7%BB%9F/" title="Java+Milvus搭建企业级RAG系统">Java+Milvus搭建企业级RAG系统</a><time datetime="2025-08-03T07:56:49.000Z" title="发表于 2025-08-03 15:56:49">2025-08-03</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/01/21/0.5.6-%E5%90%91%E9%87%8F%E6%95%B0%E6%8D%AE%E5%BA%93%E6%90%AD%E5%BB%BA%E4%B8%8E%E4%B8%BB%E6%B5%81%E4%BA%A7%E5%93%81%E5%AF%B9%E6%AF%94/" title="向量数据库搭建与主流产品对比"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=800&amp;h=600&amp;fit=crop" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="向量数据库搭建与主流产品对比"/></a><div class="content"><a class="title" href="/2025/01/21/0.5.6-%E5%90%91%E9%87%8F%E6%95%B0%E6%8D%AE%E5%BA%93%E6%90%AD%E5%BB%BA%E4%B8%8E%E4%B8%BB%E6%B5%81%E4%BA%A7%E5%93%81%E5%AF%B9%E6%AF%94/" title="向量数据库搭建与主流产品对比">向量数据库搭建与主流产品对比</a><time datetime="2025-01-21T06:30:45.000Z" title="发表于 2025-01-21 14:30:45">2025-01-21</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/01/20/0.5.5-Java%E5%BC%82%E5%B8%B8%E6%97%A5%E5%BF%97MCP%E6%9C%8D%E5%8A%A1%E6%9E%B6%E6%9E%84/" title="Java异常日志MCP服务架构"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&amp;h=600&amp;fit=crop" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Java异常日志MCP服务架构"/></a><div class="content"><a class="title" href="/2025/01/20/0.5.5-Java%E5%BC%82%E5%B8%B8%E6%97%A5%E5%BF%97MCP%E6%9C%8D%E5%8A%A1%E6%9E%B6%E6%9E%84/" title="Java异常日志MCP服务架构">Java异常日志MCP服务架构</a><time datetime="2025-01-20T08:45:30.000Z" title="发表于 2025-01-20 16:45:30">2025-01-20</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/01/17/0.5.4-Java%E9%AB%98%E5%BE%B7%E5%9C%B0%E5%9B%BEMCP%E5%AE%9A%E5%88%B6%E6%97%85%E6%B8%B8%E8%B7%AF%E7%BA%BF/" title="Java高德地图MCP定制旅游路线"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=800&amp;h=600&amp;fit=crop" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Java高德地图MCP定制旅游路线"/></a><div class="content"><a class="title" href="/2025/01/17/0.5.4-Java%E9%AB%98%E5%BE%B7%E5%9C%B0%E5%9B%BEMCP%E5%AE%9A%E5%88%B6%E6%97%85%E6%B8%B8%E8%B7%AF%E7%BA%BF/" title="Java高德地图MCP定制旅游路线">Java高德地图MCP定制旅游路线</a><time datetime="2025-01-17T02:30:00.000Z" title="发表于 2025-01-17 10:30:00">2025-01-17</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/01/16/0.5.3-SpringAI%E6%89%93%E9%80%A0%E8%87%AA%E5%B7%B1%E7%9A%84LLM%E5%BA%94%E7%94%A8/" title="Spring AI打造自己的LLM应用"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://images.unsplash.com/photo-1555949963-aa79dcee981c?w=800&amp;h=600&amp;fit=crop" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Spring AI打造自己的LLM应用"/></a><div class="content"><a class="title" href="/2025/01/16/0.5.3-SpringAI%E6%89%93%E9%80%A0%E8%87%AA%E5%B7%B1%E7%9A%84LLM%E5%BA%94%E7%94%A8/" title="Spring AI打造自己的LLM应用">Spring AI打造自己的LLM应用</a><time datetime="2025-01-16T06:30:00.000Z" title="发表于 2025-01-16 14:30:00">2025-01-16</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2025 By Foam🍅</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=4.13.0"></script><script src="/js/main.js?v=4.13.0"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.umd.min.js"></script><script src="https://cdn.jsdelivr.net/npm/vanilla-lazyload@17.8.8/dist/lazyload.iife.min.js"></script><div class="js-pjax"><script>(() => {
+  const $mermaid = document.querySelectorAll('#article-container .mermaid-wrap')
+  if ($mermaid.length === 0) return
+  const runMermaid = () => {
+    window.loadMermaid = true
+    const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'default'
+
+    Array.from($mermaid).forEach((item, index) => {
+      const mermaidSrc = item.firstElementChild
+      const mermaidThemeConfig = '%%{init:{ \'theme\':\'' + theme + '\'}}%%\n'
+      const mermaidID = 'mermaid-' + index
+      const mermaidDefinition = mermaidThemeConfig + mermaidSrc.textContent
+
+      const renderFn = mermaid.render(mermaidID, mermaidDefinition)
+
+      const renderV10 = () => {
+        renderFn.then(({svg}) => {
+          mermaidSrc.insertAdjacentHTML('afterend', svg)
+        })
+      }
+
+      const renderV9 = svg => {
+        mermaidSrc.insertAdjacentHTML('afterend', svg)
+      }
+
+      typeof renderFn === 'string' ? renderV9(renderFn) : renderV10()
+    })
+  }
+
+  const loadMermaid = () => {
+    window.loadMermaid ? runMermaid() : getScript('https://cdn.jsdelivr.net/npm/mermaid@10.8.0/dist/mermaid.min.js').then(runMermaid)
+  }
+
+  btf.addGlobalFn('themeChange', runMermaid, 'mermaid')
+
+  window.pjax ? loadMermaid() : document.addEventListener('DOMContentLoaded', loadMermaid)
+})()</script></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据库加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div id="local-search-results"></div><div id="local-search-stats-wrap"></div></div></div><div id="search-mask"></div><script src="/js/search/local-search.js?v=4.13.0"></script></div></div><!-- hexo injector body_end start --><script data-pjax>function history_calendar_injector_config(){
+                var parent_div_git = document.getElementsByClassName('sticky_layout')[0];
+                var item_html = '<div class="card-widget card-history"><div class="card-content"><div class="item-headline"><i class="fas fa-clock fa-spin"></i><span>那年今日</span></div><div id="history-baidu" style="height: 100px;overflow: hidden"><div class="history_swiper-container" id="history-container" style="width: 100%;height: 100%"><div class="swiper-wrapper" id="history_container_wrapper" style="height:20px"></div></div></div></div>';
+                // console.log('已挂载history_calendar') // 日志已清理
+                // parent_div_git.innerHTML=item_html+parent_div_git.innerHTML // 无报错，但不影响使用(支持pjax跳转)
+                parent_div_git.insertAdjacentHTML("afterbegin",item_html) // 有报错，但不影响使用(支持pjax跳转)
+            }if( document.getElementsByClassName('sticky_layout')[0] && (location.pathname ==='all'|| 'all' ==='all')){
+
+            history_calendar_injector_config()
+        } </script><script data-pjax  src="https://cdn.jsdelivr.net/npm/swiper/swiper-bundle.min.js"></script><script data-pjax src="https://cdn.jsdelivr.net/gh/Zfour/Butterfly-card-history/baiduhistory/js/main.js"></script><script data-pjax>function electric_clock_injector_config(){
+                var parent_div_git = document.getElementsByClassName('sticky_layout')[0];
+                var item_html = '<div class="card-widget card-clock"><div class="card-glass"><div class="card-background"><div class="card-content"><div id="hexo_electric_clock"><img id="card-clock-loading" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://cdn.jsdelivr.net/gh/Zfour/Butterfly-clock/clock/images/weather/loading.gif" style="height: 120px; width: 100%;" data-ll-status="loading" class="entered loading"></div></div></div></div></div>';
+                // console.log('已挂载electric_clock') // 日志已清理
+                // parent_div_git.innerHTML=item_html+parent_div_git.innerHTML // 无报错，但不影响使用(支持pjax跳转)
+                parent_div_git.insertAdjacentHTML("afterbegin",item_html) // 有报错，但不影响使用(支持pjax跳转)
+            }if( document.getElementsByClassName('sticky_layout')[0] && (location.pathname ==='all'|| 'all' ==='all')){
+
+            electric_clock_injector_config()
+        } </script><script src="https://pv.sohu.com/cityjson?ie=utf-8"></script><script data-pjax  src="/js/clock.js"></script><!-- hexo injector body_end end --></body></html>

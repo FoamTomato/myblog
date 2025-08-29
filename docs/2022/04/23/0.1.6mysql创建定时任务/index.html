@@ -1,0 +1,248 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>mysql创建定时任务 | 喵喵鱼塘</title><meta name="author" content="Foam🍅"><meta name="copyright" content="Foam🍅"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="需求：定时删除三个月之前的数据  1.编写需要执行的sql语句 123456789101112## 因为表数据过大（大约2亿数据），需要先查询三个月之前的id节点，增加查询速度select MAX(id) from other_log_info where DATE_FORMAT(createti"><link rel="shortcut icon" href="/img/favicon.ico"><link rel="canonical" href="https://foamtomato.github.io/2022/04/23/0.1.6mysql%E5%88%9B%E5%BB%BA%E5%AE%9A%E6%97%B6%E4%BB%BB%E5%8A%A1/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=4.13.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.json","preload":false,"top_n_per_article":1,"unescape":false,"languages":{"hits_empty":"找不到您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.11.1/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyload: true,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'mysql创建定时任务',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: false,
+  postUpdate: '2022-12-15 23:00:53'
+}</script><script>(win=>{
+      win.saveToLocal = {
+        set: (key, value, ttl) => {
+          if (ttl === 0) return
+          const now = Date.now()
+          const expiry = now + ttl * 86400000
+          const item = {
+            value,
+            expiry
+          }
+          localStorage.setItem(key, JSON.stringify(item))
+        },
+      
+        get: key => {
+          const itemStr = localStorage.getItem(key)
+      
+          if (!itemStr) {
+            return undefined
+          }
+          const item = JSON.parse(itemStr)
+          const now = Date.now()
+      
+          if (now > item.expiry) {
+            localStorage.removeItem(key)
+            return undefined
+          }
+          return item.value
+        }
+      }
+    
+      win.getScript = (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        script.onerror = reject
+        script.onload = script.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          script.onload = script.onreadystatechange = null
+          resolve()
+        }
+
+        Object.keys(attr).forEach(key => {
+          script.setAttribute(key, attr[key])
+        })
+
+        document.head.appendChild(script)
+      })
+    
+      win.getCSS = (url, id = false) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onerror = reject
+        link.onload = link.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          link.onload = link.onreadystatechange = null
+          resolve()
+        }
+        document.head.appendChild(link)
+      })
+    
+      win.activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+        if (t === 'dark') activateDarkMode()
+        else if (t === 'light') activateLightMode()
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+      const detectApple = () => {
+        if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+          document.documentElement.classList.add('apple')
+        }
+      }
+      detectApple()
+    })(window)</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/static-butterfly/dist/css/index.min.css"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"><style>
+/* 修复JetBrains Mono字体引用 */
+@font-face {
+  font-family: 'MyFont';
+  src: url('https://cdn.jsdelivr.net/gh/JetBrains/JetBrainsMono/web/woff2/JetBrainsMono-Regular.woff2') format('woff2'),
+       url('https://cdn.jsdelivr.net/gh/JetBrains/JetBrainsMono/web/woff/JetBrainsMono-Regular.woff') format('woff');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+</style>
+<!-- hexo injector head_end start --><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper/swiper-bundle.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Zfour/Butterfly-card-history/baiduhistory/css/main.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Zfour/hexo-electric-clock@1.0.6/clock.css"><!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.3.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/img/favicon.ico" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">57</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">68</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">0</div></a></div><hr class="custom-hr"/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 鱼塘</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 喵生</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 关键词</span></a></div><div class="menus_item"><a class="site-page" href="/movies/"><i class="fa-fw fas fa-video"></i><span> 猫片</span></a></div><div class="menus_item"><a class="site-page" href="/links/"><i class="fa-fw fas fa-link"></i><span> 猫の友</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 语录</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://image.baidu.com/search/down?tn=download&amp;word=download&amp;ie=utf8&amp;fr=detail&amp;url=http://p6.qhimg.com/bdm/1000_618_85/t01f40ac9baf328486f.jpg')"><nav id="nav"><span id="blog-info"><a href="/" title="喵喵鱼塘"><span class="site-name">喵喵鱼塘</span></a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search" href="javascript:void(0);"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 鱼塘</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 喵生</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 关键词</span></a></div><div class="menus_item"><a class="site-page" href="/movies/"><i class="fa-fw fas fa-video"></i><span> 猫片</span></a></div><div class="menus_item"><a class="site-page" href="/links/"><i class="fa-fw fas fa-link"></i><span> 猫の友</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 语录</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">mysql创建定时任务</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2022-04-23T04:14:31.000Z" title="发表于 2022-04-23 12:14:31">2022-04-23</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2022-12-15T15:00:53.404Z" title="更新于 2022-12-15 23:00:53">2022-12-15</time></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="mysql创建定时任务"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><blockquote>
+<p>需求：定时删除三个月之前的数据</p>
+</blockquote>
+<p>1.编写需要执行的sql语句</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">## 因为表数据过大（大约2亿数据），需要先查询三个月之前的id节点，增加查询速度</span><br><span class="line">select MAX(id) from other_log_info where DATE_FORMAT(createtime,&#x27;%Y-%m-%d&#x27;) = DATE_SUB(CURDATE(),INTERVAL 3 MONTH);</span><br><span class="line"></span><br><span class="line">## 查询的sql一次不能删除太多数据，防止锁表</span><br><span class="line">select * from other_log_info where id &lt; (select MAX(id) from other_log_info where DATE_FORMAT(createtime,&#x27;%Y-%m-%d&#x27;) = DATE_SUB(CURDATE(),INTERVAL 3 MONTH)) LIMIT 0,1000</span><br><span class="line"></span><br><span class="line">## 由于delete不能直接删除子查询表中的数据，必须用过嵌套一层的方式来解决</span><br><span class="line">## 第二种执行方式，如果对于sql比较熟悉，可以用存储过程的&quot;游标&quot;进行循环</span><br><span class="line">DELETE FROM other_log_info where id in </span><br><span class="line">	(select t2.id from </span><br><span class="line">		(select id from other_log_info where </span><br><span class="line">			id &lt; (select MAX(id) from other_log_info where createtime &lt; DATE_SUB(CURDATE(),INTERVAL 3 MONTH)) LIMIT 0,1000) t2)</span><br></pre></td></tr></table></figure>
+
+<p>游标使用方式：<a target="_blank" rel="noopener" href="https://www.cnblogs.com/cbt-home/p/15269736.html">https://www.cnblogs.com/cbt-home/p/15269736.html</a></p>
+<ul>
+<li>CURDATE() 返回当前日期</li>
+<li>CURNOW() 返回当前datetime</li>
+<li>INTERVAL 是mysql间隔值，用法为INTERVAL expr unit。INTERVAL 3 DAY表示三天的间隔</li>
+<li>DATE_SUB(start_date,INTERVAL expr unit);</li>
+</ul>
+<p>2.编写存储过程</p>
+<p>存储过程相当于mysql的函数，它是存储在数据库服务器中的一组sql语句，通过调用这个函数的名称来执行这些sql语句命令。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">-- 分隔符切换防止“;”直接分隔了</span><br><span class="line">DELIMITER //</span><br><span class="line">-- 创建存储过程</span><br><span class="line">CREATE procedure del_log2()</span><br><span class="line">BEGIN</span><br><span class="line">	SELECT * FROM xxl_job_log WHERE trigger_time &lt; DATE_SUB(CURDATE(),INTERVAL 5 MONTH);</span><br><span class="line">END //</span><br><span class="line">DELIMITER ;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><code>DELIMITER是分割符的意思，声明存储过程前将&quot;//&quot;声明为分隔符，这样存储过程中的“;”才不会被当作分隔符处理。声明结束后再还原分隔符。</code></li>
+<li>存储过程也可以带参数，存储过程名(参数)</li>
+<li>在声明存储过程前要先用use database_name切换到想要应用的数据库，否则存储过程会应用到默认数据库中</li>
+</ul>
+<p>查看存储过程</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">-- db指的数据库名</span><br><span class="line">select * from mysql.proc where db = &quot;xxl_job&quot;</span><br></pre></td></tr></table></figure>
+
+<p>调用存储过程</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">call del_log();</span><br></pre></td></tr></table></figure>
+
+<p>3.编写事件调度器（定时任务）</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">-- 确认是否开启事件调度器</span><br><span class="line">SHOW VARIABLES LIKE &#x27;event_scheduler&#x27;;</span><br><span class="line"></span><br><span class="line">-- 开启事件调度器</span><br><span class="line">SET GLOBAL event_scheduler = ON;</span><br></pre></td></tr></table></figure>
+
+<p>创建事件</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">-- 创建调度任务(从2022-4-22开始，每天执行一次del_data())</span><br><span class="line">create event del_event  </span><br><span class="line">on schedule </span><br><span class="line">EVERY 1 day  </span><br><span class="line">STARTS &#x27;2022-4-22 00:00:00&#x27; </span><br><span class="line">do call del_data()</span><br></pre></td></tr></table></figure>
+
+<p>查看事件</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">-- 查看事件</span><br><span class="line">SHOW EVENTS;</span><br></pre></td></tr></table></figure>
+
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://blog-1316004121.cos.ap-guangzhou.myqcloud.com/blogImages/123.jpg" alt="image-20220422104326667"></p>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://blog-1316004121.cos.ap-guangzhou.myqcloud.com/blogImages/34.jpg" alt="image-20220422104354508"></p>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://blog-1316004121.cos.ap-guangzhou.myqcloud.com/blogImages/PZ_%7D(YABF6HUB3~ULXWF5R3.png" alt="image-20220422104419241"></p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="https://foamtomato.github.io">Foam🍅</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="https://foamtomato.github.io/2022/04/23/0.1.6mysql%E5%88%9B%E5%BB%BA%E5%AE%9A%E6%97%B6%E4%BB%BB%E5%8A%A1/">https://foamtomato.github.io/2022/04/23/0.1.6mysql%E5%88%9B%E5%BB%BA%E5%AE%9A%E6%97%B6%E4%BB%BB%E5%8A%A1/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="https://foamtomato.github.io" target="_blank">喵喵鱼塘</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/mysql/">mysql</a><a class="post-meta__tags" href="/tags/%E5%AE%9A%E6%97%B6%E4%BB%BB%E5%8A%A1/">定时任务</a></div><div class="post_share"><div class="social-share" data-image="https://image.baidu.com/search/down?tn=download&amp;word=download&amp;ie=utf8&amp;fr=detail&amp;url=http://p6.qhimg.com/bdm/1000_618_85/t01f40ac9baf328486f.jpg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2022/04/25/0.1.2aop%E7%9A%84%E7%AE%80%E5%8D%95%E4%BD%BF%E7%94%A8/" title="aop的简单使用"><img class="cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://image.baidu.com/search/down?tn=download&amp;word=download&amp;ie=utf8&amp;fr=detail&amp;url=http://browser9.qhimg.com/bdm/1000_618_85/t01a5211bae6d28520e.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">aop的简单使用</div></div></a></div><div class="next-post pull-right"><a href="/2022/04/22/0.1.1%E8%87%AA%E5%AE%9A%E4%B9%89%E6%B3%A8%E8%A7%A3/" title="自定义注解"><img class="cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://image.baidu.com/search/down?tn=download&amp;word=download&amp;ie=utf8&amp;fr=detail&amp;url=http://p0.qhimg.com/bdm/1000_618_85/t01591327d006754ffa.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">自定义注解</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><div><a href="/2022/04/17/0.0.9%E6%95%B0%E6%8D%AE%E5%BA%93%E4%B8%AD%E9%97%B4%E4%BB%B6/" title="数据库中间件"><img class="cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://image.baidu.com/search/down?tn=download&word=download&ie=utf8&fr=detail&url=http://p7.qhimg.com/bdm/1000_618_85/t013ab25d5c99a30d51.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2022-04-17</div><div class="title">数据库中间件</div></div></a></div><div><a href="/2022/04/17/0.1.5mycat%E7%AE%80%E5%8D%95%E4%BB%8B%E7%BB%8D/" title="mycat简单介绍"><img class="cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://image.baidu.com/search/down?tn=download&word=download&ie=utf8&fr=detail&url=http://p5.qhimg.com/bdm/1000_618_85/t01961d8879edfbd0ff.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2022-04-17</div><div class="title">mycat简单介绍</div></div></a></div><div><a href="/2022/04/10/0.1.9ShardingJDBC%E7%AE%80%E5%8D%95%E4%BB%8B%E7%BB%8D/" title="ShardingJDBC简单介绍"><img class="cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://image.baidu.com/search/down?tn=download&word=download&ie=utf8&fr=detail&url=http://p3.qhimg.com/bdm/1000_618_85/t01abc6e061cae27bc3.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2022-04-10</div><div class="title">ShardingJDBC简单介绍</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/img/favicon.ico" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">Foam🍅</div><div class="author-info__description">用能力换时间，用时间换能力</div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">57</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">68</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">0</div></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">工作繁忙，不会定期更新！！！</div></div><div class="sticky_layout"><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2025/08/03/0.5.7-Java+Milvus%E6%90%AD%E5%BB%BA%E4%BC%81%E4%B8%9A%E7%BA%A7RAG%E7%B3%BB%E7%BB%9F/" title="Java+Milvus搭建企业级RAG系统"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://images.unsplash.com/photo-1677442136019-21780ecad995?w=800&amp;h=600&amp;fit=crop" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Java+Milvus搭建企业级RAG系统"/></a><div class="content"><a class="title" href="/2025/08/03/0.5.7-Java+Milvus%E6%90%AD%E5%BB%BA%E4%BC%81%E4%B8%9A%E7%BA%A7RAG%E7%B3%BB%E7%BB%9F/" title="Java+Milvus搭建企业级RAG系统">Java+Milvus搭建企业级RAG系统</a><time datetime="2025-08-03T07:56:49.000Z" title="发表于 2025-08-03 15:56:49">2025-08-03</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/01/21/0.5.6-%E5%90%91%E9%87%8F%E6%95%B0%E6%8D%AE%E5%BA%93%E6%90%AD%E5%BB%BA%E4%B8%8E%E4%B8%BB%E6%B5%81%E4%BA%A7%E5%93%81%E5%AF%B9%E6%AF%94/" title="向量数据库搭建与主流产品对比"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=800&amp;h=600&amp;fit=crop" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="向量数据库搭建与主流产品对比"/></a><div class="content"><a class="title" href="/2025/01/21/0.5.6-%E5%90%91%E9%87%8F%E6%95%B0%E6%8D%AE%E5%BA%93%E6%90%AD%E5%BB%BA%E4%B8%8E%E4%B8%BB%E6%B5%81%E4%BA%A7%E5%93%81%E5%AF%B9%E6%AF%94/" title="向量数据库搭建与主流产品对比">向量数据库搭建与主流产品对比</a><time datetime="2025-01-21T06:30:45.000Z" title="发表于 2025-01-21 14:30:45">2025-01-21</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/01/20/0.5.5-Java%E5%BC%82%E5%B8%B8%E6%97%A5%E5%BF%97MCP%E6%9C%8D%E5%8A%A1%E6%9E%B6%E6%9E%84/" title="Java异常日志MCP服务架构"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&amp;h=600&amp;fit=crop" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Java异常日志MCP服务架构"/></a><div class="content"><a class="title" href="/2025/01/20/0.5.5-Java%E5%BC%82%E5%B8%B8%E6%97%A5%E5%BF%97MCP%E6%9C%8D%E5%8A%A1%E6%9E%B6%E6%9E%84/" title="Java异常日志MCP服务架构">Java异常日志MCP服务架构</a><time datetime="2025-01-20T08:45:30.000Z" title="发表于 2025-01-20 16:45:30">2025-01-20</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/01/17/0.5.4-Java%E9%AB%98%E5%BE%B7%E5%9C%B0%E5%9B%BEMCP%E5%AE%9A%E5%88%B6%E6%97%85%E6%B8%B8%E8%B7%AF%E7%BA%BF/" title="Java高德地图MCP定制旅游路线"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=800&amp;h=600&amp;fit=crop" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Java高德地图MCP定制旅游路线"/></a><div class="content"><a class="title" href="/2025/01/17/0.5.4-Java%E9%AB%98%E5%BE%B7%E5%9C%B0%E5%9B%BEMCP%E5%AE%9A%E5%88%B6%E6%97%85%E6%B8%B8%E8%B7%AF%E7%BA%BF/" title="Java高德地图MCP定制旅游路线">Java高德地图MCP定制旅游路线</a><time datetime="2025-01-17T02:30:00.000Z" title="发表于 2025-01-17 10:30:00">2025-01-17</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/01/16/0.5.3-SpringAI%E6%89%93%E9%80%A0%E8%87%AA%E5%B7%B1%E7%9A%84LLM%E5%BA%94%E7%94%A8/" title="Spring AI打造自己的LLM应用"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://images.unsplash.com/photo-1555949963-aa79dcee981c?w=800&amp;h=600&amp;fit=crop" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Spring AI打造自己的LLM应用"/></a><div class="content"><a class="title" href="/2025/01/16/0.5.3-SpringAI%E6%89%93%E9%80%A0%E8%87%AA%E5%B7%B1%E7%9A%84LLM%E5%BA%94%E7%94%A8/" title="Spring AI打造自己的LLM应用">Spring AI打造自己的LLM应用</a><time datetime="2025-01-16T06:30:00.000Z" title="发表于 2025-01-16 14:30:00">2025-01-16</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2025 By Foam🍅</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=4.13.0"></script><script src="/js/main.js?v=4.13.0"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.umd.min.js"></script><script src="https://cdn.jsdelivr.net/npm/vanilla-lazyload@17.8.8/dist/lazyload.iife.min.js"></script><div class="js-pjax"><script>(() => {
+  const $mermaid = document.querySelectorAll('#article-container .mermaid-wrap')
+  if ($mermaid.length === 0) return
+  const runMermaid = () => {
+    window.loadMermaid = true
+    const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'default'
+
+    Array.from($mermaid).forEach((item, index) => {
+      const mermaidSrc = item.firstElementChild
+      const mermaidThemeConfig = '%%{init:{ \'theme\':\'' + theme + '\'}}%%\n'
+      const mermaidID = 'mermaid-' + index
+      const mermaidDefinition = mermaidThemeConfig + mermaidSrc.textContent
+
+      const renderFn = mermaid.render(mermaidID, mermaidDefinition)
+
+      const renderV10 = () => {
+        renderFn.then(({svg}) => {
+          mermaidSrc.insertAdjacentHTML('afterend', svg)
+        })
+      }
+
+      const renderV9 = svg => {
+        mermaidSrc.insertAdjacentHTML('afterend', svg)
+      }
+
+      typeof renderFn === 'string' ? renderV9(renderFn) : renderV10()
+    })
+  }
+
+  const loadMermaid = () => {
+    window.loadMermaid ? runMermaid() : getScript('https://cdn.jsdelivr.net/npm/mermaid@10.8.0/dist/mermaid.min.js').then(runMermaid)
+  }
+
+  btf.addGlobalFn('themeChange', runMermaid, 'mermaid')
+
+  window.pjax ? loadMermaid() : document.addEventListener('DOMContentLoaded', loadMermaid)
+})()</script></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据库加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div id="local-search-results"></div><div id="local-search-stats-wrap"></div></div></div><div id="search-mask"></div><script src="/js/search/local-search.js?v=4.13.0"></script></div></div><!-- hexo injector body_end start --><script data-pjax>function history_calendar_injector_config(){
+                var parent_div_git = document.getElementsByClassName('sticky_layout')[0];
+                var item_html = '<div class="card-widget card-history"><div class="card-content"><div class="item-headline"><i class="fas fa-clock fa-spin"></i><span>那年今日</span></div><div id="history-baidu" style="height: 100px;overflow: hidden"><div class="history_swiper-container" id="history-container" style="width: 100%;height: 100%"><div class="swiper-wrapper" id="history_container_wrapper" style="height:20px"></div></div></div></div>';
+                // console.log('已挂载history_calendar') // 日志已清理
+                // parent_div_git.innerHTML=item_html+parent_div_git.innerHTML // 无报错，但不影响使用(支持pjax跳转)
+                parent_div_git.insertAdjacentHTML("afterbegin",item_html) // 有报错，但不影响使用(支持pjax跳转)
+            }if( document.getElementsByClassName('sticky_layout')[0] && (location.pathname ==='all'|| 'all' ==='all')){
+
+            history_calendar_injector_config()
+        } </script><script data-pjax  src="https://cdn.jsdelivr.net/npm/swiper/swiper-bundle.min.js"></script><script data-pjax src="https://cdn.jsdelivr.net/gh/Zfour/Butterfly-card-history/baiduhistory/js/main.js"></script><script data-pjax>function electric_clock_injector_config(){
+                var parent_div_git = document.getElementsByClassName('sticky_layout')[0];
+                var item_html = '<div class="card-widget card-clock"><div class="card-glass"><div class="card-background"><div class="card-content"><div id="hexo_electric_clock"><img id="card-clock-loading" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://cdn.jsdelivr.net/gh/Zfour/Butterfly-clock/clock/images/weather/loading.gif" style="height: 120px; width: 100%;" data-ll-status="loading" class="entered loading"></div></div></div></div></div>';
+                // console.log('已挂载electric_clock') // 日志已清理
+                // parent_div_git.innerHTML=item_html+parent_div_git.innerHTML // 无报错，但不影响使用(支持pjax跳转)
+                parent_div_git.insertAdjacentHTML("afterbegin",item_html) // 有报错，但不影响使用(支持pjax跳转)
+            }if( document.getElementsByClassName('sticky_layout')[0] && (location.pathname ==='all'|| 'all' ==='all')){
+
+            electric_clock_injector_config()
+        } </script><script src="https://pv.sohu.com/cityjson?ie=utf-8"></script><script data-pjax  src="/js/clock.js"></script><!-- hexo injector body_end end --></body></html>

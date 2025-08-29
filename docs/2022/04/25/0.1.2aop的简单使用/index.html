@@ -1,0 +1,407 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>aop的简单使用 | 喵喵鱼塘</title><meta name="author" content="Foam🍅"><meta name="copyright" content="Foam🍅"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="简介  AOP 的全称是“Aspect Oriented Programming”，即面向切面编程，和 OOP（面向对象编程）类似，也是一种编程思想  AOP 采取横向抽取机制（动态代理），取代了传统纵向继承机制的重复性代码，其应用主要体现在事务处理、日志管理、权限控制、异常处理等方面。主要作用是分"><link rel="shortcut icon" href="/img/favicon.ico"><link rel="canonical" href="https://foamtomato.github.io/2022/04/25/0.1.2aop%E7%9A%84%E7%AE%80%E5%8D%95%E4%BD%BF%E7%94%A8/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=4.13.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.json","preload":false,"top_n_per_article":1,"unescape":false,"languages":{"hits_empty":"找不到您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.11.1/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyload: true,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'aop的简单使用',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2022-07-27 23:36:47'
+}</script><script>(win=>{
+      win.saveToLocal = {
+        set: (key, value, ttl) => {
+          if (ttl === 0) return
+          const now = Date.now()
+          const expiry = now + ttl * 86400000
+          const item = {
+            value,
+            expiry
+          }
+          localStorage.setItem(key, JSON.stringify(item))
+        },
+      
+        get: key => {
+          const itemStr = localStorage.getItem(key)
+      
+          if (!itemStr) {
+            return undefined
+          }
+          const item = JSON.parse(itemStr)
+          const now = Date.now()
+      
+          if (now > item.expiry) {
+            localStorage.removeItem(key)
+            return undefined
+          }
+          return item.value
+        }
+      }
+    
+      win.getScript = (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        script.onerror = reject
+        script.onload = script.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          script.onload = script.onreadystatechange = null
+          resolve()
+        }
+
+        Object.keys(attr).forEach(key => {
+          script.setAttribute(key, attr[key])
+        })
+
+        document.head.appendChild(script)
+      })
+    
+      win.getCSS = (url, id = false) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onerror = reject
+        link.onload = link.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          link.onload = link.onreadystatechange = null
+          resolve()
+        }
+        document.head.appendChild(link)
+      })
+    
+      win.activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+        if (t === 'dark') activateDarkMode()
+        else if (t === 'light') activateLightMode()
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+      const detectApple = () => {
+        if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+          document.documentElement.classList.add('apple')
+        }
+      }
+      detectApple()
+    })(window)</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/static-butterfly/dist/css/index.min.css"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"><style>
+/* 修复JetBrains Mono字体引用 */
+@font-face {
+  font-family: 'MyFont';
+  src: url('https://cdn.jsdelivr.net/gh/JetBrains/JetBrainsMono/web/woff2/JetBrainsMono-Regular.woff2') format('woff2'),
+       url('https://cdn.jsdelivr.net/gh/JetBrains/JetBrainsMono/web/woff/JetBrainsMono-Regular.woff') format('woff');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+</style>
+<!-- hexo injector head_end start --><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper/swiper-bundle.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Zfour/Butterfly-card-history/baiduhistory/css/main.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Zfour/hexo-electric-clock@1.0.6/clock.css"><!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.3.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/img/favicon.ico" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">57</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">68</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">0</div></a></div><hr class="custom-hr"/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 鱼塘</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 喵生</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 关键词</span></a></div><div class="menus_item"><a class="site-page" href="/movies/"><i class="fa-fw fas fa-video"></i><span> 猫片</span></a></div><div class="menus_item"><a class="site-page" href="/links/"><i class="fa-fw fas fa-link"></i><span> 猫の友</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 语录</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://image.baidu.com/search/down?tn=download&amp;word=download&amp;ie=utf8&amp;fr=detail&amp;url=http://browser9.qhimg.com/bdm/1000_618_85/t01a5211bae6d28520e.jpg')"><nav id="nav"><span id="blog-info"><a href="/" title="喵喵鱼塘"><span class="site-name">喵喵鱼塘</span></a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search" href="javascript:void(0);"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 鱼塘</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 喵生</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 关键词</span></a></div><div class="menus_item"><a class="site-page" href="/movies/"><i class="fa-fw fas fa-video"></i><span> 猫片</span></a></div><div class="menus_item"><a class="site-page" href="/links/"><i class="fa-fw fas fa-link"></i><span> 猫の友</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 语录</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">aop的简单使用</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2022-04-25T14:43:28.000Z" title="发表于 2022-04-25 22:43:28">2022-04-25</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2022-07-27T15:36:47.860Z" title="更新于 2022-07-27 23:36:47">2022-07-27</time></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="aop的简单使用"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><blockquote>
+<p> AOP 的全称是“Aspect Oriented Programming”，即面向切面编程，和 OOP（面向对象编程）类似，也是一种编程思想</p>
+</blockquote>
+<p>AOP 采取横向抽取机制（动态代理），取代了传统纵向继承机制的重复性代码，其应用主要体现在事务处理、日志管理、权限控制、异常处理等方面。主要作用是分离功能性需求和非功能性需求，使开发人员可以集中处理某一个关注点或者横切逻辑，减少对业务代码的侵入，增强代码的可读性和可维护性。</p>
+<p><code>AOP 的作用就是保证开发者在不修改源代码的前提下，为系统中的业务组件添加某种通用功能</code>AOP 就是代理模式的典型应用。</p>
+<p>目前最流行的 AOP 框架有两个，分别为 <strong>Spring AOP 和 AspectJ</strong></p>
+<ul>
+<li>Spring AOP 是基于 AOP 编程模式的一个框架，它能够有效的减少系统间的重复代码，达到松耦合的目的。Spring AOP 使用纯 Java 实现，不需要专门的编译过程和类加载器，在运行期间通过代理方式向目标类植入增强的代码。有两种实现方式：基于接口的 JDK 动态代理和基于继承的 CGLIB 动态代理</li>
+<li>AspectJ 是一个基于 Java 语言的 AOP 框架，从 Spring 2.0 开始，Spring AOP 引入了对 AspectJ 的支持。AspectJ 扩展了 Java 语言，提供了一个专门的编译器，在编译时提供横向代码的植入</li>
+</ul>
+<h2 id="spring4-0执行顺序"><a href="#spring4-0执行顺序" class="headerlink" title="spring4.0执行顺序"></a>spring4.0执行顺序</h2><p><strong>正常执行顺序</strong></p>
+<blockquote>
+<p>around开始 – before – 方法调用 –  around结束 – after 执行 – afterReturning 执行</p>
+</blockquote>
+<p><strong>异常执行顺序</strong></p>
+<blockquote>
+<p>around开始 – before – 方法调用 –  around结束 – after 执行 – afterThrowing 执行</p>
+</blockquote>
+<h2 id="spring5-28执行顺序"><a href="#spring5-28执行顺序" class="headerlink" title="spring5.28执行顺序"></a>spring5.28执行顺序</h2><p><strong>正常执行顺序</strong></p>
+<blockquote>
+<p>around开始 – before – 方法调用 – afterReturning 执行 – after 执行 –  around结束</p>
+</blockquote>
+<p><strong>异常执行顺序</strong></p>
+<blockquote>
+<p>around开始 – before – 方法调用 – afterThrowing 执行 – after 执行 –  around结束</p>
+</blockquote>
+<h2 id="普通使用（直接匹配包）"><a href="#普通使用（直接匹配包）" class="headerlink" title="普通使用（直接匹配包）"></a>普通使用（直接匹配包）</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> org.aspectj.lang.JoinPoint;</span><br><span class="line"><span class="keyword">import</span> org.aspectj.lang.ProceedingJoinPoint;</span><br><span class="line"><span class="keyword">import</span> org.aspectj.lang.annotation.*;</span><br><span class="line"><span class="keyword">import</span> org.slf4j.Logger;</span><br><span class="line"><span class="keyword">import</span> org.slf4j.LoggerFactory;</span><br><span class="line"><span class="keyword">import</span> org.springframework.stereotype.Component;</span><br><span class="line"><span class="keyword">import</span> org.springframework.web.context.request.RequestContextHolder;</span><br><span class="line"><span class="keyword">import</span> org.springframework.web.context.request.ServletRequestAttributes;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> javax.servlet.http.HttpServletRequest;</span><br><span class="line"><span class="keyword">import</span> java.util.Arrays;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@Author</span> dw</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@ClassName</span> MyAop</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@Description</span> AOP 各个通知使用示例：</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@EnableAspectJAutoProxy</span> ： 默认已开启不需要再添加响应的注解</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@Date</span> 2021/8/15 0:21</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@Version</span> 1.0</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="meta">@Aspect</span></span><br><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">MyAop</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> <span class="type">Logger</span> <span class="variable">log</span> <span class="operator">=</span> LoggerFactory.getLogger(<span class="built_in">this</span>.getClass());</span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 定义切入点 (一个切面类中可以定义多个切入点)</span></span><br><span class="line"><span class="comment">     * 拦截所有 com.dw.study.controller 包以及子包下所有类的所有方案</span></span><br><span class="line"><span class="comment">     * 第一个 * 表示所有返回值</span></span><br><span class="line"><span class="comment">     * 第二个 * 表示所有类</span></span><br><span class="line"><span class="comment">     * 第三个 * 表示所有的方法名</span></span><br><span class="line"><span class="comment">     * 两个 .. 表示当前包以及子包</span></span><br><span class="line"><span class="comment">     **/</span></span><br><span class="line">    <span class="meta">@Pointcut(&quot;execution(* com.dw.study.controller..*.*(..))&quot;)</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">aspect</span><span class="params">()</span> &#123;&#125;    </span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 前置通知，目标方法调用前被调用</span></span><br><span class="line"><span class="comment">     * 除<span class="doctag">@Around</span>外，每个方法里都可以加或者不加参数JoinPoint。</span></span><br><span class="line"><span class="comment">     * JoinPoint包含了类名、被切面的方法名、参数等属性。</span></span><br><span class="line"><span class="comment">     **/</span></span><br><span class="line">    <span class="meta">@Before(value = &quot;aspect()&quot;)</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">before</span><span class="params">(JoinPoint joinPoint)</span> &#123;</span><br><span class="line">        log.info(<span class="string">&quot;AOP before 执行... ：参数类型：&#123;&#125;&quot;</span>, joinPoint.getArgs());</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 最终通知，目标方法执行完之后执行</span></span><br><span class="line"><span class="comment">     **/</span></span><br><span class="line">    <span class="meta">@After(value = &quot;aspect()&quot;)</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">after</span><span class="params">(JoinPoint joinPoint)</span> &#123;</span><br><span class="line">        log.info(<span class="string">&quot;AOP after 执行...  ：&#123;&#125;&quot;</span>, joinPoint.toLongString());</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 后置返回通知</span></span><br><span class="line"><span class="comment">     * 如果参数中的第一个参数为JoinPoint，则第二个参数为返回值的信息</span></span><br><span class="line"><span class="comment">     * 如果参数中的第一个参数不为JoinPoint，则第一个参数为returning中对应的参数</span></span><br><span class="line"><span class="comment">     * returning 只有目标方法返回值与通知方法具有相应参数类型时才能执行后置返回通知，否则不执行</span></span><br><span class="line"><span class="comment">     * 除了使用上面定义好的切面aspect()， 也可以直接使用表达式。</span></span><br><span class="line"><span class="comment">     **/</span></span><br><span class="line">    <span class="meta">@AfterReturning(value = &quot;execution(* com.dw.study.controller..*.*(..))&quot;, returning = &quot;result&quot;)</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">afterReturning</span><span class="params">(JoinPoint joinPoint, Object result)</span> &#123;</span><br><span class="line">        log.info(<span class="string">&quot;AOP afterReturning 执行...  ：返回结果：&#123;&#125;&quot;</span>, result);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 环绕通知</span></span><br><span class="line"><span class="comment">     * 环绕通知非常强大，可以决定目标方法是否执行，什么时候执行，执行时是否需要替换方法参数，执行完毕是否需要替换返回值。</span></span><br><span class="line"><span class="comment">     * 环绕通知第一个参数必须是org.aspectj.lang.ProceedingJoinPoint类型</span></span><br><span class="line"><span class="comment">     * 2：proceedingJoinPoint.proceed() 执行被代理的方法</span></span><br><span class="line"><span class="comment">     **/</span></span><br><span class="line">    <span class="meta">@Around(value = &quot;aspect()&quot;)</span></span><br><span class="line">    <span class="keyword">public</span> Object <span class="title function_">around</span><span class="params">(ProceedingJoinPoint proceedingJoinPoint)</span> &#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            log.info(<span class="string">&quot;AOP around开始... 执行方法... ：&#123;&#125;&quot;</span>, proceedingJoinPoint.getSignature().getName());</span><br><span class="line">            <span class="type">Object</span> <span class="variable">proceed</span> <span class="operator">=</span> proceedingJoinPoint.proceed();</span><br><span class="line">            log.info(<span class="string">&quot;AOP around结束... 执行方法... ：&#123;&#125;&quot;</span>, proceedingJoinPoint.getSignature().getName());</span><br><span class="line">            <span class="keyword">return</span> proceed;</span><br><span class="line">        &#125; <span class="keyword">catch</span> (Throwable throwable) &#123;</span><br><span class="line">            log.info(<span class="string">&quot;AOP around 执行错误... error ：&#123;&#125;&quot;</span>, throwable.getMessage());</span><br><span class="line">            throwable.printStackTrace();</span><br><span class="line">            <span class="keyword">return</span> <span class="string">&quot;执行around出错。。。&quot;</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 后置异常通知</span></span><br><span class="line"><span class="comment">     * 定义一个名字，该名字用于匹配通知实现方法的一个参数名，当目标方法抛出异常返回后，将把目标方法抛出的异常传给通知方法；</span></span><br><span class="line"><span class="comment">     * throwing 只有目标方法抛出的异常与通知方法相应参数异常类型时才能执行后置异常通知，否则不执行，</span></span><br><span class="line"><span class="comment">     **/</span></span><br><span class="line">    <span class="meta">@AfterThrowing(value = &quot;aspect()&quot;, throwing = &quot;exception&quot;)</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">afterThrowing</span><span class="params">(JoinPoint joinPoint, Throwable exception)</span> &#123;</span><br><span class="line">        log.error(<span class="string">&quot;AOP afterThrowing 执行... , msg : &#123;&#125;&quot;</span>, exception.getMessage());</span><br><span class="line">        <span class="keyword">if</span> (exception <span class="keyword">instanceof</span> NullPointerException)</span><br><span class="line">            log.info(<span class="string">&quot;空指针异常&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="自定义注解匹配-无参"><a href="#自定义注解匹配-无参" class="headerlink" title="自定义注解匹配(无参)"></a>自定义注解匹配(无参)</h2><h3 id="1-自定义注解"><a href="#1-自定义注解" class="headerlink" title="1.自定义注解"></a>1.自定义注解</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Retention(RetentionPolicy.RUNTIME)</span></span><br><span class="line"><span class="meta">@Target(ElementType.METHOD)</span></span><br><span class="line"><span class="keyword">public</span> <span class="meta">@interface</span> MethodAspect &#123;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-定义切面"><a href="#2-定义切面" class="headerlink" title="2.定义切面"></a>2.定义切面</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Aspect</span></span><br><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">MyAop</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> <span class="type">Logger</span> <span class="variable">log</span> <span class="operator">=</span> LoggerFactory.getLogger(<span class="built_in">this</span>.getClass());<span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 基于注解定义切入点 2</span></span><br><span class="line"><span class="comment">     * 对于注解了 <span class="doctag">@MethodAspect</span>的方法进行拦截</span></span><br><span class="line"><span class="comment">     * 表示标注了特定注解的目标方法链接点。如<span class="doctag">@annotation</span>(com.dw.study.TestAnnotation)表示任何标注了<span class="doctag">@TestAnnotation</span>注解的目标类方法。</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="meta">@Pointcut(&quot;@annotation(com.dw.study.customAnnotation.MethodAspect)&quot;)</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">testMyAnnotationAspect</span><span class="params">()</span> &#123;&#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 前置通知，目标方法调用前被调用</span></span><br><span class="line"><span class="comment">     * 除<span class="doctag">@Around</span>外，每个方法里都可以加或者不加参数JoinPoint。</span></span><br><span class="line"><span class="comment">     * JoinPoint包含了类名、被切面的方法名、参数等属性。</span></span><br><span class="line"><span class="comment">     **/</span></span><br><span class="line">    <span class="meta">@Before(value = &quot;testMyAnnotationAspect()&quot;)</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">before</span><span class="params">(JoinPoint joinPoint)</span> &#123;</span><br><span class="line">        log.info(<span class="string">&quot;AOP before 执行... ：参数类型：&#123;&#125;&quot;</span>, joinPoint.getArgs());</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="3-扫描"><a href="#3-扫描" class="headerlink" title="3.扫描"></a>3.扫描</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@RequestMapping(&quot;hello&quot;)</span></span><br><span class="line"><span class="meta">@MethodAspect</span></span><br><span class="line"><span class="keyword">public</span> String <span class="title function_">hello</span><span class="params">()</span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="string">&quot;SpringBoot-HelloWorld&quot;</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="自定义注解匹配-带参"><a href="#自定义注解匹配-带参" class="headerlink" title="自定义注解匹配(带参)"></a>自定义注解匹配(带参)</h2><h3 id="1-自定义注解-1"><a href="#1-自定义注解-1" class="headerlink" title="1.自定义注解"></a>1.自定义注解</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Retention(RetentionPolicy.RUNTIME)</span></span><br><span class="line"><span class="meta">@Target(ElementType.METHOD)</span></span><br><span class="line"><span class="keyword">public</span> <span class="meta">@interface</span> MethodAspect &#123;</span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 传值</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span></span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    String <span class="title function_">value</span><span class="params">()</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 描述</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span></span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    String <span class="title function_">description</span><span class="params">()</span> <span class="keyword">default</span> <span class="string">&quot;default description&quot;</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-定义切面-1"><a href="#2-定义切面-1" class="headerlink" title="2.定义切面"></a>2.定义切面</h3><p><strong><code>如果需要获取@annotation中的值，需要和方法参数名相同</code></strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Aspect</span></span><br><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">MyAop</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> <span class="type">Logger</span> <span class="variable">log</span> <span class="operator">=</span> LoggerFactory.getLogger(<span class="built_in">this</span>.getClass());</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 基于注解定义切入点 2</span></span><br><span class="line"><span class="comment">     * 对于注解了 <span class="doctag">@MethodAspect</span>的方法进行拦截</span></span><br><span class="line"><span class="comment">     * 表示标注了特定注解的目标方法链接点。如<span class="doctag">@annotation</span>(com.dw.study.TestAnnotation)表示任何标注了<span class="doctag">@TestAnnotation</span>注解的目标类方法。</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="meta">@Pointcut(&quot;@annotation(com.dw.study.customAnnotation.MethodAspect)&quot;)</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">testMyAnnotationAspect</span><span class="params">()</span> &#123;&#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 前置通知，目标方法调用前被调用</span></span><br><span class="line"><span class="comment">     * 除<span class="doctag">@Around</span>外，每个方法里都可以加或者不加参数JoinPoint。</span></span><br><span class="line"><span class="comment">     * JoinPoint包含了类名、被切面的方法名、参数等属性。</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@annotation</span>中的值，需要和方法参数名相同(重要)</span></span><br><span class="line"><span class="comment">     **/</span></span><br><span class="line">    <span class="meta">@Before(value = &quot;testMyAnnotationAspect() &amp;&amp; @annotation(methodAspect)&quot;)</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">before</span><span class="params">(JoinPoint joinPoint, MethodAspect methodAspect)</span> &#123;</span><br><span class="line">        log.info(<span class="string">&quot;AOP before 执行... ：参数类型：&#123;&#125;&quot;</span>, joinPoint.getArgs());</span><br><span class="line">        log.info(<span class="string">&quot;before-value== &quot;</span>+ methodAspect.value() + <span class="string">&quot;before-description== &quot;</span> + methodAspect.description());</span><br><span class="line">        <span class="comment">// 接收到请求，记录请求内容</span></span><br><span class="line">        <span class="type">ServletRequestAttributes</span> <span class="variable">attributes</span> <span class="operator">=</span> (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();</span><br><span class="line">        <span class="type">HttpServletRequest</span> <span class="variable">request</span> <span class="operator">=</span> attributes.getRequest();</span><br><span class="line">        <span class="comment">// 记录下请求内容</span></span><br><span class="line">        System.out.println(<span class="string">&quot;URL : &quot;</span> + request.getRequestURL().toString());</span><br><span class="line">        System.out.println(<span class="string">&quot;HTTP_METHOD : &quot;</span> + request.getMethod());</span><br><span class="line">        System.out.println(<span class="string">&quot;IP : &quot;</span> + request.getRemoteAddr());</span><br><span class="line">        System.out.println(<span class="string">&quot;CLASS_METHOD : &quot;</span> + joinPoint.getSignature().getDeclaringTypeName() + <span class="string">&quot;.&quot;</span> + joinPoint.getSignature().getName());</span><br><span class="line">        System.out.println(<span class="string">&quot;ARGS : &quot;</span> + Arrays.toString(joinPoint.getArgs()));</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 环绕通知</span></span><br><span class="line"><span class="comment">     * 环绕通知非常强大，可以决定目标方法是否执行，什么时候执行，执行时是否需要替换方法参数，执行完毕是否需要替换返回值。</span></span><br><span class="line"><span class="comment">     * 环绕通知第一个参数必须是org.aspectj.lang.ProceedingJoinPoint类型</span></span><br><span class="line"><span class="comment">     * 2：proceedingJoinPoint.proceed() 执行被代理的方法</span></span><br><span class="line"><span class="comment">     *   <span class="doctag">@annotation</span>中的值，需要和方法参数名相同</span></span><br><span class="line"><span class="comment">     **/</span></span><br><span class="line">    <span class="meta">@Around(value = &quot;testMyAnnotationAspect() &amp;&amp; @annotation(methodAspect)&quot;)</span></span><br><span class="line">    <span class="keyword">public</span> Object <span class="title function_">around</span><span class="params">(ProceedingJoinPoint proceedingJoinPoint, MethodAspect methodAspect)</span> &#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            log.info(<span class="string">&quot;AOP around开始... 执行方法... ：&#123;&#125;&quot;</span>, proceedingJoinPoint.getSignature().getName());</span><br><span class="line">            log.info(<span class="string">&quot;around-value== &quot;</span>+ methodAspect.value() + <span class="string">&quot;around-description== &quot;</span> + methodAspect.description());</span><br><span class="line">            <span class="type">Object</span> <span class="variable">proceed</span> <span class="operator">=</span> proceedingJoinPoint.proceed();</span><br><span class="line">            log.info(<span class="string">&quot;AOP around结束... 执行方法... ：&#123;&#125;&quot;</span>, proceedingJoinPoint.getSignature().getName());</span><br><span class="line">            <span class="keyword">return</span> proceed;</span><br><span class="line">        &#125; <span class="keyword">catch</span> (Throwable throwable) &#123;</span><br><span class="line">            log.info(<span class="string">&quot;AOP around 执行错误... error ：&#123;&#125;&quot;</span>, throwable.getMessage());</span><br><span class="line">            throwable.printStackTrace();</span><br><span class="line">            <span class="keyword">return</span> <span class="string">&quot;执行around出错。。。&quot;</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="附文"><a href="#附文" class="headerlink" title="附文"></a>附文</h2><p>为了更好地理解 AOP，我们需要了解一些它的相关术语。这些专业术语并不是 Spring 特有的，有些也同样适用于其它 AOP 框架，如 AspectJ。</p>
+<p>它们的含义如下表所示：</p>
+<table>
+<thead>
+<tr>
+<th align="center">名称</th>
+<th align="center">说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">Joinpoint（连接点）</td>
+<td align="center">指那些被拦截到的点，在 Spring 中，指可以被动态代理拦截目标类的方法。</td>
+</tr>
+<tr>
+<td align="center">Pointcut（切入点）</td>
+<td align="center">指要对哪些 Joinpoint 进行拦截，即被拦截的连接点。</td>
+</tr>
+<tr>
+<td align="center">Advice（通知）</td>
+<td align="center">指拦截到 Joinpoint 之后要做的事情，即对切入点增强的内容。</td>
+</tr>
+<tr>
+<td align="center">Target（目标）</td>
+<td align="center">指代理的目标对象。</td>
+</tr>
+<tr>
+<td align="center">Weaving（植入）</td>
+<td align="center">指把增强代码应用到目标上，生成代理对象的过程。</td>
+</tr>
+<tr>
+<td align="center">Proxy（代理）</td>
+<td align="center">指生成的代理对象。</td>
+</tr>
+<tr>
+<td align="center">Aspect（切面）</td>
+<td align="center">切入点和通知的结合。</td>
+</tr>
+</tbody></table>
+<p>Advice 直译为通知，也有的资料翻译为“增强处理”，共有 5 种类型，如下表所示：</p>
+<table>
+<thead>
+<tr>
+<th align="center">通知</th>
+<th align="center">说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">before（前置通知）</td>
+<td align="center">通知方法在目标方法调用之前执行</td>
+</tr>
+<tr>
+<td align="center">after（后置通知）</td>
+<td align="center">通知方法在目标方法返回或异常后调用</td>
+</tr>
+<tr>
+<td align="center">after-returning（返回后通知）</td>
+<td align="center">通知方法会在目标方法返回后调用</td>
+</tr>
+<tr>
+<td align="center">after-throwing（抛出异常通知）</td>
+<td align="center">通知方法会在目标方法抛出异常后调用</td>
+</tr>
+<tr>
+<td align="center">around（环绕通知）</td>
+<td align="center">通知方法会将目标方法封装起来</td>
+</tr>
+</tbody></table>
+<h3 id="execution表达式："><a href="#execution表达式：" class="headerlink" title="execution表达式："></a>execution表达式：</h3><p>用于匹配方法执行的连接点，属于方法级别， 语法： <code>execution(修饰符 返回值类型 方法名（参数）异常)</code></p>
+<table>
+<thead>
+<tr>
+<th align="center"><strong>语法参数</strong></th>
+<th align="center"><strong>描述</strong></th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center"><strong>修饰符</strong></td>
+<td align="center"><strong>可选，如public，protected，写在返回值前，任意修饰符填<code>*</code>号就可以</strong></td>
+</tr>
+<tr>
+<td align="center"><strong>返回值类型</strong></td>
+<td align="center"><strong><code>必选</code>，可以使用<code>*</code>来代表任意返回值</strong></td>
+</tr>
+<tr>
+<td align="center"><strong>方法名</strong></td>
+<td align="center"><strong><code>必选</code>，可以用<code>*</code>来代表任意方法</strong></td>
+</tr>
+<tr>
+<td align="center"><strong>参数</strong></td>
+<td align="center"><strong><code>必选， ()</code>代表是没有参数，<code>(..)</code>代表是匹配任意数量，任意类型的参数，当然也可以指定类型的参数进行匹配，如要接受一个String类型的参数，则<code>(java.lang.String)</code>, 任意数量的String类型参数：<code>(java.lang.String..)</code>等等。。。</strong></td>
+</tr>
+<tr>
+<td align="center"><strong>异常</strong></td>
+<td align="center"><strong>可选，语法：<code>throws 异常</code>，异常是完整带包名，可以是多个，用逗号分隔</strong></td>
+</tr>
+</tbody></table>
+<p><strong>execution()表达式案例</strong>：</p>
+<ul>
+<li><strong>拦截</strong><code>com.dw.study</code><strong>包下的所有子包里的任意类的任意方法</strong><br><strong><code>execution(* com.dw.study..*.*(..))</code></strong></li>
+<li><strong>拦截</strong><code>com.dw.study</code><strong>.Test2Controller下的任意方法</strong><br><strong><code>execution(* **</code>com.dw.study<code>**.Test2Controller.*(..))</code></strong></li>
+<li><strong>拦截任何修饰符为public的方法</strong><br><strong><code>execution(public * * (..))</code></strong></li>
+<li><strong>拦截</strong><code>com.dw.study</code><strong>下的所有子包里的以ok开头的方法</strong><br><strong><code>execution(* **</code>com.dw.study<code>**..*.ok* (..))</code></strong></li>
+</ul>
+<h3 id="JoinPoint"><a href="#JoinPoint" class="headerlink" title="JoinPoint"></a><strong>JoinPoint</strong></h3><p>JoinPoint对象封装了SpringAop中切面方法的信息,在切面方法中添加JoinPoint参数,就可以获取到封装了该方法信息的JoinPoint对象。 除 <strong>@Around</strong> 外，每个通知的方法里都可以加或者不加参数JoinPoint。JoinPoint包含了类名、被切面的方法名、参数等属性。@Around 参数必须为 ProceedingJoinPoint</p>
+<table>
+<thead>
+<tr>
+<th align="center">方法名</th>
+<th align="center">功能</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">Signature getSignature();</td>
+<td align="center">获取封装了署名信息的对象,在该对象中可以获取到目标方法名,所属类的Class等信息</td>
+</tr>
+<tr>
+<td align="center">Object[] getArgs();</td>
+<td align="center">获取传入目标方法的参数对象</td>
+</tr>
+<tr>
+<td align="center">Object getTarget();</td>
+<td align="center">获取被代理的对象</td>
+</tr>
+<tr>
+<td align="center">Object getThis();</td>
+<td align="center">获取代理对象</td>
+</tr>
+</tbody></table>
+<h3 id="ProceedingJoinPoint"><a href="#ProceedingJoinPoint" class="headerlink" title="ProceedingJoinPoint"></a><strong>ProceedingJoinPoint</strong></h3><p> ProceedingJoinPoint对象是JoinPoint 的子接口, 该对象只用在@Around的切面方法中：</p>
+<table>
+<thead>
+<tr>
+<th align="center">方法名</th>
+<th align="center">功能</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">Object proceed() throws Throwable</td>
+<td align="center">执行目标方法</td>
+</tr>
+<tr>
+<td align="center">Object proceed(Object[] var1) throws Throwable</td>
+<td align="center">传入的新的参数去执行目标方法</td>
+</tr>
+</tbody></table>
+<h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>AOP 是 Spring 的核心之一，在 Spring 中经常会使用 AOP 来简化编程。</p>
+<p> 在 Spring 框架中使用 AOP 主要有以下优势：</p>
+<ul>
+<li>提供声明式企业服务，特别是作为 EJB 声明式服务的替代品。最重要的是，这种服务是声明式事务管理。</li>
+<li>允许用户实现自定义切面。在某些不适合用 OOP 编程的场景中，采用 AOP 来补充。</li>
+<li>可以对业务逻辑的各个部分进行隔离，从而使业务逻辑各部分之间的耦合度降低，提高程序的可重用性，同时也提高了开发效率。</li>
+</ul>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><ul>
+<li><p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/dw3306/p/15077474.html"><strong>Spring AOP：基于AspectJ注解开发</strong></a></p>
+</li>
+<li><p><a target="_blank" rel="noopener" href="https://blog.csdn.net/q982151756/article/details/80513340?spm=1001.2101.3001.6650.1&utm_medium=distribute.pc_relevant.none-task-blog-2~default~CTRLIST~default-1.pc_relevant_default&depth_1-utm_source=distribute.pc_relevant.none-task-blog-2~default~CTRLIST~default-1.pc_relevant_default&utm_relevant_index=2">细说SpringAop详解</a></p>
+</li>
+<li><p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/395709988">https://zhuanlan.zhihu.com/p/395709988</a></p>
+</li>
+</ul>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="https://foamtomato.github.io">Foam🍅</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="https://foamtomato.github.io/2022/04/25/0.1.2aop%E7%9A%84%E7%AE%80%E5%8D%95%E4%BD%BF%E7%94%A8/">https://foamtomato.github.io/2022/04/25/0.1.2aop%E7%9A%84%E7%AE%80%E5%8D%95%E4%BD%BF%E7%94%A8/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="https://foamtomato.github.io" target="_blank">喵喵鱼塘</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/aop/">aop</a></div><div class="post_share"><div class="social-share" data-image="https://image.baidu.com/search/down?tn=download&amp;word=download&amp;ie=utf8&amp;fr=detail&amp;url=http://browser9.qhimg.com/bdm/1000_618_85/t01a5211bae6d28520e.jpg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2022/05/01/0.0.3%E5%88%86%E6%AE%B5%E6%89%A7%E8%A1%8C/" title="分段执行"><img class="cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://image.baidu.com/search/down?tn=download&amp;word=download&amp;ie=utf8&amp;fr=detail&amp;url=http://p6.qhimg.com/bdm/1000_618_85/t016abc0de421e60f9d.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">分段执行</div></div></a></div><div class="next-post pull-right"><a href="/2022/04/23/0.1.6mysql%E5%88%9B%E5%BB%BA%E5%AE%9A%E6%97%B6%E4%BB%BB%E5%8A%A1/" title="mysql创建定时任务"><img class="cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://image.baidu.com/search/down?tn=download&amp;word=download&amp;ie=utf8&amp;fr=detail&amp;url=http://p6.qhimg.com/bdm/1000_618_85/t01f40ac9baf328486f.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">mysql创建定时任务</div></div></a></div></nav></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/img/favicon.ico" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">Foam🍅</div><div class="author-info__description">用能力换时间，用时间换能力</div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">57</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">68</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">0</div></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">工作繁忙，不会定期更新！！！</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%AE%80%E4%BB%8B"><span class="toc-number">1.</span> <span class="toc-text">简介</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#spring4-0%E6%89%A7%E8%A1%8C%E9%A1%BA%E5%BA%8F"><span class="toc-number">2.</span> <span class="toc-text">spring4.0执行顺序</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#spring5-28%E6%89%A7%E8%A1%8C%E9%A1%BA%E5%BA%8F"><span class="toc-number">3.</span> <span class="toc-text">spring5.28执行顺序</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%99%AE%E9%80%9A%E4%BD%BF%E7%94%A8%EF%BC%88%E7%9B%B4%E6%8E%A5%E5%8C%B9%E9%85%8D%E5%8C%85%EF%BC%89"><span class="toc-number">4.</span> <span class="toc-text">普通使用（直接匹配包）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%87%AA%E5%AE%9A%E4%B9%89%E6%B3%A8%E8%A7%A3%E5%8C%B9%E9%85%8D-%E6%97%A0%E5%8F%82"><span class="toc-number">5.</span> <span class="toc-text">自定义注解匹配(无参)</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E8%87%AA%E5%AE%9A%E4%B9%89%E6%B3%A8%E8%A7%A3"><span class="toc-number">5.1.</span> <span class="toc-text">1.自定义注解</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E5%AE%9A%E4%B9%89%E5%88%87%E9%9D%A2"><span class="toc-number">5.2.</span> <span class="toc-text">2.定义切面</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E6%89%AB%E6%8F%8F"><span class="toc-number">5.3.</span> <span class="toc-text">3.扫描</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%87%AA%E5%AE%9A%E4%B9%89%E6%B3%A8%E8%A7%A3%E5%8C%B9%E9%85%8D-%E5%B8%A6%E5%8F%82"><span class="toc-number">6.</span> <span class="toc-text">自定义注解匹配(带参)</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E8%87%AA%E5%AE%9A%E4%B9%89%E6%B3%A8%E8%A7%A3-1"><span class="toc-number">6.1.</span> <span class="toc-text">1.自定义注解</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E5%AE%9A%E4%B9%89%E5%88%87%E9%9D%A2-1"><span class="toc-number">6.2.</span> <span class="toc-text">2.定义切面</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%99%84%E6%96%87"><span class="toc-number">7.</span> <span class="toc-text">附文</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#execution%E8%A1%A8%E8%BE%BE%E5%BC%8F%EF%BC%9A"><span class="toc-number">7.1.</span> <span class="toc-text">execution表达式：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#JoinPoint"><span class="toc-number">7.2.</span> <span class="toc-text">JoinPoint</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#ProceedingJoinPoint"><span class="toc-number">7.3.</span> <span class="toc-text">ProceedingJoinPoint</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%B0%8F%E7%BB%93"><span class="toc-number">8.</span> <span class="toc-text">小结</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8F%82%E8%80%83"><span class="toc-number">9.</span> <span class="toc-text">参考</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2025/08/03/0.5.7-Java+Milvus%E6%90%AD%E5%BB%BA%E4%BC%81%E4%B8%9A%E7%BA%A7RAG%E7%B3%BB%E7%BB%9F/" title="Java+Milvus搭建企业级RAG系统"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://images.unsplash.com/photo-1677442136019-21780ecad995?w=800&amp;h=600&amp;fit=crop" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Java+Milvus搭建企业级RAG系统"/></a><div class="content"><a class="title" href="/2025/08/03/0.5.7-Java+Milvus%E6%90%AD%E5%BB%BA%E4%BC%81%E4%B8%9A%E7%BA%A7RAG%E7%B3%BB%E7%BB%9F/" title="Java+Milvus搭建企业级RAG系统">Java+Milvus搭建企业级RAG系统</a><time datetime="2025-08-03T07:56:49.000Z" title="发表于 2025-08-03 15:56:49">2025-08-03</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/01/21/0.5.6-%E5%90%91%E9%87%8F%E6%95%B0%E6%8D%AE%E5%BA%93%E6%90%AD%E5%BB%BA%E4%B8%8E%E4%B8%BB%E6%B5%81%E4%BA%A7%E5%93%81%E5%AF%B9%E6%AF%94/" title="向量数据库搭建与主流产品对比"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=800&amp;h=600&amp;fit=crop" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="向量数据库搭建与主流产品对比"/></a><div class="content"><a class="title" href="/2025/01/21/0.5.6-%E5%90%91%E9%87%8F%E6%95%B0%E6%8D%AE%E5%BA%93%E6%90%AD%E5%BB%BA%E4%B8%8E%E4%B8%BB%E6%B5%81%E4%BA%A7%E5%93%81%E5%AF%B9%E6%AF%94/" title="向量数据库搭建与主流产品对比">向量数据库搭建与主流产品对比</a><time datetime="2025-01-21T06:30:45.000Z" title="发表于 2025-01-21 14:30:45">2025-01-21</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/01/20/0.5.5-Java%E5%BC%82%E5%B8%B8%E6%97%A5%E5%BF%97MCP%E6%9C%8D%E5%8A%A1%E6%9E%B6%E6%9E%84/" title="Java异常日志MCP服务架构"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&amp;h=600&amp;fit=crop" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Java异常日志MCP服务架构"/></a><div class="content"><a class="title" href="/2025/01/20/0.5.5-Java%E5%BC%82%E5%B8%B8%E6%97%A5%E5%BF%97MCP%E6%9C%8D%E5%8A%A1%E6%9E%B6%E6%9E%84/" title="Java异常日志MCP服务架构">Java异常日志MCP服务架构</a><time datetime="2025-01-20T08:45:30.000Z" title="发表于 2025-01-20 16:45:30">2025-01-20</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/01/17/0.5.4-Java%E9%AB%98%E5%BE%B7%E5%9C%B0%E5%9B%BEMCP%E5%AE%9A%E5%88%B6%E6%97%85%E6%B8%B8%E8%B7%AF%E7%BA%BF/" title="Java高德地图MCP定制旅游路线"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=800&amp;h=600&amp;fit=crop" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Java高德地图MCP定制旅游路线"/></a><div class="content"><a class="title" href="/2025/01/17/0.5.4-Java%E9%AB%98%E5%BE%B7%E5%9C%B0%E5%9B%BEMCP%E5%AE%9A%E5%88%B6%E6%97%85%E6%B8%B8%E8%B7%AF%E7%BA%BF/" title="Java高德地图MCP定制旅游路线">Java高德地图MCP定制旅游路线</a><time datetime="2025-01-17T02:30:00.000Z" title="发表于 2025-01-17 10:30:00">2025-01-17</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/01/16/0.5.3-SpringAI%E6%89%93%E9%80%A0%E8%87%AA%E5%B7%B1%E7%9A%84LLM%E5%BA%94%E7%94%A8/" title="Spring AI打造自己的LLM应用"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://images.unsplash.com/photo-1555949963-aa79dcee981c?w=800&amp;h=600&amp;fit=crop" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Spring AI打造自己的LLM应用"/></a><div class="content"><a class="title" href="/2025/01/16/0.5.3-SpringAI%E6%89%93%E9%80%A0%E8%87%AA%E5%B7%B1%E7%9A%84LLM%E5%BA%94%E7%94%A8/" title="Spring AI打造自己的LLM应用">Spring AI打造自己的LLM应用</a><time datetime="2025-01-16T06:30:00.000Z" title="发表于 2025-01-16 14:30:00">2025-01-16</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2025 By Foam🍅</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=4.13.0"></script><script src="/js/main.js?v=4.13.0"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.umd.min.js"></script><script src="https://cdn.jsdelivr.net/npm/vanilla-lazyload@17.8.8/dist/lazyload.iife.min.js"></script><div class="js-pjax"><script>(() => {
+  const $mermaid = document.querySelectorAll('#article-container .mermaid-wrap')
+  if ($mermaid.length === 0) return
+  const runMermaid = () => {
+    window.loadMermaid = true
+    const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'default'
+
+    Array.from($mermaid).forEach((item, index) => {
+      const mermaidSrc = item.firstElementChild
+      const mermaidThemeConfig = '%%{init:{ \'theme\':\'' + theme + '\'}}%%\n'
+      const mermaidID = 'mermaid-' + index
+      const mermaidDefinition = mermaidThemeConfig + mermaidSrc.textContent
+
+      const renderFn = mermaid.render(mermaidID, mermaidDefinition)
+
+      const renderV10 = () => {
+        renderFn.then(({svg}) => {
+          mermaidSrc.insertAdjacentHTML('afterend', svg)
+        })
+      }
+
+      const renderV9 = svg => {
+        mermaidSrc.insertAdjacentHTML('afterend', svg)
+      }
+
+      typeof renderFn === 'string' ? renderV9(renderFn) : renderV10()
+    })
+  }
+
+  const loadMermaid = () => {
+    window.loadMermaid ? runMermaid() : getScript('https://cdn.jsdelivr.net/npm/mermaid@10.8.0/dist/mermaid.min.js').then(runMermaid)
+  }
+
+  btf.addGlobalFn('themeChange', runMermaid, 'mermaid')
+
+  window.pjax ? loadMermaid() : document.addEventListener('DOMContentLoaded', loadMermaid)
+})()</script></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据库加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div id="local-search-results"></div><div id="local-search-stats-wrap"></div></div></div><div id="search-mask"></div><script src="/js/search/local-search.js?v=4.13.0"></script></div></div><!-- hexo injector body_end start --><script data-pjax>function history_calendar_injector_config(){
+                var parent_div_git = document.getElementsByClassName('sticky_layout')[0];
+                var item_html = '<div class="card-widget card-history"><div class="card-content"><div class="item-headline"><i class="fas fa-clock fa-spin"></i><span>那年今日</span></div><div id="history-baidu" style="height: 100px;overflow: hidden"><div class="history_swiper-container" id="history-container" style="width: 100%;height: 100%"><div class="swiper-wrapper" id="history_container_wrapper" style="height:20px"></div></div></div></div>';
+                // console.log('已挂载history_calendar') // 日志已清理
+                // parent_div_git.innerHTML=item_html+parent_div_git.innerHTML // 无报错，但不影响使用(支持pjax跳转)
+                parent_div_git.insertAdjacentHTML("afterbegin",item_html) // 有报错，但不影响使用(支持pjax跳转)
+            }if( document.getElementsByClassName('sticky_layout')[0] && (location.pathname ==='all'|| 'all' ==='all')){
+
+            history_calendar_injector_config()
+        } </script><script data-pjax  src="https://cdn.jsdelivr.net/npm/swiper/swiper-bundle.min.js"></script><script data-pjax src="https://cdn.jsdelivr.net/gh/Zfour/Butterfly-card-history/baiduhistory/js/main.js"></script><script data-pjax>function electric_clock_injector_config(){
+                var parent_div_git = document.getElementsByClassName('sticky_layout')[0];
+                var item_html = '<div class="card-widget card-clock"><div class="card-glass"><div class="card-background"><div class="card-content"><div id="hexo_electric_clock"><img id="card-clock-loading" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://cdn.jsdelivr.net/gh/Zfour/Butterfly-clock/clock/images/weather/loading.gif" style="height: 120px; width: 100%;" data-ll-status="loading" class="entered loading"></div></div></div></div></div>';
+                // console.log('已挂载electric_clock') // 日志已清理
+                // parent_div_git.innerHTML=item_html+parent_div_git.innerHTML // 无报错，但不影响使用(支持pjax跳转)
+                parent_div_git.insertAdjacentHTML("afterbegin",item_html) // 有报错，但不影响使用(支持pjax跳转)
+            }if( document.getElementsByClassName('sticky_layout')[0] && (location.pathname ==='all'|| 'all' ==='all')){
+
+            electric_clock_injector_config()
+        } </script><script src="https://pv.sohu.com/cityjson?ie=utf-8"></script><script data-pjax  src="/js/clock.js"></script><!-- hexo injector body_end end --></body></html>

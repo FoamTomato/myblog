@@ -1,0 +1,267 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>ShardingJDBC简单介绍 | 喵喵鱼塘</title><meta name="author" content="Foam🍅"><meta name="copyright" content="Foam🍅"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="ShardingJDBC介绍 ShardingJDBC是当当网研发的开源分布式数据库中间件，从 3.0 开始Sharding-JDBC被包含在 Sharding-Sphere中，之后该项目进入进入Apache孵化器，4.0版本之后的版本为Apache版本。  ShardingSphere是一套开源的"><link rel="shortcut icon" href="/img/favicon.ico"><link rel="canonical" href="https://foamtomato.github.io/2022/04/10/0.1.9ShardingJDBC%E7%AE%80%E5%8D%95%E4%BB%8B%E7%BB%8D/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=4.13.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.json","preload":false,"top_n_per_article":1,"unescape":false,"languages":{"hits_empty":"找不到您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.11.1/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyload: true,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'ShardingJDBC简单介绍',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2022-12-15 20:50:09'
+}</script><script>(win=>{
+      win.saveToLocal = {
+        set: (key, value, ttl) => {
+          if (ttl === 0) return
+          const now = Date.now()
+          const expiry = now + ttl * 86400000
+          const item = {
+            value,
+            expiry
+          }
+          localStorage.setItem(key, JSON.stringify(item))
+        },
+      
+        get: key => {
+          const itemStr = localStorage.getItem(key)
+      
+          if (!itemStr) {
+            return undefined
+          }
+          const item = JSON.parse(itemStr)
+          const now = Date.now()
+      
+          if (now > item.expiry) {
+            localStorage.removeItem(key)
+            return undefined
+          }
+          return item.value
+        }
+      }
+    
+      win.getScript = (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        script.onerror = reject
+        script.onload = script.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          script.onload = script.onreadystatechange = null
+          resolve()
+        }
+
+        Object.keys(attr).forEach(key => {
+          script.setAttribute(key, attr[key])
+        })
+
+        document.head.appendChild(script)
+      })
+    
+      win.getCSS = (url, id = false) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onerror = reject
+        link.onload = link.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          link.onload = link.onreadystatechange = null
+          resolve()
+        }
+        document.head.appendChild(link)
+      })
+    
+      win.activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+        if (t === 'dark') activateDarkMode()
+        else if (t === 'light') activateLightMode()
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+      const detectApple = () => {
+        if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+          document.documentElement.classList.add('apple')
+        }
+      }
+      detectApple()
+    })(window)</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/static-butterfly/dist/css/index.min.css"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"><style>
+/* 修复JetBrains Mono字体引用 */
+@font-face {
+  font-family: 'MyFont';
+  src: url('https://cdn.jsdelivr.net/gh/JetBrains/JetBrainsMono/web/woff2/JetBrainsMono-Regular.woff2') format('woff2'),
+       url('https://cdn.jsdelivr.net/gh/JetBrains/JetBrainsMono/web/woff/JetBrainsMono-Regular.woff') format('woff');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+</style>
+<!-- hexo injector head_end start --><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper/swiper-bundle.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Zfour/Butterfly-card-history/baiduhistory/css/main.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Zfour/hexo-electric-clock@1.0.6/clock.css"><!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.3.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/img/favicon.ico" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">57</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">68</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">0</div></a></div><hr class="custom-hr"/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 鱼塘</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 喵生</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 关键词</span></a></div><div class="menus_item"><a class="site-page" href="/movies/"><i class="fa-fw fas fa-video"></i><span> 猫片</span></a></div><div class="menus_item"><a class="site-page" href="/links/"><i class="fa-fw fas fa-link"></i><span> 猫の友</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 语录</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://image.baidu.com/search/down?tn=download&amp;word=download&amp;ie=utf8&amp;fr=detail&amp;url=http://p3.qhimg.com/bdm/1000_618_85/t01abc6e061cae27bc3.jpg')"><nav id="nav"><span id="blog-info"><a href="/" title="喵喵鱼塘"><span class="site-name">喵喵鱼塘</span></a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search" href="javascript:void(0);"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 鱼塘</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 喵生</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 关键词</span></a></div><div class="menus_item"><a class="site-page" href="/movies/"><i class="fa-fw fas fa-video"></i><span> 猫片</span></a></div><div class="menus_item"><a class="site-page" href="/links/"><i class="fa-fw fas fa-link"></i><span> 猫の友</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 语录</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">ShardingJDBC简单介绍</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2022-04-10T14:35:03.000Z" title="发表于 2022-04-10 22:35:03">2022-04-10</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2022-12-15T12:50:09.606Z" title="更新于 2022-12-15 20:50:09">2022-12-15</time></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="ShardingJDBC简单介绍"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h1 id="ShardingJDBC"><a href="#ShardingJDBC" class="headerlink" title="ShardingJDBC"></a>ShardingJDBC</h1><h2 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h2><blockquote>
+<p>ShardingJDBC是当当网研发的开源分布式数据库中间件，从 3.0 开始Sharding-JDBC被包含在 Sharding-Sphere中，之后该项目进入进入Apache孵化器，4.0版本之后的版本为Apache版本。</p>
+</blockquote>
+<p><strong>ShardingSphere</strong>是一套开源的分布式数据库中间件解决方案组成的生态圈，它由Sharding-JDBC、Sharding-Proxy和Sharding-Sidecar（计划中）这3款相互独立的产品组成。 他们均提供标准化的数据分片、分布式事务和数据库治理功能，可适用于如Java同构、异构语言、容器、云原生等各种多样化的应用场景。</p>
+<p>官方地址：<a target="_blank" rel="noopener" href="https://shardingsphere.apache.org/document/current/cn/overview/">https://shardingsphere.apache.org/document/current/cn/overview/</a></p>
+<p>它定位为轻量级Java框架，在Java的JDBC层提供的额外服务。它使用客户端直连数据库，以jar包形式提供服务，无需额外部署和依赖，可理解为增强版的JDBC驱动，<code>完全兼容JDBC和各种ORM框架</code></p>
+<p>在 maven 的工程里面，我们使用它的方式是<strong>引入依赖</strong>，然后<strong>进行配置</strong>就可以了，不用像 <strong>Mycat 一样独立运行一个服务</strong>，<strong>客户端不需要修改任何一行代码</strong>，原来是 SSM 连接数据库，还是 SSM，因为它是支持 MyBatis 的</p>
+<h2 id="特点"><a href="#特点" class="headerlink" title="特点"></a>特点</h2><p>Sharding-JDBC的核心功能为<strong>数据分片</strong>和<strong>读写分离</strong>，通过Sharding-JDBC，应用可以<strong>透明</strong>的使用jdbc访问已经分库分表、读写分离的多个数据源，而不用关心数据源的数量以及数据如何分布。 </p>
+<ul>
+<li>适用于任何基于Java的ORM框架，如：Hibernate, Mybatis, Spring JDBC Template或直接使用JDBC</li>
+<li>基于任何第三方的数据库连接池，如：DBCP, C3P0, BoneCP, Druid, HikariCP等</li>
+<li>支持任意实现JDBC规范的数据库。目前支持MySQL，Oracle，SQLServer和PostgreSQL</li>
+</ul>
+<p>分库分表的一些<strong>核心动作</strong>，比如 <strong>SQL 解析，路由，执行，结果处理</strong>，都是由它来完成的</p>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://blog-1316004121.cos.ap-guangzhou.myqcloud.com/blogImages/IY%7B9E$35GLDFQ5]7VJZI(%7BA.png" alt="img"></p>
+<p>上图展示了Sharding-Jdbc的工作方式，使用Sharding-Jdbc前需要人工对数据库进行分库分表</p>
+<p>在应用程序中加入Sharding-Jdbc的Jar包，应用程序通过Sharding-Jdbc操作分库分表后的数据库和数据表，由于Sharding-Jdbc是对Jdbc驱动的增强，使用Sharding-Jdbc就像使用Jdbc驱动一样，在应用程序中是无需指定具体要操作的分库和分表的</p>
+<p>主要概念：<strong>逻辑表会在 SQL 解析和路由时被替换成真实的表名</strong></p>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://blog-1316004121.cos.ap-guangzhou.myqcloud.com/blogImages%2F5AMRQ%25VL3BI6L.png" alt="img"></p>
+<h2 id="性能对比"><a href="#性能对比" class="headerlink" title="性能对比"></a>性能对比</h2><p>以下为网上统计数据</p>
+<p>1.性能损耗测试：服务器资源充足、并发数相同，比较JDBC和Sharding-JDBC性能损耗，Sharding-JDBC相对JDBC损耗不超过7%</p>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://blog-1316004121.cos.ap-guangzhou.myqcloud.com/blogImages/image-20220410220914283.png" alt="image-20220410220914283"></p>
+<p>2.性能对比测试：服务器资源使用到极限，相同的场景JDBC与Sharding-JDBC的吞吐量相当</p>
+<p>3.性能对比测试：服务器资源使用到极限，Sharding-JDBC采用分库分表后，Sharding-JDBC吞吐量较JDBC不分表有接近2倍的提升。 </p>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://blog-1316004121.cos.ap-guangzhou.myqcloud.com/blogImages/556f9c997706494b8b72c118c3d882cd.png"></p>
+<h2 id="ShardingJDBC引入"><a href="#ShardingJDBC引入" class="headerlink" title="ShardingJDBC引入"></a>ShardingJDBC引入</h2><p>1.引入boot的依赖整合包</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.apache.shardingsphere<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>sharding‐jdbc‐spring‐boot‐starter<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>4.0.0‐RC1<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>2.创建数据库和表</p>
+<ul>
+<li><p>创建订单库order_db </p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE</span> DATABASE `order_db` <span class="keyword">CHARACTER SET</span> <span class="string">&#x27;utf8&#x27;</span> <span class="keyword">COLLATE</span> <span class="string">&#x27;utf8_general_ci&#x27;</span>;</span><br></pre></td></tr></table></figure></li>
+<li><p>在order_db中创建t_order_1、t_order_2表 </p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">DROP</span> <span class="keyword">TABLE</span> IF <span class="keyword">EXISTS</span> `t_order_1`;</span><br><span class="line"><span class="keyword">CREATE TABLE</span> `t_order_1`(</span><br><span class="line">    `order_id` <span class="type">bigint</span>(<span class="number">20</span>) <span class="keyword">NOT NULL</span> COMMENT <span class="string">&#x27;订单id&#x27;</span>,</span><br><span class="line">    `price` <span class="type">decimal</span>(<span class="number">10</span>, <span class="number">2</span>) <span class="keyword">NOT NULL</span> COMMENT <span class="string">&#x27;订单价格&#x27;</span>,</span><br><span class="line">    `user_id` <span class="type">bigint</span>(<span class="number">20</span>) <span class="keyword">NOT NULL</span> COMMENT <span class="string">&#x27;下单用户id&#x27;</span>,</span><br><span class="line">    `status` <span class="type">varchar</span>(<span class="number">50</span>) <span class="keyword">CHARACTER SET</span> utf8 <span class="keyword">COLLATE</span> utf8_general_ci <span class="keyword">NOT NULL</span> COMMENT <span class="string">&#x27;订单状态&#x27;</span>,</span><br><span class="line">    <span class="keyword">PRIMARY KEY</span> (`order_id`) <span class="keyword">USING</span> BTREE</span><br><span class="line">)ENGINE <span class="operator">=</span> InnoDB <span class="keyword">CHARACTER SET</span> <span class="operator">=</span> utf8 <span class="keyword">COLLATE</span> <span class="operator">=</span> utf8_general_ci ROW_FORMAT <span class="operator">=</span> <span class="keyword">Dynamic</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">DROP</span> <span class="keyword">TABLE</span> IF <span class="keyword">EXISTS</span> `t_order_2`;</span><br><span class="line"><span class="keyword">CREATE TABLE</span> `t_order_2` (</span><br><span class="line">    `order_id` <span class="type">bigint</span>(<span class="number">20</span>) <span class="keyword">NOT NULL</span> COMMENT <span class="string">&#x27;订单id&#x27;</span>,</span><br><span class="line">    `price` <span class="type">decimal</span>(<span class="number">10</span>, <span class="number">2</span>) <span class="keyword">NOT NULL</span> COMMENT <span class="string">&#x27;订单价格&#x27;</span>,</span><br><span class="line">    `user_id` <span class="type">bigint</span>(<span class="number">20</span>) <span class="keyword">NOT NULL</span> COMMENT <span class="string">&#x27;下单用户id&#x27;</span>,</span><br><span class="line">    `status` <span class="type">varchar</span>(<span class="number">50</span>) <span class="keyword">CHARACTER SET</span> utf8 <span class="keyword">COLLATE</span> utf8_general_ci <span class="keyword">NOT NULL</span> COMMENT <span class="string">&#x27;订单状态&#x27;</span>,</span><br><span class="line">    <span class="keyword">PRIMARY KEY</span> (`order_id`) <span class="keyword">USING</span> BTREE</span><br><span class="line">)ENGINE <span class="operator">=</span> InnoDB <span class="keyword">CHARACTER SET</span> <span class="operator">=</span> utf8 <span class="keyword">COLLATE</span> <span class="operator">=</span> utf8_general_ci ROW_FORMAT <span class="operator">=</span> <span class="keyword">Dynamic</span>;</span><br></pre></td></tr></table></figure></li>
+</ul>
+<p>3.application.properties配置规则</p>
+<ul>
+<li><p>定义数据源</p>
+<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 定义数据源m1，并对m1进行实际的参数配置</span></span><br><span class="line"><span class="attr">spring.shardingsphere.datasource.names</span>=<span class="string">m1</span></span><br><span class="line"><span class="attr">spring.shardingsphere.datasource.m1.type</span>=<span class="string">com.alibaba.druid.pool.DruidDataSoure</span></span><br><span class="line"><span class="attr">spring.shardingsphere.datasource.m1.driver‐class‐name</span>=<span class="string">com.mysql.jdbc.Driver</span></span><br><span class="line"><span class="attr">spring.shardingsphere.datasource.m1.url</span>=<span class="string">jdbc:mysql://localhost:3306/order_db?useUnicode=true</span></span><br><span class="line"><span class="attr">spring.shardingsphere.datasource.m1.username</span>=<span class="string">root</span></span><br><span class="line"><span class="attr">spring.shardingsphere.datasource.m1.password</span>=<span class="string">root</span></span><br></pre></td></tr></table></figure></li>
+<li><p>配置数据节点</p>
+<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 指定t_order表的数据分布情况，配置数据节点</span></span><br><span class="line"><span class="comment"># 他分布在m1.t_order_1，m1.t_order_2</span></span><br><span class="line"><span class="attr">spring.shardingsphere.sharding.tables.t_order.actual‐data‐nodes</span>=<span class="string">m1.t_order_$‐&gt;&#123;1..2&#125;</span></span><br></pre></td></tr></table></figure></li>
+<li><p>配置主键策略</p>
+<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 指定t_order表的主键生成策略为SNOWFLAKE,SNOWFLAKE是一种分布式自增算法，保证id全局唯一</span></span><br><span class="line"><span class="attr">spring.shardingsphere.sharding.tables.t_order.key‐generator.column</span>=<span class="string">order_id</span></span><br><span class="line"><span class="attr">spring.shardingsphere.sharding.tables.t_order.key‐generator.type</span>=<span class="string">SNOWFLAKE</span></span><br></pre></td></tr></table></figure></li>
+<li><p>配置分片算法</p>
+<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 指定t_order表的分片策略，分片策略包括分片键和分片算法</span></span><br><span class="line"><span class="comment"># order_id为偶数的数据落在t_order_1，为奇数的落在t_order_2，分表策略的表达式为 t_order_$-&gt;&#123;order_id % 2 + 1&#125;</span></span><br><span class="line"><span class="attr">spring.shardingsphere.sharding.tables.t_order.table‐strategy.inline.sharding‐column</span>=<span class="string">order_id</span></span><br><span class="line"><span class="attr">spring.shardingsphere.sharding.tables.t_order.table‐strategy.inline.algorithm‐expression</span>=<span class="string">t_order_$‐&gt;&#123;order_id % 2 + 1&#125;</span></span><br></pre></td></tr></table></figure></li>
+<li><p>日志输出sql</p>
+<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">spring.shardingsphere.props.sql.show</span>=<span class="string">true</span></span><br></pre></td></tr></table></figure></li>
+</ul>
+<p>4.数据操作</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Mapper</span></span><br><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">interface</span> <span class="title class_">OrderDao</span> &#123;</span><br><span class="line">    <span class="comment">/*** 新增订单 </span></span><br><span class="line"><span class="comment">    * <span class="doctag">@param</span> price 订单价格 </span></span><br><span class="line"><span class="comment">    * <span class="doctag">@param</span> userId 用户id </span></span><br><span class="line"><span class="comment">    * <span class="doctag">@param</span> status 订单状态 </span></span><br><span class="line"><span class="comment">    * <span class="doctag">@return</span> </span></span><br><span class="line"><span class="comment">    */</span></span><br><span class="line">    <span class="meta">@Insert(&quot;insert into t_order(price,user_id,status) value(#&#123;price&#125;,#&#123;userId&#125;,#&#123;status&#125;)&quot;)</span></span><br><span class="line">    <span class="type">int</span> <span class="title function_">insertOrder</span><span class="params">(<span class="meta">@Param(&quot;price&quot;)</span> BigDecimal price, <span class="meta">@Param(&quot;userId&quot;)</span>Long userId, <span class="meta">@Param(&quot;status&quot;)</span>String status)</span>;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">/*** 根据id列表查询多个订单</span></span><br><span class="line"><span class="comment">    * <span class="doctag">@param</span> orderIds 订单id列表 </span></span><br><span class="line"><span class="comment">    * <span class="doctag">@return</span> </span></span><br><span class="line"><span class="comment">    */</span> </span><br><span class="line">    <span class="meta">@Select(&#123;&quot;&lt;script&gt;&quot; +</span></span><br><span class="line"><span class="meta">        &quot;select &quot; +</span></span><br><span class="line"><span class="meta">        &quot; * &quot; +</span></span><br><span class="line"><span class="meta">        &quot; from t_order t&quot; +</span></span><br><span class="line"><span class="meta">        &quot; where t.order_id in &quot; +</span></span><br><span class="line"><span class="meta">        &quot;&lt;foreach collection=&#x27;orderIds&#x27; item=&#x27;id&#x27; open=&#x27;(&#x27; separator=&#x27;,&#x27; close=&#x27;)&#x27;&gt;&quot; +</span></span><br><span class="line"><span class="meta">        &quot; #&#123;id&#125; &quot; +</span></span><br><span class="line"><span class="meta">        &quot;&lt;/foreach&gt;&quot;+</span></span><br><span class="line"><span class="meta">        &quot;&lt;/script&gt;&quot;&#125;)</span></span><br><span class="line">    List&lt;Map&gt; <span class="title function_">selectOrderbyIds</span><span class="params">(<span class="meta">@Param(&quot;orderIds&quot;)</span>List&lt;Long&gt; orderIds)</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>5.测试</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Test</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">testInsertUser</span><span class="params">()</span>&#123;</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">0</span> ; i&lt;<span class="number">10</span>; i++)&#123;</span><br><span class="line">        <span class="type">Long</span> <span class="variable">id</span> <span class="operator">=</span> i + <span class="number">1L</span>;</span><br><span class="line">        userDao.insertUser(id,<span class="string">&quot;姓名&quot;</span>+ id);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="meta">@Test</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">testSelectUserbyIds</span><span class="params">()</span>&#123;</span><br><span class="line">    List&lt;Long&gt; userIds = <span class="keyword">new</span> <span class="title class_">ArrayList</span>&lt;&gt;();</span><br><span class="line">    userIds.add(<span class="number">1L</span>);</span><br><span class="line">    userIds.add(<span class="number">2L</span>);</span><br><span class="line">    List&lt;Map&gt; users = userDao.selectUserbyIds(userIds);</span><br><span class="line">    System.out.println(users);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>Sharding-JDBC执行流程：<code>SQL解析 =&gt; 查询优化 =&gt; SQL路由 =&gt; SQL改写 =&gt; SQL执行 =&gt; 结果归并</code></p>
+<p>系统在设计之初就应该对业务数据的耦合松紧进行考量，从而进行垂直分库、垂直分表，使数据层架构清晰明了。 </p>
+<p>若非必要，无需进行水平切分，应先从缓存技术着手降低对数据库的访问压力。如果缓存使用过后，数据库访问量还是非常大，可以考虑数据库读、写分离原则。若当前数据库压力依然大，且业务数据持续增长无法估量，最后可考虑水平分库、分表，单表拆分数据控制在1000万以内。 </p>
+<p>注意：并不是所有的sql语句都能支持执行</p>
+<p>详细参考：<a target="_blank" rel="noopener" href="https://shardingsphere.apache.org/document/current/cn/features/sharding/use-norms/sql/">https://shardingsphere.apache.org/document/current/cn/features/sharding/use-norms/sql/</a></p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="https://foamtomato.github.io">Foam🍅</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="https://foamtomato.github.io/2022/04/10/0.1.9ShardingJDBC%E7%AE%80%E5%8D%95%E4%BB%8B%E7%BB%8D/">https://foamtomato.github.io/2022/04/10/0.1.9ShardingJDBC%E7%AE%80%E5%8D%95%E4%BB%8B%E7%BB%8D/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="https://foamtomato.github.io" target="_blank">喵喵鱼塘</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/%E5%88%86%E5%BA%93%E5%88%86%E8%A1%A8/">分库分表</a><a class="post-meta__tags" href="/tags/%E5%A4%9A%E6%95%B0%E6%8D%AE%E6%BA%90/">多数据源</a><a class="post-meta__tags" href="/tags/mysql/">mysql</a></div><div class="post_share"><div class="social-share" data-image="https://image.baidu.com/search/down?tn=download&amp;word=download&amp;ie=utf8&amp;fr=detail&amp;url=http://p3.qhimg.com/bdm/1000_618_85/t01abc6e061cae27bc3.jpg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2022/04/17/0.1.5mycat%E7%AE%80%E5%8D%95%E4%BB%8B%E7%BB%8D/" title="mycat简单介绍"><img class="cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://image.baidu.com/search/down?tn=download&amp;word=download&amp;ie=utf8&amp;fr=detail&amp;url=http://p5.qhimg.com/bdm/1000_618_85/t01961d8879edfbd0ff.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">mycat简单介绍</div></div></a></div><div class="next-post pull-right"><a href="/2022/04/10/0.0.4%E5%88%86%E5%BA%93%E5%88%86%E8%A1%A8%E6%80%9D%E6%83%B3/" title="分库分表思想"><img class="cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://image.baidu.com/search/down?tn=download&amp;word=download&amp;ie=utf8&amp;fr=detail&amp;url=http://p16.qhimg.com/bdm/1000_618_85/t01fce1f99b60abfba6.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">分库分表思想</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><div><a href="/2022/04/17/0.0.9%E6%95%B0%E6%8D%AE%E5%BA%93%E4%B8%AD%E9%97%B4%E4%BB%B6/" title="数据库中间件"><img class="cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://image.baidu.com/search/down?tn=download&word=download&ie=utf8&fr=detail&url=http://p7.qhimg.com/bdm/1000_618_85/t013ab25d5c99a30d51.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2022-04-17</div><div class="title">数据库中间件</div></div></a></div><div><a href="/2022/04/17/0.1.5mycat%E7%AE%80%E5%8D%95%E4%BB%8B%E7%BB%8D/" title="mycat简单介绍"><img class="cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://image.baidu.com/search/down?tn=download&word=download&ie=utf8&fr=detail&url=http://p5.qhimg.com/bdm/1000_618_85/t01961d8879edfbd0ff.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2022-04-17</div><div class="title">mycat简单介绍</div></div></a></div><div><a href="/2022/04/10/0.0.4%E5%88%86%E5%BA%93%E5%88%86%E8%A1%A8%E6%80%9D%E6%83%B3/" title="分库分表思想"><img class="cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://image.baidu.com/search/down?tn=download&word=download&ie=utf8&fr=detail&url=http://p16.qhimg.com/bdm/1000_618_85/t01fce1f99b60abfba6.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2022-04-10</div><div class="title">分库分表思想</div></div></a></div><div><a href="/2022/04/23/0.1.6mysql%E5%88%9B%E5%BB%BA%E5%AE%9A%E6%97%B6%E4%BB%BB%E5%8A%A1/" title="mysql创建定时任务"><img class="cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://image.baidu.com/search/down?tn=download&word=download&ie=utf8&fr=detail&url=http://p6.qhimg.com/bdm/1000_618_85/t01f40ac9baf328486f.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2022-04-23</div><div class="title">mysql创建定时任务</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/img/favicon.ico" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">Foam🍅</div><div class="author-info__description">用能力换时间，用时间换能力</div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">57</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">68</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">0</div></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">工作繁忙，不会定期更新！！！</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#ShardingJDBC"><span class="toc-number">1.</span> <span class="toc-text">ShardingJDBC</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BB%8B%E7%BB%8D"><span class="toc-number">1.1.</span> <span class="toc-text">介绍</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%89%B9%E7%82%B9"><span class="toc-number">1.2.</span> <span class="toc-text">特点</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%80%A7%E8%83%BD%E5%AF%B9%E6%AF%94"><span class="toc-number">1.3.</span> <span class="toc-text">性能对比</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#ShardingJDBC%E5%BC%95%E5%85%A5"><span class="toc-number">1.4.</span> <span class="toc-text">ShardingJDBC引入</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%B0%8F%E7%BB%93"><span class="toc-number">1.5.</span> <span class="toc-text">小结</span></a></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2025/08/03/0.5.7-Java+Milvus%E6%90%AD%E5%BB%BA%E4%BC%81%E4%B8%9A%E7%BA%A7RAG%E7%B3%BB%E7%BB%9F/" title="Java+Milvus搭建企业级RAG系统"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://images.unsplash.com/photo-1677442136019-21780ecad995?w=800&amp;h=600&amp;fit=crop" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Java+Milvus搭建企业级RAG系统"/></a><div class="content"><a class="title" href="/2025/08/03/0.5.7-Java+Milvus%E6%90%AD%E5%BB%BA%E4%BC%81%E4%B8%9A%E7%BA%A7RAG%E7%B3%BB%E7%BB%9F/" title="Java+Milvus搭建企业级RAG系统">Java+Milvus搭建企业级RAG系统</a><time datetime="2025-08-03T07:56:49.000Z" title="发表于 2025-08-03 15:56:49">2025-08-03</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/01/21/0.5.6-%E5%90%91%E9%87%8F%E6%95%B0%E6%8D%AE%E5%BA%93%E6%90%AD%E5%BB%BA%E4%B8%8E%E4%B8%BB%E6%B5%81%E4%BA%A7%E5%93%81%E5%AF%B9%E6%AF%94/" title="向量数据库搭建与主流产品对比"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=800&amp;h=600&amp;fit=crop" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="向量数据库搭建与主流产品对比"/></a><div class="content"><a class="title" href="/2025/01/21/0.5.6-%E5%90%91%E9%87%8F%E6%95%B0%E6%8D%AE%E5%BA%93%E6%90%AD%E5%BB%BA%E4%B8%8E%E4%B8%BB%E6%B5%81%E4%BA%A7%E5%93%81%E5%AF%B9%E6%AF%94/" title="向量数据库搭建与主流产品对比">向量数据库搭建与主流产品对比</a><time datetime="2025-01-21T06:30:45.000Z" title="发表于 2025-01-21 14:30:45">2025-01-21</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/01/20/0.5.5-Java%E5%BC%82%E5%B8%B8%E6%97%A5%E5%BF%97MCP%E6%9C%8D%E5%8A%A1%E6%9E%B6%E6%9E%84/" title="Java异常日志MCP服务架构"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&amp;h=600&amp;fit=crop" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Java异常日志MCP服务架构"/></a><div class="content"><a class="title" href="/2025/01/20/0.5.5-Java%E5%BC%82%E5%B8%B8%E6%97%A5%E5%BF%97MCP%E6%9C%8D%E5%8A%A1%E6%9E%B6%E6%9E%84/" title="Java异常日志MCP服务架构">Java异常日志MCP服务架构</a><time datetime="2025-01-20T08:45:30.000Z" title="发表于 2025-01-20 16:45:30">2025-01-20</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/01/17/0.5.4-Java%E9%AB%98%E5%BE%B7%E5%9C%B0%E5%9B%BEMCP%E5%AE%9A%E5%88%B6%E6%97%85%E6%B8%B8%E8%B7%AF%E7%BA%BF/" title="Java高德地图MCP定制旅游路线"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=800&amp;h=600&amp;fit=crop" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Java高德地图MCP定制旅游路线"/></a><div class="content"><a class="title" href="/2025/01/17/0.5.4-Java%E9%AB%98%E5%BE%B7%E5%9C%B0%E5%9B%BEMCP%E5%AE%9A%E5%88%B6%E6%97%85%E6%B8%B8%E8%B7%AF%E7%BA%BF/" title="Java高德地图MCP定制旅游路线">Java高德地图MCP定制旅游路线</a><time datetime="2025-01-17T02:30:00.000Z" title="发表于 2025-01-17 10:30:00">2025-01-17</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/01/16/0.5.3-SpringAI%E6%89%93%E9%80%A0%E8%87%AA%E5%B7%B1%E7%9A%84LLM%E5%BA%94%E7%94%A8/" title="Spring AI打造自己的LLM应用"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://images.unsplash.com/photo-1555949963-aa79dcee981c?w=800&amp;h=600&amp;fit=crop" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Spring AI打造自己的LLM应用"/></a><div class="content"><a class="title" href="/2025/01/16/0.5.3-SpringAI%E6%89%93%E9%80%A0%E8%87%AA%E5%B7%B1%E7%9A%84LLM%E5%BA%94%E7%94%A8/" title="Spring AI打造自己的LLM应用">Spring AI打造自己的LLM应用</a><time datetime="2025-01-16T06:30:00.000Z" title="发表于 2025-01-16 14:30:00">2025-01-16</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2025 By Foam🍅</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=4.13.0"></script><script src="/js/main.js?v=4.13.0"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.umd.min.js"></script><script src="https://cdn.jsdelivr.net/npm/vanilla-lazyload@17.8.8/dist/lazyload.iife.min.js"></script><div class="js-pjax"><script>(() => {
+  const $mermaid = document.querySelectorAll('#article-container .mermaid-wrap')
+  if ($mermaid.length === 0) return
+  const runMermaid = () => {
+    window.loadMermaid = true
+    const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'default'
+
+    Array.from($mermaid).forEach((item, index) => {
+      const mermaidSrc = item.firstElementChild
+      const mermaidThemeConfig = '%%{init:{ \'theme\':\'' + theme + '\'}}%%\n'
+      const mermaidID = 'mermaid-' + index
+      const mermaidDefinition = mermaidThemeConfig + mermaidSrc.textContent
+
+      const renderFn = mermaid.render(mermaidID, mermaidDefinition)
+
+      const renderV10 = () => {
+        renderFn.then(({svg}) => {
+          mermaidSrc.insertAdjacentHTML('afterend', svg)
+        })
+      }
+
+      const renderV9 = svg => {
+        mermaidSrc.insertAdjacentHTML('afterend', svg)
+      }
+
+      typeof renderFn === 'string' ? renderV9(renderFn) : renderV10()
+    })
+  }
+
+  const loadMermaid = () => {
+    window.loadMermaid ? runMermaid() : getScript('https://cdn.jsdelivr.net/npm/mermaid@10.8.0/dist/mermaid.min.js').then(runMermaid)
+  }
+
+  btf.addGlobalFn('themeChange', runMermaid, 'mermaid')
+
+  window.pjax ? loadMermaid() : document.addEventListener('DOMContentLoaded', loadMermaid)
+})()</script></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据库加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div id="local-search-results"></div><div id="local-search-stats-wrap"></div></div></div><div id="search-mask"></div><script src="/js/search/local-search.js?v=4.13.0"></script></div></div><!-- hexo injector body_end start --><script data-pjax>function history_calendar_injector_config(){
+                var parent_div_git = document.getElementsByClassName('sticky_layout')[0];
+                var item_html = '<div class="card-widget card-history"><div class="card-content"><div class="item-headline"><i class="fas fa-clock fa-spin"></i><span>那年今日</span></div><div id="history-baidu" style="height: 100px;overflow: hidden"><div class="history_swiper-container" id="history-container" style="width: 100%;height: 100%"><div class="swiper-wrapper" id="history_container_wrapper" style="height:20px"></div></div></div></div>';
+                // console.log('已挂载history_calendar') // 日志已清理
+                // parent_div_git.innerHTML=item_html+parent_div_git.innerHTML // 无报错，但不影响使用(支持pjax跳转)
+                parent_div_git.insertAdjacentHTML("afterbegin",item_html) // 有报错，但不影响使用(支持pjax跳转)
+            }if( document.getElementsByClassName('sticky_layout')[0] && (location.pathname ==='all'|| 'all' ==='all')){
+
+            history_calendar_injector_config()
+        } </script><script data-pjax  src="https://cdn.jsdelivr.net/npm/swiper/swiper-bundle.min.js"></script><script data-pjax src="https://cdn.jsdelivr.net/gh/Zfour/Butterfly-card-history/baiduhistory/js/main.js"></script><script data-pjax>function electric_clock_injector_config(){
+                var parent_div_git = document.getElementsByClassName('sticky_layout')[0];
+                var item_html = '<div class="card-widget card-clock"><div class="card-glass"><div class="card-background"><div class="card-content"><div id="hexo_electric_clock"><img id="card-clock-loading" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://cdn.jsdelivr.net/gh/Zfour/Butterfly-clock/clock/images/weather/loading.gif" style="height: 120px; width: 100%;" data-ll-status="loading" class="entered loading"></div></div></div></div></div>';
+                // console.log('已挂载electric_clock') // 日志已清理
+                // parent_div_git.innerHTML=item_html+parent_div_git.innerHTML // 无报错，但不影响使用(支持pjax跳转)
+                parent_div_git.insertAdjacentHTML("afterbegin",item_html) // 有报错，但不影响使用(支持pjax跳转)
+            }if( document.getElementsByClassName('sticky_layout')[0] && (location.pathname ==='all'|| 'all' ==='all')){
+
+            electric_clock_injector_config()
+        } </script><script src="https://pv.sohu.com/cityjson?ie=utf-8"></script><script data-pjax  src="/js/clock.js"></script><!-- hexo injector body_end end --></body></html>
