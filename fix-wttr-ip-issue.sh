@@ -20,27 +20,50 @@ cp node_modules/hexo-electric-clock/clock.js node_modules/hexo-electric-clock/cl
 
 # 修复问题
 echo "🔧 修复代码..."
+echo "  1. 修复await关键字问题..."
 sed -i 's/const userLocation = getUserLocation();/const userLocation = await getUserLocation();/' node_modules/hexo-electric-clock/clock.js
 
+echo "  2. 修复wttr.in默认数据判断..."
+sed -i "s/wttrResult.location !== '北京市'/wttrResult.location !== 'Unknown location'/" node_modules/hexo-electric-clock/clock.js
+
+echo "  3. 修复默认城市名称..."
+sed -i "s/location: '北京市'/location: '北京'/" node_modules/hexo-electric-clock/clock.js
+
 # 验证修复
-if grep -q "const userLocation = await getUserLocation();" node_modules/hexo-electric-clock/clock.js; then
-    echo "✅ 修复成功！"
+echo "🔍 验证修复结果..."
+if grep -q "const userLocation = await getUserLocation();" node_modules/hexo-electric-clock/clock.js && \
+   grep -q "location !== 'Unknown location'" node_modules/hexo-electric-clock/clock.js && \
+   grep -q "location: '北京'" node_modules/hexo-electric-clock/clock.js; then
+    echo "✅ 所有修复都成功应用！"
     echo ""
     echo "📝 修复内容:"
-    echo "  原代码: const userLocation = getUserLocation();"
-    echo "  新代码: const userLocation = await getUserLocation();"
+    echo "  1. await关键字修复:"
+    echo "     原: const userLocation = getUserLocation();"
+    echo "     新: const userLocation = await getUserLocation();"
     echo ""
-    echo "🎯 问题解决:"
-    echo "  - 不再发送IP地址到wttr.in"
-    echo "  - 正确获取城市名称"
-    echo "  - 避免503 Service Unavailable错误"
+    echo "  2. wttr.in数据判断修复:"
+    echo "     原: wttrResult.location !== '北京市'"
+    echo "     新: wttrResult.location !== 'Unknown location'"
+    echo ""
+    echo "  3. 默认城市名称修复:"
+    echo "     原: location: '北京市'"
+    echo "     新: location: '北京'"
+    echo ""
+    echo "🎯 解决的问题:"
+    echo "  ✅ 不再发送IP地址到wttr.in (503错误)"
+    echo "  ✅ 正确获取城市名称"
+    echo "  ✅ 心知天气插件正常加载"
+    echo "  ✅ wttr.in默认数据正确处理"
     echo ""
     echo "🔄 下一步:"
-    echo "  请刷新您的博客页面测试修复效果"
-    echo "  如果仍有问题，请清理浏览器缓存后重试"
+    echo "  1. 刷新您的博客页面测试修复效果"
+    echo "  2. 检查浏览器控制台确认无错误"
+    echo "  3. 验证天气显示是否正常"
+    echo "  4. 如果仍有问题，请清理浏览器缓存后重试"
 else
     echo "❌ 修复失败，恢复备份文件..."
     cp node_modules/hexo-electric-clock/clock.js.backup node_modules/hexo-electric-clock/clock.js
+    echo "💡 建议: 请手动检查文件内容或重新运行脚本"
     exit 1
 fi
 
