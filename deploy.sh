@@ -198,11 +198,14 @@ show_help() {
     echo "  -p, --push          推送源码"
     echo "  -a, --all          执行完整流程（推荐）"
     echo "  --manual           使用手动部署方式"
+    echo "  --preview          启动本地预览服务器"
+    echo "  --offline          离线测试（网络不可用时使用）"
     echo ""
     echo "示例:"
     echo "  $0 --all           # 完整部署流程"
     echo "  $0 -c -g -d        # 清理、生成、部署"
-    echo "  $0 --manual        # 使用手动部署"
+    echo "  $0 --preview       # 本地预览"
+    echo "  $0 --offline       # 离线测试"
 }
 
 # 主函数
@@ -244,6 +247,14 @@ main() {
             --manual)
                 manual=true
                 shift
+                ;;
+            --preview)
+                preview_site
+                exit 0
+                ;;
+            --offline)
+                offline_test
+                exit 0
                 ;;
             *)
                 log_error "未知选项: $1"
@@ -309,6 +320,82 @@ main() {
 
     log_success "部署流程完成！"
     log_info "访问你的博客: https://你的用户名.github.io"
+}
+# 本地预览站点
+preview_site() {
+    log_info "启动本地预览服务器..."
+
+    # 检查是否已生成静态文件
+    if [[ ! -d "public" ]]; then
+        log_info "生成静态文件..."
+        hexo generate --silent
+    fi
+
+    # 启动服务器
+    log_success "本地预览服务器已启动"
+    log_info "访问地址: http://localhost:4000"
+    log_info "按 Ctrl+C 停止服务器"
+
+    hexo server --open
+}
+
+# 离线测试
+offline_test() {
+    log_info "开始离线测试..."
+
+    # 检查必要文件
+    log_info "检查配置文件..."
+    if [[ ! -f "_config.yml" ]]; then
+        log_error "缺少 _config.yml 文件"
+        exit 1
+    fi
+    log_success "配置文件存在"
+
+    # 检查主题
+    if [[ ! -d "themes" ]]; then
+        log_error "缺少 themes 目录"
+        exit 1
+    fi
+    log_success "主题文件存在"
+
+    # 检查文章
+    local post_count=$(find source/_posts -name "*.md" 2>/dev/null | wc -l)
+    if [[ $post_count -eq 0 ]]; then
+        log_warning "没有找到任何文章文件"
+    else
+        log_success "找到 $post_count 篇文章"
+    fi
+
+    # 生成测试
+    log_info "执行生成测试..."
+    if hexo generate --silent; then
+        log_success "静态文件生成成功"
+
+        # 检查生成的文件
+        if [[ -d "public" ]]; then
+            local file_count=$(find public -type f | wc -l)
+            local size=$(du -sh public | cut -f1)
+            log_success "生成 $file_count 个文件，总大小: $size"
+        fi
+    else
+        log_error "静态文件生成失败"
+        exit 1
+    fi
+
+    # 验证重要页面
+    log_info "验证重要页面..."
+    local important_pages=("index.html" "archives/index.html" "tags/index.html" "categories/index.html")
+
+    for page in "${important_pages[@]}"; do
+        if [[ -f "public/$page" ]]; then
+            log_success "✓ $page"
+        else
+            log_warning "✗ 缺少 $page"
+        fi
+    done
+
+    log_success "离线测试完成！"
+    log_info "你可以使用 ./deploy.sh --preview 来启动本地预览"
 }
 
 # 运行主函数
