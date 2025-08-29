@@ -1,57 +1,43 @@
-name: Hexo Deploy
+name: Deploy Hexo to GitHub Pages
 
 on:
   push:
     branches:
       - main
-  workflow_dispatch:
+  pull_request:
+    branches:
+      - main
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. 检出代码
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-          token: ${{ secrets.GITHUB_TOKEN }}
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        submodules: true
 
-      # 2. 设置Node.js
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '18'
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
 
-      # 3. 缓存依赖
-      - name: Cache dependencies
-        uses: actions/cache@v3
-        with:
-          path: ~/.npm
-          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-node-
+    - name: Install Dependencies
+      run: |
+        npm install
 
-      # 4. 安装Hexo CLI
-      - name: Install Hexo CLI
-        run: npm install -g hexo-cli
+    - name: Clean and Generate
+      run: |
+        npx hexo clean
+        npx hexo generate
 
-      # 5. 安装依赖
-      - name: Install dependencies
-        run: npm install
-
-      # 6. 生成静态文件
-      - name: Generate static files
-        run: |
-          hexo clean
-          hexo generate
-
-      # 7. 部署到GitHub Pages
-      - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v3
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./public
-          publish_branch: gh-pages
-          cname: ${{ secrets.CNAME || '' }}
+    - name: Deploy to GitHub Pages
+      uses: peaceiris/actions-gh-pages@v3
+      if: github.ref == 'refs/heads/main'
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./public
+        publish_branch: gh-pages
+        cname: foamtomato.github.io

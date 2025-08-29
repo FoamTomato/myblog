@@ -33,12 +33,6 @@ electric_clock:
   temple_html: '<div class="card-widget card-clock"><div class="card-glass"><div class="card-background"><div class="card-content"><div id="hexo_electric_clock"><img id="card-clock-loading" src="https://cdn.jsdelivr.net/gh/Zfour/Butterfly-clock/clock/images/weather/loading.gif" style="height: 120px; width: 100%;" data-ll-status="loading" class="entered loading"></div></div></div></div></div>'
   js: '/js/clock.js'
 
-# 首页横幅图片设置
-index_img: https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=1200&h=400&fit=crop
-
-# 默认顶部图片设置
-default_top_img: https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=1200&h=400&fit=crop
-
 # 那年今日
 history_calendar:
   priority: 4
@@ -154,5 +148,5 @@ theme: butterfly
 ## Docs: https://hexo.io/docs/one-command-deployment
 deploy:
   type: git
-  repo: https://github.com/FoamTomato/myblog
-  branch: gh-pages
+  repo: https://github.com/FoamTomato/FoamTomato.github.io
+  branch: master
