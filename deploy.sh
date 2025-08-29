@@ -291,6 +291,14 @@ main() {
     fi
 
     # 执行各项任务
+    # 重要：生成和部署前必须清理缓存
+    if [[ "$generate" == "true" || "$deploy" == "true" || "$all" == "true" ]]; then
+        if [[ "$clean" == "false" ]]; then
+            log_warning "检测到生成/部署操作，将自动清理缓存以确保最新内容"
+            clean_cache
+        fi
+    fi
+
     if [[ "$clean" == "true" ]]; then
         clean_cache
     fi
