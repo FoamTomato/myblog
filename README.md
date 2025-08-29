@@ -87,11 +87,14 @@ hexo clean
 # 4. 本地代理(127.0.0.1:7890)
 
 # 查看当前代理状态
-./proxy-setup.sh status
+./proxy-manager.sh status
 
 # 手动管理代理
-./proxy-setup.sh enable   # 启用代理
-./proxy-setup.sh disable  # 禁用代理
+./proxy-manager.sh enable   # 启用代理
+./proxy-manager.sh disable  # 禁用代理
+
+# 测试代理连接
+./proxy-manager.sh test
 ```
 
 ### 自定义代理配置
