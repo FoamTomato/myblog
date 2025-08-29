@@ -22,16 +22,8 @@
 在浏览器控制台中执行以下命令：
 
 ```javascript
-// 切换到心知天气
+// 启用心知天气服务
 localStorage.setItem('useSeniverseWeather', 'true');
-
-// 切换到wttr.in
-localStorage.removeItem('useSeniverseWeather');
-localStorage.removeItem('useOpenWeatherMap');
-
-// 配置OpenWeatherMap
-localStorage.setItem('useOpenWeatherMap', 'true');
-localStorage.setItem('openWeatherApiKey', '您的API密钥');
 ```
 
 ## 📋 心知天气服务详情
@@ -157,7 +149,7 @@ localStorage.setItem('useOpenWeatherMap', 'true');
 - ✅ 改进多服务降级机制
 
 ### v1.0.0
-- ✅ 基础wttr.in天气服务
+- ✅ 基础天气服务功能
 - ✅ IP定位功能
 - ✅ 响应式设计
 
