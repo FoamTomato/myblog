@@ -154,5 +154,7 @@ theme: butterfly
 ## Docs: https://hexo.io/docs/one-command-deployment
 deploy:
   type: git
-  repo: https://github.com/FoamTomato/myblog
+  repo: https://github.com/FoamTomato/myblog.git
   branch: gh-pages
+  # 可选：设置提交信息
+  message: "Site updated: {{ now('YYYY-MM-DD HH:mm:ss') }}"
