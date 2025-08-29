@@ -34,6 +34,26 @@
             background-clip: text;
         }
 
+        .quick-setup {
+            text-align: center;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            font-size: 0.9em;
+        }
+
+        .quick-setup a {
+            color: #4ECDC4;
+            text-decoration: none;
+            font-weight: bold;
+            margin: 0 5px;
+        }
+
+        .quick-setup a:hover {
+            text-decoration: underline;
+        }
+
         .weather-option {
             background: rgba(255, 255, 255, 0.1);
             border-radius: 15px;
@@ -186,6 +206,14 @@
     <div class="container">
         <h1>🌤️ 天气服务设置</h1>
 
+        <div class="quick-setup">
+            💡 快速设置:
+            <a href="?set=seniverse">心知天气</a> |
+            <a href="?set=wttr">wttr.in</a> |
+            <a href="?set=openweather">OpenWeatherMap</a>
+            <br><small>点击上方链接可直接切换到对应天气服务</small>
+        </div>
+
         <div class="current-status">
             <div class="status-text">当前天气服务: <span id="current-service">检测中...</span></div>
             <div id="current-status-indicator" class="status-indicator status-inactive"></div>
@@ -264,10 +292,40 @@
     </div>
 
     <script>
+        // 检查URL参数进行快速设置
+        function checkUrlParams() {
+            const urlParams = new URLSearchParams(window.location.search);
+
+            if (urlParams.get('set') === 'seniverse') {
+                switchToSeniverse();
+                return true;
+            } else if (urlParams.get('set') === 'wttr') {
+                switchToWttr();
+                return true;
+            } else if (urlParams.get('set') === 'openweather') {
+                // 可以通过URL传递API key: ?set=openweather&key=YOUR_API_KEY
+                const apiKey = urlParams.get('key');
+                if (apiKey) {
+                    localStorage.setItem('useOpenWeatherMap', 'true');
+                    localStorage.setItem('openWeatherApiKey', apiKey);
+                    localStorage.removeItem('useSeniverseWeather');
+                    updateCurrentStatus();
+                    updateOptionStatus();
+                    showSuccessMessage('已配置 OpenWeatherMap 天气服务');
+                }
+                return true;
+            }
+
+            return false;
+        }
+
         // 初始化页面状态
         document.addEventListener('DOMContentLoaded', function() {
-            updateCurrentStatus();
-            updateOptionStatus();
+            // 先检查URL参数，如果没有则正常初始化
+            if (!checkUrlParams()) {
+                updateCurrentStatus();
+                updateOptionStatus();
+            }
 
             // 为天气选项添加点击事件
             document.querySelectorAll('.weather-option').forEach(option => {
@@ -346,6 +404,11 @@
             updateCurrentStatus();
             updateOptionStatus();
             showSuccessMessage('已切换到 心知天气 服务');
+
+            // 立即刷新页面以应用更改
+            setTimeout(() => {
+                window.location.reload();
+            }, 1500);
         }
 
         // 切换到OpenWeatherMap
