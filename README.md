@@ -220,6 +220,40 @@ cat WEATHER_SERVICES_GUIDE.md
 - **重复加载保护**: 避免重复加载插件脚本
 - **兼容性**: 兼容现有时钟显示系统
 
+## 🐛 已知问题修复
+
+### IP地址请求问题修复
+
+**问题描述**: wttr.in收到IP地址请求导致503错误
+```
+GET https://wttr.in/127.0.0.1?format="%l+\\+%c+\\+%t+\\+%h" 503 Service Unavailable
+```
+
+**根本原因**: `getWeatherDataForClock()`函数中缺少`await`关键字，导致异步函数返回Promise对象而不是实际值
+
+**修复方法**:
+1. 打开文件: `node_modules/hexo-electric-clock/clock.js`
+2. 找到第116行: `const userLocation = getUserLocation();`
+3. 修改为: `const userLocation = await getUserLocation();`
+
+**自动修复脚本**:
+```bash
+# 创建修复脚本
+cat > fix-wttr-ip-issue.sh << 'EOF'
+#!/bin/bash
+echo "修复wttr.in IP地址请求问题..."
+
+# 修复clock.js文件
+sed -i 's/const userLocation = getUserLocation();/const userLocation = await getUserLocation();/' node_modules/hexo-electric-clock/clock.js
+
+echo "✅ 修复完成！"
+echo "请刷新页面测试修复效果"
+EOF
+
+chmod +x fix-wttr-ip-issue.sh
+./fix-wttr-ip-issue.sh
+```
+
 ## 🎉 区级定位功能总结
 
 ### ✅ 实现成果
