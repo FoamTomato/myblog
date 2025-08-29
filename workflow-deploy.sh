@@ -478,9 +478,68 @@ show_help() {
     echo "  $0 publish-checklist"
 }
 
+# 自动检测和设置代理
+auto_detect_proxy() {
+    log_info "检测代理设置..."
+
+    # 检查环境变量
+    if [[ -n "$http_proxy" || -n "$https_proxy" ]]; then
+        log_success "检测到环境变量代理设置"
+        return 0
+    fi
+
+    # 检查Git配置
+    if git config --global --get http.proxy &>/dev/null; then
+        log_success "检测到Git代理配置"
+        return 0
+    fi
+
+    # 检查配置文件
+    if [[ -f ".proxy-config" ]]; then
+        log_info "发现代理配置文件，正在加载..."
+        if source ".proxy-config" 2>/dev/null; then
+            export http_proxy="$HTTP_PROXY"
+            export https_proxy="$HTTPS_PROXY"
+            export all_proxy="$ALL_PROXY"
+
+            # 设置Git代理
+            git config --global http.proxy "$HTTP_PROXY"
+            git config --global https.proxy "$HTTPS_PROXY"
+
+            log_success "代理配置已从文件加载"
+            return 0
+        fi
+    fi
+
+    # 尝试自动启用本地代理
+    local default_proxy="http://127.0.0.1:7890"
+    log_info "尝试连接本地代理: $default_proxy"
+
+    if curl -s --max-time 5 --proxy "$default_proxy" https://github.com > /dev/null; then
+        log_success "本地代理可用，正在启用..."
+
+        export http_proxy="$default_proxy"
+        export https_proxy="$default_proxy"
+        export all_proxy="socks5://127.0.0.1:7890"
+
+        # 设置Git代理
+        git config --global http.proxy "$default_proxy"
+        git config --global https.proxy "$default_proxy"
+
+        log_success "代理已自动启用"
+        return 0
+    fi
+
+    log_info "未检测到代理设置，继续使用直连模式"
+    return 1
+}
+
 # 主函数
 main() {
     local workflow="$1"
+
+    # 自动检测代理设置
+    auto_detect_proxy
 
     case "$workflow" in
         "new-post")

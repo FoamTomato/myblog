@@ -74,19 +74,108 @@ hexo clean
 
 ## 🚀 部署方案
 
-### 方案一：本地部署
+## 🌐 网络配置
+
+### 代理设置（自动）
+✅ **代理现在是默认行为**，所有部署脚本都会自动检测并启用代理：
+
+```bash
+# 自动检测顺序:
+# 1. 环境变量代理 (http_proxy, https_proxy)
+# 2. Git代理配置
+# 3. .proxy-config配置文件
+# 4. 本地代理(127.0.0.1:7890)
+
+# 查看当前代理状态
+./proxy-setup.sh status
+
+# 手动管理代理
+./proxy-setup.sh enable   # 启用代理
+./proxy-setup.sh disable  # 禁用代理
+```
+
+### 自定义代理配置
+编辑 `.proxy-config` 文件来自定义代理设置：
+
+```bash
+# 编辑配置文件
+vim .proxy-config
+
+# 配置内容示例:
+HTTP_PROXY="http://127.0.0.1:7890"
+HTTPS_PROXY="http://127.0.0.1:7890"
+ALL_PROXY="socks5://127.0.0.1:7890"
+```
+
+### 网络诊断和测试
+```bash
+# 检查网络连接
+./network-diagnosis.sh --test-all
+
+# 生成诊断报告
+./network-diagnosis.sh --report
+
+# 测试代理集成
+./test-proxy-integration.sh --test-all
+```
+
+### 天气API配置
+```bash
+# 查看配置状态
+./configure-weather-api.sh status
+
+# 配置单个API
+./configure-weather-api.sh xinzhi YOUR_API_KEY
+
+# 批量配置所有API
+./configure-weather-api.sh all
+
+# 创建配置备份
+./configure-weather-api.sh backup
+
+# 测试API连接
+./test-weather-api.sh xinzhi YOUR_API_KEY
+```
+
+## 🏠 本地部署
+
+### 方案一：基础部署
 ```bash
 # 使用简单脚本
 ./deploy.sh --all
 
-# 使用高级脚本 - 只部署构建产物
+# 本地预览
+./deploy.sh --preview
+
+# 离线测试
+./deploy.sh --offline
+```
+
+### 方案二：高级部署
+```bash
+# 只部署构建产物
 ./advanced-deploy.sh deploy
 
-# 使用高级脚本 - 包含源代码提交
+# 包含源代码提交
 ./advanced-deploy.sh deploy-all
 
-# 跳过源代码检查（如果有未提交的更改）
+# 跳过源代码检查
 ./advanced-deploy.sh deploy --skip-source-check
+```
+
+### 方案三：工作流部署
+```bash
+# 新文章发布
+./workflow-deploy.sh new-post "文章标题"
+
+# 批量更新
+./workflow-deploy.sh bulk-update
+
+# 性能优化
+./workflow-deploy.sh performance-optimize
+
+# SEO优化
+./workflow-deploy.sh seo-optimize
 ```
 
 ### 方案二：GitHub Actions自动部署
