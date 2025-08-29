@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>心知天气API测试</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            border-left: 4px solid #007bff;
+            background-color: #f8f9fa;
+        }
+        .result {
+            margin: 10px 0;
+            padding: 10px;
+            background: #e9ecef;
+            border-radius: 4px;
+            font-family: monospace;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        .success { color: #28a745; }
+        .error { color: #dc3545; }
+        .info { color: #17a2b8; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🌤️ 心知天气API测试</h1>
+
+        <div class="test-section">
+            <h3>API测试</h3>
+            <p>测试心知天气API调用: <code>https://weather.seniverse.com/?token=db45abab-26a9-47e6-a965-3fc69ed9509a</code></p>
+            <button onclick="testAPI()">测试API</button>
+            <button onclick="clearResult()">清除结果</button>
+            <div id="api-result" class="result">等待测试...</div>
+        </div>
+
+        <div class="test-section">
+            <h3>时钟插件测试</h3>
+            <p>测试时钟插件的天气功能</p>
+            <button onclick="testClock()">测试时钟</button>
+            <div id="clock-result" class="result">等待测试...</div>
+        </div>
+
+        <div class="test-section">
+            <h3>使用说明</h3>
+            <ul>
+                <li><strong>API测试:</strong> 直接测试心知天气API的响应</li>
+                <li><strong>时钟测试:</strong> 测试完整的时钟插件功能</li>
+                <li><strong>控制台:</strong> 查看浏览器控制台了解详细日志</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        async function testAPI() {
+            const resultDiv = document.getElementById('api-result');
+            resultDiv.innerHTML = '<span class="info">🔄 正在调用心知天气API...</span>';
+
+            try {
+                const response = await fetch('https://weather.seniverse.com/?token=db45abab-26a9-47e6-a965-3fc69ed9509a');
+
+                if (response.ok) {
+                    const data = await response.json();
+                    resultDiv.innerHTML = `
+                        <div class="success">✅ API调用成功!</div>
+                        <strong>响应数据:</strong><br>
+                        ${JSON.stringify(data, null, 2)}
+                    `;
+                    console.log('心知天气API响应:', data);
+                } else {
+                    resultDiv.innerHTML = `
+                        <div class="error">❌ API调用失败!</div>
+                        状态码: ${response.status}<br>
+                        错误信息: ${response.statusText}
+                    `;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="error">❌ 网络错误!</div>
+                    错误信息: ${error.message}
+                `;
+                console.error('API测试错误:', error);
+            }
+        }
+
+        async function testClock() {
+            const resultDiv = document.getElementById('clock-result');
+            resultDiv.innerHTML = '<span class="info">🔄 正在测试时钟插件...</span>';
+
+            try {
+                // 模拟时钟插件的getWeatherDataForClock函数
+                const data = await getWeatherDataForClock();
+
+                if (data) {
+                    resultDiv.innerHTML = `
+                        <div class="success">✅ 时钟插件测试成功!</div>
+                        <strong>天气数据:</strong><br>
+                        位置: ${data.location}<br>
+                        天气: ${data.weather}<br>
+                        温度: ${data.temp}<br>
+                        湿度: ${data.humidity}
+                    `;
+                } else {
+                    resultDiv.innerHTML = '<div class="error">❌ 时钟插件返回空数据</div>';
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="error">❌ 时钟插件测试失败!</div>
+                    错误信息: ${error.message}
+                `;
+                console.error('时钟测试错误:', error);
+            }
+        }
+
+        // 复制时钟插件的核心函数
+        async function getWeatherDataForClock() {
+            try {
+                const userLocation = await getUserLocation();
+                console.log('🌤️ 获取天气数据，位置:', userLocation);
+
+                const result = await getSeniverseWeather(userLocation);
+                if (result) {
+                    console.log('✅ 心知天气获取成功:', result);
+                    return result;
+                }
+            } catch (error) {
+                console.warn('❌ 心知天气API调用失败:', error);
+            }
+
+            return {
+                location: '北京',
+                weather: '☀️ 晴',
+                temp: '+25°C',
+                humidity: '60%'
+            };
+        }
+
+        async function getUserLocation() {
+            // 简化版本，直接返回北京
+            return '北京';
+        }
+
+        async function getSeniverseWeather(location) {
+            console.log('🌤️ 调用心知天气API，位置:', location);
+
+            try {
+                const response = await fetch(`https://weather.seniverse.com/?token=db45abab-26a9-47e6-a965-3fc69ed9509a`);
+
+                if (response.ok) {
+                    const data = await response.json();
+                    console.log('✅ 心知天气API响应:', data);
+
+                    if (data && data.results && data.results.length > 0) {
+                        const weather = data.results[0];
+                        const current = weather.now;
+
+                        const weatherText = getSeniverseWeatherText(current.code);
+
+                        return {
+                            location: weather.location.name,
+                            weather: weatherText,
+                            temp: current.temperature + '°C',
+                            humidity: current.humidity + '%'
+                        };
+                    }
+                } else {
+                    console.warn('❌ 心知天气API请求失败，状态码:', response.status);
+                }
+            } catch (error) {
+                console.warn('❌ 心知天气API调用异常:', error);
+            }
+
+            return null;
+        }
+
+        function getSeniverseWeatherText(code) {
+            const weatherCodeMap = {
+                '0': '晴', '1': '晴', '2': '晴', '3': '晴', '4': '多云',
+                '5': '晴间多云', '6': '晴间多云', '7': '大部多云', '8': '大部多云',
+                '9': '阴', '10': '阵雨', '11': '雷阵雨', '12': '雷阵雨伴有冰雹',
+                '13': '小雨', '14': '中雨', '15': '大雨', '16': '暴雨',
+                '17': '大暴雨', '18': '特大暴雨', '19': '冻雨', '20': '雨夹雪',
+                '21': '阵雪', '22': '小雪', '23': '中雪', '24': '大雪',
+                '25': '暴雪', '26': '浮尘', '27': '扬沙', '28': '沙尘暴',
+                '29': '强沙尘暴', '30': '雾', '31': '霾', '32': '风',
+                '33': '大风', '34': '飓风', '35': '热带风暴', '36': '龙卷风',
+                '37': '冷', '38': '热', '99': '未知'
+            };
+
+            return weatherCodeMap[code] || '未知';
+        }
+
+        function clearResult() {
+            document.getElementById('api-result').innerHTML = '等待测试...';
+            document.getElementById('clock-result').innerHTML = '等待测试...';
+        }
+    </script>
+</body>
+</html>

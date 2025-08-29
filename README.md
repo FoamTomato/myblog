@@ -122,36 +122,25 @@ ALL_PROXY="socks5://127.0.0.1:7890"
 ./test-proxy-integration.sh --test-all
 ```
 
-### 天气API配置
+### 天气系统配置
 ```bash
-# 查看配置状态
-./configure-weather-api.sh status
+# 测试心知天气API
+# 打开测试页面验证API功能
+open test-seniverse-api.html
 
-# 配置单个API
-./configure-weather-api.sh xinzhi YOUR_API_KEY
-
-# 批量配置所有API
-./configure-weather-api.sh all
-
-# 创建配置备份
-./configure-weather-api.sh backup
-
-# 测试API连接
-./test-weather-api.sh xinzhi YOUR_API_KEY
-
-# 查看wttr.in API使用指南
-# 查看wttr.in API使用指南
-cat WTTR_API_GUIDE.md
-
-# 查看天气服务使用指南
+# 查看心知天气API使用指南
 cat WEATHER_SERVICES_GUIDE.md
+
+# 运行修复脚本（如果遇到问题）
+./fix-wttr-ip-issue.sh
 
 ## 🌤️ 天气服务状态
 
 ### ✅ 当前配置
-- **时钟插件**：使用 wttr.in API（免费，无需API Key）
-- **区级精确定位**：支持精确到区级的天气信息（如北京朝阳区、上海浦东新区）
-- **多重定位服务**：集成 ipapi.co、ip-api.com、ip.sb 三个定位服务
+- **时钟插件**：直接使用心知天气API（`weather.seniverse.com`）
+- **API Token**：`db45abab-26a9-47e6-a965-3fc69ed9509a`
+- **定位服务**：集成 ipapi.co、ip-api.com、ip.sb 三个定位服务
+- **架构简化**：移除wttr.in依赖，消除503错误风险
 - **智能降级**：当无法获取区级信息时自动降级到城市级定位
 - **动态定位**：根据用户IP自动定位当前城市
 - **自动更新**：每小时自动刷新天气数据
