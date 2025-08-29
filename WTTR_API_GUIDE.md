@@ -229,10 +229,11 @@ fetch('https://wttr.in/beijing?format="%l+\\+%c+\\+%t+\\+%h"')
 ### 工作流程
 1. **获取位置信息**：优先使用城市名称，其次使用有效IP地址
 2. **智能过滤**：过滤本地IP地址(127.0.0.1, 192.168.x.x等)
-3. **API调用**：`https://wttr.in/{城市名称}` 获取天气数据
-4. **数据验证**：检查数据有效性，过滤无效结果
-5. **返回天气**：自动返回用户所在城市的天气信息
-6. **实时更新**：每小时重新查询，适应用户位置变化
+3. **IP定位服务**：当只有IP时，使用第三方服务解析城市
+4. **API调用**：`https://wttr.in/{城市名称}` 获取天气数据
+5. **数据验证**：检查数据有效性，过滤无效结果
+6. **返回天气**：自动返回用户所在城市的天气信息
+7. **实时更新**：每小时重新查询，适应用户位置变化
 
 ### 优势
 - **无需配置**：自动检测用户位置
@@ -240,10 +241,143 @@ fetch('https://wttr.in/beijing?format="%l+\\+%c+\\+%t+\\+%h"')
 - **全球覆盖**：支持全球任意IP地址
 - **动态适应**：用户位置变化时自动更新
 
+## 🌐 IP定位服务
+
+### 支持的服务列表
+
+#### 1. **ipapi.co** (推荐)
+- **URL**: `https://ipapi.co/{IP}/json/`
+- **特点**: 免费，响应速度快，支持中文
+- **限制**: 每月1000次请求
+- **数据**: 城市、国家、地区等详细信息
+
+#### 2. **ip-api.com**
+- **URL**: `http://ip-api.com/json/{IP}`
+- **特点**: 免费，无请求限制
+- **数据**: 城市、国家、ISP等信息
+- **注意**: HTTP协议（非HTTPS）
+
+#### 3. **ip.sb**
+- **URL**: `https://api.ip.sb/geoip/{IP}`
+- **特点**: 免费，支持IPv4/IPv6
+- **数据**: 基础地理位置信息
+
+### 服务优先级
+1. **ipapi.co** - 首选（速度快，数据准确）
+2. **ip-api.com** - 备用（无限制）
+3. **ip.sb** - 最后备用（轻量级）
+
+## 🎯 区级定位系统
+
+### 精确到区级定位的优势
+- **更精准的天气信息**：区级定位比城市级定位更准确
+- **本地化服务**：为用户提供更具针对性的天气服务
+- **智能降级**：如果没有区级信息，自动降级到城市级
+
+### 支持的区级城市列表
+
+#### 北京 (16个区)
+- 朝阳区 (Chaoyang District) → `beijing/chaoyang`
+- 海淀区 (Haidian District) → `beijing/haidian`
+- 西城区 (Xicheng District) → `beijing/xicheng`
+- 东城区 (Dongcheng District) → `beijing/dongcheng`
+- 丰台区 (Fengtai District) → `beijing/fengtai`
+- 石景山区 (Shijingshan District) → `beijing/shijingshan`
+- 通州区 (Tongzhou District) → `beijing/tongzhou`
+- 大兴区 (Daxing District) → `beijing/daxing`
+- 房山区 (Fangshan District) → `beijing/fangshan`
+- 门头沟区 (Mentougou District) → `beijing/mentougou`
+- 怀柔区 (Huairou District) → `beijing/huairou`
+- 密云区 (Miyun District) → `beijing/miyun`
+- 延庆区 (Yanqing District) → `beijing/yanqing`
+
+#### 上海 (16个区)
+- 黄浦区 (Huangpu District) → `shanghai/huangpu`
+- 徐汇区 (Xuhui District) → `shanghai/xuhui`
+- 长宁区 (Changning District) → `shanghai/changning`
+- 静安区 (Jing'an District) → `shanghai/jingan`
+- 普陀区 (Putuo District) → `shanghai/putuo`
+- 虹口区 (Hongkou District) → `shanghai/hongkou`
+- 杨浦区 (Yangpu District) → `shanghai/yangpu`
+- 闵行区 (Minhang District) → `shanghai/minhang`
+- 宝山区 (Baoshan District) → `shanghai/baoshan`
+- 嘉定区 (Jiading District) → `shanghai/jiading`
+- 浦东新区 (Pudong New Area) → `shanghai/pudong`
+- 金山区 (Jinshan District) → `shanghai/jinshan`
+- 松江区 (Songjiang District) → `shanghai/songjiang`
+- 青浦区 (Qingpu District) → `shanghai/qingpu`
+- 奉贤区 (Fengxian District) → `shanghai/fengxian`
+- 崇明区 (Chongming District) → `shanghai/chongming`
+
+#### 广州 (10个区)
+- 天河区 (Tianhe District) → `guangzhou/tianhe`
+- 越秀区 (Yuexiu District) → `guangzhou/yuexiu`
+- 海珠区 (Haizhu District) → `guangzhou/haizhu`
+- 番禺区 (Panyu District) → `guangzhou/panyu`
+- 花都区 (Huadu District) → `guangzhou/huadu`
+- 白云区 (Baiyun District) → `guangzhou/baiyun`
+- 黄埔区 (Huangpu District) → `guangzhou/huangpu`
+- 南沙区 (Nansha District) → `guangzhou/nansha`
+- 荔湾区 (Liwan District) → `guangzhou/liwan`
+
+#### 深圳 (9个区)
+- 福田区 (Futian District) → `shenzhen/futian`
+- 罗湖区 (Luohu District) → `shenzhen/luohu`
+- 南山区 (Nanshan District) → `shenzhen/nanshan`
+- 盐田区 (Yantian District) → `shenzhen/yantian`
+- 宝安区 (Bao'an District) → `shenzhen/baoan`
+- 龙岗区 (Longgang District) → `shenzhen/longgang`
+- 龙华区 (Longhua District) → `shenzhen/longhua`
+- 光明区 (Guangming District) → `shenzhen/guangming`
+- 坪山区 (Pingshan District) → `shenzhen/pingshan`
+
+#### 杭州 (10个区)
+- 上城区 (Shangcheng District) → `hangzhou/shangcheng`
+- 下城区 (Xiacheng District) → `hangzhou/xiacheng`
+- 拱墅区 (Gongshu District) → `hangzhou/gongshu`
+- 江干区 (Jianggan District) → `hangzhou/jianggan`
+- 滨江区 (Binjiang District) → `hangzhou/binjiang`
+- 余杭区 (Yuhang District) → `hangzhou/yuhang`
+- 富阳区 (Fuyang District) → `hangzhou/fuyang`
+- 临平区 (Linping District) → `hangzhou/linping`
+- 萧山区 (Xiaoshan District) → `hangzhou/xiaoshan`
+
+### 中文城市映射
+系统内置了30+个主要城市的中文到英文映射：
+
+```javascript
+const cityMapping = {
+  '北京': 'beijing',
+  '上海': 'shanghai',
+  '广州': 'guangzhou',
+  '深圳': 'shenzhen',
+  '杭州': 'hangzhou',
+  // ... 更多城市
+};
+```
+
 ### 示例
 ```javascript
-// 当前实现
+// 当前实现（支持区级定位）
 const userIP = returnCitySN["cip"]; // 如：192.168.1.100
-fetch(`https://wttr.in/${userIP}?format="%l+\\+%c+\\+%t+\\+%h"`)
-// 自动返回用户所在城市的天气
+
+// 1. 过滤本地IP
+if (isLocalIP(userIP)) {
+  return 'beijing'; // 默认城市
+}
+
+// 2. 调用IP定位服务（可能返回区级定位）
+const location = await getCityFromIP(userIP);
+if (location) {
+  // location 可能是:
+  // - 'beijing' (城市级)
+  // - 'beijing/chaoyang' (区级)
+  // - 'shanghai/pudong' (区级)
+  fetch(`https://wttr.in/${location}?format="%l+\\+%c+\\+%t+\\+%h"`)
+}
+
+// 3. 实际效果示例
+// 北京朝阳区用户: https://wttr.in/beijing/chaoyang
+// 上海浦东新区用户: https://wttr.in/shanghai/pudong
+// 广州天河区用户: https://wttr.in/guangzhou/tianhe
 ```
