@@ -92,7 +92,7 @@ avatar:
 disable_top_img: false
 
 # The banner image of home page
-index_img: https://api.ixiaowai.cn/gqapi/gqapi.php
+index_img: https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=1200&h=400&fit=crop
 
 # If the banner of page not setting, it will show the top_img
 default_top_img: ../../../../img/a980038dfa0d4b53b52e3ce77907d9b1.jpg
