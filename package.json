@@ -25,7 +25,7 @@
     "hexo-history-calendar": "^1.0.3",
     "hexo-lazyload-image": "^1.0.10",
     "hexo-renderer-ejs": "^2.0.0",
-    "hexo-renderer-marked": "^4.0.0",
+    "hexo-renderer-marked": "^7.0.1",
     "hexo-renderer-pug": "^2.0.0",
     "hexo-renderer-stylus": "^2.0.1",
     "hexo-server": "^3.0.0",
