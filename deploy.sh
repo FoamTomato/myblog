@@ -8,8 +8,8 @@ set -e  # 遇到错误立即退出
 
 # 配置变量
 BLOG_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-SOURCE_BRANCH="main"
-DEPLOY_BRANCH="gh-pages"
+SOURCE_BRANCH="master"
+DEPLOY_BRANCH="master"
 COMMIT_MESSAGE="Site updated: $(date +'%Y-%m-%d %H:%M:%S')"
 DEPLOY_DIR="public"
 

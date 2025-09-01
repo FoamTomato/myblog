@@ -155,6 +155,6 @@ theme: butterfly
 deploy:
   type: git
   repo: https://github.com/FoamTomato/myblog.git
-  branch: gh-pages
+  branch: master
   # 可选：设置提交信息
   message: "Site updated: {{ now('YYYY-MM-DD HH:mm:ss') }}"
