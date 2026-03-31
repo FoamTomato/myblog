@@ -98,5 +98,5 @@ search:
 ## Docs: https://hexo.io/docs/one-command-deployment
 deploy:
   type: git
-  repo: git@github.com:FoamTomato/FoamTomato.github.io.git
+  repo: https://github.com/FoamTomato/FoamTomato.github.io.git
   branch: master
