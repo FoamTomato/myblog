@@ -743,6 +743,7 @@ inject:
     - <link rel="stylesheet" href="/css/aurora-bg.css">
   bottom:
     - <div id="aurora-bg" aria-hidden="true"><div class="smoke-3"></div></div>
+    - <script src="/js/interactions.js" defer></script>
 
 # CDN
 # Don't modify the following settings unless you know how they work

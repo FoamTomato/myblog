@@ -31,41 +31,45 @@
   will-change: transform;
 }
 
-/* 第一片:青 + 蓝,大团缓慢盘旋 */
+/* 第一片:青 + 蓝,大团缓慢盘旋(加深加浓) */
 #aurora-bg::before {
   background-image:
-    radial-gradient(38% 46% at 22% 28%, rgba(56, 189, 200, 0.40), transparent 68%),
-    radial-gradient(34% 40% at 76% 22%, rgba(99, 102, 241, 0.32), transparent 68%),
-    radial-gradient(44% 50% at 60% 80%, rgba(168, 85, 247, 0.28), transparent 70%);
-  animation: smokeDrift1 40s ease-in-out infinite alternate;
+    radial-gradient(40% 48% at 22% 28%, rgba(45, 178, 190, 0.70), transparent 66%),
+    radial-gradient(36% 42% at 76% 22%, rgba(99, 102, 241, 0.58), transparent 66%),
+    radial-gradient(46% 52% at 60% 80%, rgba(168, 85, 247, 0.52), transparent 68%);
+  animation: smokeDrift1 38s ease-in-out infinite alternate;
 }
 
-/* 第二片:粉 + 青绿,反向异速飘动 */
+/* 第二片:粉 + 青绿,反向异速飘动(加深加浓) */
 #aurora-bg::after {
   background-image:
-    radial-gradient(40% 46% at 84% 60%, rgba(236, 72, 153, 0.24), transparent 70%),
-    radial-gradient(38% 44% at 24% 76%, rgba(45, 212, 191, 0.30), transparent 70%),
-    radial-gradient(34% 38% at 52% 10%, rgba(129, 140, 248, 0.24), transparent 68%);
-  animation: smokeDrift2 52s ease-in-out infinite alternate;
+    radial-gradient(42% 48% at 84% 60%, rgba(236, 72, 153, 0.46), transparent 68%),
+    radial-gradient(40% 46% at 24% 76%, rgba(45, 212, 191, 0.54), transparent 68%),
+    radial-gradient(36% 40% at 52% 10%, rgba(129, 140, 248, 0.46), transparent 66%);
+  animation: smokeDrift2 50s ease-in-out infinite alternate;
 }
 
-/* 第三片烟雾:一个额外的漂浮层(用一个独立子元素模拟更多层次) */
+/* 第三片烟雾:额外漂浮层,更多层次 */
 #aurora-bg > .smoke-3 {
   content: "";
   position: absolute;
   inset: -25%;
   background:
-    radial-gradient(30% 36% at 46% 46%, rgba(147, 197, 253, 0.22), transparent 66%),
-    radial-gradient(28% 34% at 70% 40%, rgba(196, 181, 253, 0.20), transparent 66%);
-  filter: blur(90px);
+    radial-gradient(32% 38% at 46% 46%, rgba(96, 165, 250, 0.44), transparent 64%),
+    radial-gradient(30% 36% at 70% 40%, rgba(167, 139, 250, 0.40), transparent 64%);
+  filter: blur(70px);
   will-change: transform;
-  animation: smokeDrift3 46s ease-in-out infinite alternate;
+  animation: smokeDrift3 44s ease-in-out infinite alternate;
 }
 
-:root #aurora-bg::before { opacity: 0.8; }
-:root #aurora-bg::after  { opacity: 0.65; }
-[data-theme="dark"] #aurora-bg::before { opacity: 0.5; }
-[data-theme="dark"] #aurora-bg::after  { opacity: 0.45; }
+/* 模糊略降,烟雾轮廓更明显 */
+#aurora-bg::before,
+#aurora-bg::after { filter: blur(64px); }
+
+:root #aurora-bg::before { opacity: 0.9; }
+:root #aurora-bg::after  { opacity: 0.8; }
+[data-theme="dark"] #aurora-bg::before { opacity: 0.72; }
+[data-theme="dark"] #aurora-bg::after  { opacity: 0.66; }
 
 @keyframes smokeDrift1 {
   0%   { transform: translate3d(-6%, -3%, 0) rotate(0deg)  scale(1.05); }
@@ -102,3 +106,45 @@ html, body, #web_bg, .layout, #body-wrap { background-color: transparent !import
 /* banner 上的文字/遮罩去掉暗色蒙版,配透明 */
 #page-header .mask,
 #page-header::before { background-color: transparent !important; }
+
+/* ============================================================
+ * 交互增强配套样式(配合 interactions.js)
+ * ============================================================ */
+
+/* 2) 鼠标跟随光晕:柔和白光,混合模式让它在烟雾上发亮 */
+#cursor-glow {
+  position: fixed;
+  top: 0; left: 0;
+  width: 500px; height: 500px;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: -1;                 /* 在极光(-2)之上、内容之下 */
+  background: radial-gradient(circle, rgba(255,255,255,0.55), transparent 62%);
+  mix-blend-mode: soft-light;
+  will-change: transform;
+}
+[data-theme="dark"] #cursor-glow {
+  background: radial-gradient(circle, rgba(180,210,255,0.30), transparent 62%);
+  mix-blend-mode: screen;
+}
+
+/* 1) 滚动渐显:JS 加 .arc-reveal 初始隐藏,进入视口加 .arc-in 显现 */
+@media (prefers-reduced-motion: no-preference) {
+  .arc-reveal {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.6s cubic-bezier(0.16,1,0.3,1), transform 0.6s cubic-bezier(0.16,1,0.3,1);
+  }
+  .arc-reveal.arc-in { opacity: 1; transform: translateY(0); }
+  /* JS 接管进入动画后,关掉 custom-archive.css 里的 CSS keyframe 进入,避免打架 */
+  .type-categories .category-list-item.arc-reveal,
+  #archive .article-sort-item.arc-reveal { animation: none !important; }
+}
+
+/* 4) 点击按压反馈:卡片与链接按下时微缩,物理感 */
+.type-categories .category-list-item:active,
+#archive .article-sort-item:not(.year):active {
+  transform: translateY(-1px) scale(0.985) !important;
+  transition: transform 0.1s ease !important;
+}
+.type-tags .tag-cloud-list a:active { opacity: 0.6; }
