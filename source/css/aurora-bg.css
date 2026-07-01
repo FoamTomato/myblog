@@ -148,11 +148,11 @@ html, body, #web_bg, .layout, #body-wrap,
 .page:has(#archive) #page-header #site-title,
 .page:has(.tagcloud-wrap) #page-header #site-title { display: none !important; }
 
-/* 去 banner 后给内容区顶部预留充足呼吸空间,四页统一、保持空旷 */
+/* 去 banner 后给内容区顶部预留充足呼吸空间,四页统一、保持空旷(间距翻倍) */
 .page.type-categories #content-inner,
 .page.type-about #content-inner,
 .page:has(#archive) #content-inner,
-.page:has(.tagcloud-wrap) #content-inner { padding-top: 4.5rem !important; }
+.page:has(.tagcloud-wrap) #content-inner { padding-top: 9rem !important; }
 
 /* ============================================================
  * 交互增强配套样式(配合 interactions.js)
