@@ -6,12 +6,12 @@
 # name || icon:
 #   name || link || icon
 
-menu: #导航栏:精简为有真实内容的核心入口
-  Home: / || fas fa-home
-  Archives: /archives/ || fas fa-archive
-  Tags: /tags/ || fas fa-tags
-  Categories: /categories/ || fas fa-folder-open
-  About: /about/ || fas fa-heart
+menu: #导航栏:精简为有真实内容的核心入口(纯中文)
+  首页: / || fas fa-home
+  归档: /archives/ || fas fa-archive
+  标签: /tags/ || fas fa-tags
+  分类: /categories/ || fas fa-folder-open
+  关于: /about/ || fas fa-heart
 
 # Code Blocks (代碼相關)
 # --------------------------------------  //代码高亮配置 我喜欢mac light样式，可以自行选择
@@ -128,9 +128,10 @@ cover:
     - /img/covers/pond-06-mountain.svg
 
 # Replace Broken Images (替換無法顯示的圖片)
+# 图片加载失败时的兜底:静态指向水塘 SVG(前端 JS 会进一步随机换成 covers 里任意一张)
 error_img:
-  flink: /img/friend_404.gif
-  post_page: /img/404.jpg
+  flink: /img/covers/pond-07-empty.svg
+  post_page: /img/covers/pond-07-empty.svg
 
 # A simple 404 page
 error_404:
@@ -747,6 +748,7 @@ inject:
   head:
     - <link rel="stylesheet" href="/css/custom-archive.css">
     - <link rel="stylesheet" href="/css/aurora-bg.css">
+    - <link rel="stylesheet" href="/css/tagcloud.css">
   bottom:
     - <div id="aurora-bg" aria-hidden="true"><div class="smoke-3"></div></div>
     - <script src="/js/pond.js" defer></script>

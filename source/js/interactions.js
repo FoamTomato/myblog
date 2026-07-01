@@ -140,3 +140,33 @@
   // butterfly 用 pjax 切页时重新初始化
   document.addEventListener('pjax:complete', init);
 })();
+
+/* ============================================================
+ * 失效图片 → 随机水塘 SVG 插画兜底
+ * 任何 <img> 加载失败时,随机换成 covers/ 里的一张水塘 SVG,
+ * 与主题统一,避免出现裂图/占位灰块。用捕获阶段监听 error,
+ * 覆盖率优于逐个绑 onerror(含 pjax 后新插入的图)。
+ * ============================================================ */
+(function () {
+  'use strict';
+  var COVERS = [
+    '/img/covers/pond-01-fish.svg',
+    '/img/covers/pond-02-ripple.svg',
+    '/img/covers/pond-03-lotus.svg',
+    '/img/covers/pond-04-reeds.svg',
+    '/img/covers/pond-05-koi.svg',
+    '/img/covers/pond-06-mountain.svg',
+    '/img/covers/pond-07-empty.svg'
+  ];
+  function pick() { return COVERS[Math.floor(Math.random() * COVERS.length)]; }
+  document.addEventListener('error', function (e) {
+    var img = e.target;
+    if (!img || img.tagName !== 'IMG') return;
+    // 已经是兜底 SVG 就不再替换,避免死循环
+    if (img.dataset.fallbackApplied) return;
+    var src = img.getAttribute('src') || '';
+    if (src.indexOf('/img/covers/pond-') !== -1) { img.dataset.fallbackApplied = '1'; return; }
+    img.dataset.fallbackApplied = '1';
+    img.src = pick();
+  }, true);  // 捕获阶段:img 的 error 不冒泡,必须用 capture
+})();

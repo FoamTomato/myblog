@@ -1,0 +1,90 @@
+/* 标签词云 —— 配合 scripts/tagcloud.js 的 {% tagcloud %} 输出。
+   纯青绿水墨色系, 字号/颜色/权重由 tag 插件按频率内联注入,
+   本文件只负责布局、间距、悬浮态与入场动画。
+
+   设计要点(避免 opacity 冲突):
+   - 频率"淡浅"完全由 color 的明度表达(高频深、低频浅), 不用 opacity。
+   - opacity 只归入场动画独占, 从 0 -> 1, 互不打架。 */
+
+.tagcloud-wrap {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;      /* 不同字号沿中线对齐, 词云更聚拢 */
+  justify-content: center;
+  gap: 0.35em 0.9em;        /* 行距 列距 */
+  max-width: 960px;
+  margin: 1.2rem auto 2.4rem;
+  padding: 0 0.5rem;
+  line-height: 1.35;
+}
+
+.tagcloud-item {
+  display: inline-flex;
+  align-items: baseline;
+  text-decoration: none;
+  border: 0;
+  /* 字号/颜色/font-weight 由内联 style 提供; opacity 交给下面的入场动画 */
+  transition: transform .22s ease, color .22s ease;
+  will-change: transform;
+  opacity: 0;               /* 初始隐藏, 由动画淡入到 1 */
+  transform: translateY(6px);
+  animation: tagcloud-in .45s ease both;
+  animation-delay: var(--tc-delay, 0ms);
+}
+
+@keyframes tagcloud-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.tagcloud-item:hover,
+.tagcloud-item:focus-visible {
+  color: #06565e !important; /* 悬浮统一提亮到最深青墨 */
+  transform: translateY(-2px) scale(1.06);
+  outline: none;
+}
+
+.tagcloud-name { white-space: nowrap; }
+
+.tagcloud-count {
+  font-size: 0.5em;         /* 相对当前标签字号缩小的角标 */
+  margin-left: 0.15em;
+  opacity: 0.55;
+  font-weight: 400;
+  vertical-align: super;
+}
+
+.tagcloud-empty {
+  padding: 3rem 0;
+  font-size: 1.1em;
+}
+
+/* 深色模式: Butterfly 给 <html> 加 [data-theme="dark"]。
+   不能用全局 filter:brightness —— 那会把最高频(最该突出)的深字压得更闷、
+   把低频字抬到近白。改为按频率档位显式给一套浅青色阶: 高频亮而实, 低频柔而淡,
+   在深底上高频依旧最醒目。档位由 tagcloud.js 的 data-tc-level(0..4) 提供。 */
+[data-theme="dark"] .tagcloud-item { color: #9fd6da !important; }
+[data-theme="dark"] .tagcloud-item[data-tc-level="4"] { color: #eafcff !important; } /* 高频: 近白青, 最亮 */
+[data-theme="dark"] .tagcloud-item[data-tc-level="3"] { color: #b8ecf1 !important; }
+[data-theme="dark"] .tagcloud-item[data-tc-level="2"] { color: #8fd0d6 !important; }
+[data-theme="dark"] .tagcloud-item[data-tc-level="1"] { color: #6fb3ba !important; }
+[data-theme="dark"] .tagcloud-item[data-tc-level="0"] { color: #5a9198 !important; } /* 低频: 柔和暗青 */
+[data-theme="dark"] .tagcloud-item:hover,
+[data-theme="dark"] .tagcloud-item:focus-visible {
+  color: #7fdfe4 !important;
+}
+
+/* 尊重减少动效偏好: 直接显示, 不做位移/淡入 */
+@media (prefers-reduced-motion: reduce) {
+  .tagcloud-item {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* 移动端收紧间距 */
+@media (max-width: 600px) {
+  .tagcloud-wrap { gap: 0.3em 0.7em; margin: 0.8rem auto 1.6rem; }
+  .tagcloud-item { max-width: 100%; }
+}

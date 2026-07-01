@@ -124,32 +124,33 @@ html, body, #web_bg, .layout, #body-wrap,
 #page-header::before { background-color: transparent !important; }
 
 /* ---- 归档类页(分类/标签/归档)剔除页顶大 banner,内容直接靠上 ----
- * 精确作用域:categories/tags 用 .type-*;archives 页含 #archive。
- * 不误伤文章页(保留其封面 banner)。archives banner 图是内联 style,需 !important。*/
+ * 作用域:categories 用 .type-categories;archives 页含 #archive;
+ * tags 页去掉 type 后仅 .page,用 :has(.tagcloud-wrap) 精确命中词云页。
+ * 不误伤文章页(保留其封面 banner)。banner 图是内联 style,需 !important。*/
 .page.type-categories #page-header,
-.page.type-tags #page-header,
-.page:has(#archive) #page-header {
+.page:has(#archive) #page-header,
+.page:has(.tagcloud-wrap) #page-header {
   height: auto !important;
   min-height: 0 !important;
   padding-top: 0 !important;
+  padding-bottom: 0.5rem !important;   /* 兜底,避免内容顶上来后穿透 */
   background-image: none !important;
   background-color: transparent !important;
 }
 .page.type-categories #page-header #page-site-info,
-.page.type-tags #page-header #page-site-info,
 .page:has(#archive) #page-header #page-site-info,
+.page:has(.tagcloud-wrap) #page-header #page-site-info,
 .page.type-categories #page-header #site-title,
-.page.type-tags #page-header #site-title,
-.page:has(#archive) #page-header #site-title { display: none !important; }
+.page:has(#archive) #page-header #site-title,
+.page:has(.tagcloud-wrap) #page-header #site-title { display: none !important; }
 
 /* 去 banner 后给内容区顶部预留呼吸空间(否则白卡紧贴导航) */
 .page.type-categories #content-inner,
-.page.type-tags #content-inner,
-.page:has(#archive) #content-inner { padding-top: 2.5rem !important; }
-/* 导航栏本身在这几页也要有个不透明兜底,避免内容顶上来后穿透 */
-.page.type-categories #page-header,
-.page.type-tags #page-header,
-.page:has(#archive) #page-header { padding-bottom: 0.5rem !important; }
+.page:has(#archive) #content-inner,
+.page:has(.tagcloud-wrap) #content-inner { padding-top: 3rem !important; }
+
+/* 关于页保留其 banner,但内容区与上方也留出统一呼吸间距 */
+.page.type-about #content-inner { padding-top: 2rem !important; }
 
 /* ============================================================
  * 交互增强配套样式(配合 interactions.js)
@@ -186,6 +187,38 @@ html, body, #web_bg, .layout, #body-wrap,
 /* 剔除侧边栏作者卡片里孤立的 social 社交图标行(github 圆图标);
  * "Follow Me" 按钮(#card-info-btn)已指向 github,此行重复,去掉更干净 */
 .card-info-social-icons { display: none !important; }
+
+/* ============================================================
+ * 静默滚动:隐藏所有滚动条(页面主滚动条 + 目录 TOC + 代码块 + 内部滚动区)
+ * 滚动功能保留,仅视觉隐藏。跨浏览器:WebKit 用 ::-webkit-scrollbar,
+ * Firefox 用 scrollbar-width,IE/旧 Edge 用 -ms-overflow-style。
+ * ============================================================ */
+html {
+  scrollbar-width: none;              /* Firefox */
+  -ms-overflow-style: none;           /* IE / 旧 Edge */
+}
+html::-webkit-scrollbar,
+body::-webkit-scrollbar { width: 0; height: 0; display: none; }
+
+/* 全站任意元素的滚动条一律静默(目录、代码块、侧栏、弹层等) */
+*,
+*::before,
+*::after {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+*::-webkit-scrollbar {
+  width: 0 !important;
+  height: 0 !important;
+  display: none !important;
+}
+/* 目录 TOC 容器:Butterfly 的 #card-toc / .toc-content 内部滚动也静默 */
+#card-toc .toc-content::-webkit-scrollbar,
+.toc-content::-webkit-scrollbar,
+#aside-content::-webkit-scrollbar { width: 0 !important; height: 0 !important; display: none !important; }
+#card-toc .toc-content,
+.toc-content,
+#aside-content { scrollbar-width: none; -ms-overflow-style: none; }
 
 /* 4) 点击按压反馈:卡片与链接按下时微缩,物理感 */
 .type-categories .category-list-item:active,

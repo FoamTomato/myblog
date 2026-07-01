@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <linearGradient id="c7bg" x1="0" y1="0" x2="0.2" y2="1">
+      <stop offset="0" stop-color="#dfeaea"/>
+      <stop offset="0.6" stop-color="#c9dddc"/>
+      <stop offset="1" stop-color="#b4cfce"/>
+    </linearGradient>
+    <radialGradient id="c7glow" cx="0.5" cy="0.4" r="0.7">
+      <stop offset="0" stop-color="#12969e" stop-opacity="0.22"/>
+      <stop offset="1" stop-color="#12969e" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="1200" height="800" fill="url(#c7bg)"/>
+  <rect width="1200" height="800" fill="url(#c7glow)"/>
+
+  <!-- 水面横线 -->
+  <g stroke="#0e7c88" stroke-opacity="0.14" fill="none" stroke-width="2">
+    <path d="M0,520 Q300,500 600,520 T1200,520">
+      <animate attributeName="d" dur="10s" repeatCount="indefinite"
+        values="M0,520 Q300,500 600,520 T1200,520;M0,520 Q300,540 600,520 T1200,520;M0,520 Q300,500 600,520 T1200,520"/>
+    </path>
+  </g>
+
+  <!-- 钓线 + 浮标,轻微上下 -->
+  <g stroke="#0a3a42" stroke-opacity="0.5" stroke-width="2">
+    <line x1="600" y1="120" x2="600" y2="470"/>
+  </g>
+  <g>
+    <animateTransform attributeName="transform" type="translate" dur="4s" repeatCount="indefinite"
+      values="0,0;0,10;0,0"/>
+    <circle cx="600" cy="480" r="12" fill="#e26e9e" fill-opacity="0.7"/>
+    <circle cx="600" cy="480" r="6" fill="#f4f6f5" fill-opacity="0.9"/>
+  </g>
+
+  <!-- 浮标处涟漪 -->
+  <g stroke="#0e7c88" fill="none" stroke-width="2">
+    <circle cx="600" cy="490" r="10" stroke-opacity="0.4">
+      <animate attributeName="r" dur="5s" repeatCount="indefinite" values="10;120"/>
+      <animate attributeName="stroke-opacity" dur="5s" repeatCount="indefinite" values="0.4;0"/>
+    </circle>
+    <circle cx="600" cy="490" r="10" stroke-opacity="0.3">
+      <animate attributeName="r" dur="5s" begin="1.7s" repeatCount="indefinite" values="10;100"/>
+      <animate attributeName="stroke-opacity" dur="5s" begin="1.7s" repeatCount="indefinite" values="0.3;0"/>
+    </circle>
+  </g>
+
+  <!-- 一条影影绰绰的鱼靠近 -->
+  <g fill="#12969e" fill-opacity="0.4">
+    <animateTransform attributeName="transform" type="translate" dur="14s" repeatCount="indefinite"
+      values="-160,620; 1360,660; -160,620" keyTimes="0;0.5;1" additive="sum"/>
+    <path d="M0,0 C28,-22 86,-22 114,0 C86,22 28,22 0,0 Z"/>
+    <path d="M110,0 C134,-18 152,-18 160,-4 C150,-2 142,4 160,4 C152,18 134,18 110,0 Z"/>
+  </g>
+</svg>
