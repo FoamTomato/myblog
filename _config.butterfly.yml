@@ -6,15 +6,11 @@
 # name || icon:
 #   name || link || icon
 
-menu: #按照上面给的格式配置你想设计的导航栏内容
+menu: #导航栏:精简为有真实内容的核心入口
   Home: / || fas fa-home
   Archives: /archives/ || fas fa-archive
   Tags: /tags/ || fas fa-tags
   Categories: /categories/ || fas fa-folder-open
-  List||fas fa-list:
-    - Music || /music/ || fas fa-music
-    - Movie || /movies/ || fas fa-video
-  Link: /link/ || fas fa-link
   About: /about/ || fas fa-heart
 
 # Code Blocks (代碼相關)
@@ -86,7 +82,7 @@ favicon: /img/favicon.png
 
 # Avatar (頭像)
 avatar:
-  img: /img/avatar.png
+  img: https://avatars.githubusercontent.com/u/34734406?v=4
   effect: false
 
 # the banner image of home page
@@ -584,7 +580,7 @@ aside:
     description:
   card_announcement:
     enable: true
-    content: This is my Blog
+    content: 👋 欢迎来到喵喵鱼塘!这里记录 Java 后端工程实践、AI 与大模型应用开发的实战笔记与系统化教程。愿你有所收获 🍅
   card_recent_post:
     enable: true
     limit: 5 # if set 0 will show all
