@@ -1,114 +1,55 @@
 /* ============================================================
- * 归档类页面重设计 v2 — 黑白编辑排版风(无彩色)
- * Archives(时间线) / Tags(标签云) / Categories(分类)
- * 设计哲学:零强调色。层次全部靠 字号阶梯 / 字重对比 /
- *           超细分隔线 / 大留白 建立。像一本排版讲究的杂志。
- * 方法:注入覆盖 Butterfly,不改主题源码。
- * 深浅双模式;prefers-reduced-motion;可访问对比达标。
+ * 归档类页面 v3 — 黑白 + Bento 网格
+ * Archives / Categories = Bento 卡片网格
+ * Tags = 极简文字链接(强制清除主题内联彩色)
+ * 零彩色,靠灰阶/字重/间距/细线;深浅双模式;reduced-motion。
  * 作用域:#archive / .type-tags / .type-categories
  * ============================================================ */
 
 :root {
-  --arc-ink: #111;              /* 主墨色 */
-  --arc-ink-2: rgba(0,0,0,0.55);   /* 次级 */
-  --arc-ink-3: rgba(0,0,0,0.35);   /* 弱化 */
-  --arc-hair: rgba(0,0,0,0.12);    /* 细线 */
-  --arc-hair-2: rgba(0,0,0,0.06);  /* 更细的底线 */
-  --arc-fill: rgba(0,0,0,0.04);    /* 极浅填充 */
+  --arc-ink: #141414;
+  --arc-ink-2: rgba(0,0,0,0.55);
+  --arc-ink-3: rgba(0,0,0,0.38);
+  --arc-hair: rgba(0,0,0,0.10);
+  --arc-card: #fafafa;
+  --arc-card-hover: #f2f2f2;
+  --arc-radius: 16px;
 }
 [data-theme="dark"] {
   --arc-ink: #f2f2f2;
-  --arc-ink-2: rgba(255,255,255,0.60);
-  --arc-ink-3: rgba(255,255,255,0.38);
-  --arc-hair: rgba(255,255,255,0.16);
-  --arc-hair-2: rgba(255,255,255,0.08);
-  --arc-fill: rgba(255,255,255,0.05);
+  --arc-ink-2: rgba(255,255,255,0.62);
+  --arc-ink-3: rgba(255,255,255,0.40);
+  --arc-hair: rgba(255,255,255,0.12);
+  --arc-card: rgba(255,255,255,0.04);
+  --arc-card-hover: rgba(255,255,255,0.08);
 }
 
 @media (prefers-reduced-motion: reduce) {
   #archive .article-sort-item,
-  #archive .article-sort-item-title,
   .type-tags .tag-cloud-list a,
-  .type-categories .category-list-link { transition: none !important; }
+  .type-categories .category-list-item { transition: none !important; }
 }
 
 /* ============================================================
- * 1. ARCHIVES — 报刊式时间线
- * 年份做成巨大的排版数字(轻量,弱化),文章挂在其右侧。
- * 用超细底线分隔,而不是圆点装饰。编辑感来自留白与字号差。
+ * 1. TAGS — 极简文字链接墙(强制去除主题内联彩色)
+ * 主题给每个 a 内联了 background-color,必须 !important 覆盖。
  * ============================================================ */
-
-#archive .article-sort {
-  margin-left: 0;
-  padding-left: 0;
-  border-left: none;
-}
-
-/* 年份:超大细体数字,低调但有存在感 */
-#archive .article-sort-title {
-  font-size: clamp(2.4rem, 7vw, 4rem);
-  font-weight: 200;
-  letter-spacing: -0.03em;
-  color: var(--arc-ink-3);
-  margin: 3rem 0 1rem;
-  padding: 0 0 0.6rem;
-  border: none;
-  border-bottom: 1px solid var(--arc-hair);
-  line-height: 1;
-}
-#archive .article-sort-title::before,
-#archive .article-sort-title::after { display: none; }
-
-/* 文章条目:细底线分隔的一行,时间在右,标题在左 */
-#archive .article-sort-item {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 1.2rem;
-  padding: 0.85rem 0;
-  border-bottom: 1px solid var(--arc-hair-2);
-  transition: padding-left 0.25s cubic-bezier(0.16,1,0.3,1);
-}
-#archive .article-sort-item:hover { padding-left: 0.6rem; }
-#archive .article-sort-item::before { display: none !important; }
-
-#archive .article-sort-item-info { flex: 1; min-width: 0; }
-#archive .article-sort-item-title {
-  font-size: 1.02rem;
-  font-weight: 500;
-  color: var(--arc-ink);
-  transition: opacity 0.2s ease;
-}
-#archive .article-sort-item:hover .article-sort-item-title { opacity: 0.6; }
-#archive .article-sort-item-time {
-  flex-shrink: 0;
-  font-size: 0.8rem;
-  font-variant-numeric: tabular-nums;
-  letter-spacing: 0.02em;
-  color: var(--arc-ink-3);
-}
-#archive .article-sort-item-time i { display: none; }  /* 去掉时钟图标,纯排版 */
-
-/* ============================================================
- * 2. TAGS — 排版化标签墙(无 pill 底,无彩色)
- * 标签之间用中点/间距分隔,hover 用下划线+加深,像文字链接。
- * 层次靠 Butterfly 自带的字号差(按文章数)+ 我们的字重。
- * ============================================================ */
-
 .type-tags .tag-cloud-list {
-  line-height: 2.4;
+  line-height: 2.7;
   max-width: 60rem;
   margin: 0 auto;
   text-align: left;
 }
 .type-tags .tag-cloud-list a {
   display: inline-block;
-  margin: 0.15rem 0.7rem 0.15rem 0;
-  padding: 0.1rem 0;
-  border: none;
-  border-radius: 0;
-  background: none;
+  margin: 0.2rem 1.1rem 0.2rem 0;
+  padding: 0 !important;
+  background: none !important;         /* 干掉内联彩色 */
+  background-color: transparent !important;
+  border: none !important;
+  border-radius: 0 !important;
   color: var(--arc-ink-2) !important;
+  font-size: 0.95rem !important;       /* 统一字号,去掉热度大小差,更简洁 */
   text-decoration: none;
   border-bottom: 1px solid transparent;
   transition: color 0.2s ease, border-color 0.2s ease;
@@ -116,56 +57,147 @@
 .type-tags .tag-cloud-list a:hover {
   color: var(--arc-ink) !important;
   border-bottom-color: var(--arc-ink);
-  background: none !important;
   transform: none !important;
 }
 
 /* ============================================================
- * 3. CATEGORIES — 编号列表式分类(杂志目录感)
- * 每个分类一行,左侧序号(排版数字),右侧计数弱化。
- * 细底线分隔,hover 整行加深 + 序号显现。
+ * 2. CATEGORIES — Bento 网格卡片
  * ============================================================ */
-
-.type-categories .category-list { counter-reset: cat; padding: 0; }
+.type-categories .category-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 14px;
+  counter-reset: cat;
+  padding: 0;
+  margin: 0;
+}
 .type-categories .category-list-item {
   list-style: none;
   margin: 0;
-  border-bottom: 1px solid var(--arc-hair-2);
+  background: var(--arc-card);
+  border: 1px solid var(--arc-hair);
+  border-radius: var(--arc-radius);
+  transition: background 0.22s ease, transform 0.22s cubic-bezier(0.16,1,0.3,1);
+}
+.type-categories .category-list-item:hover {
+  background: var(--arc-card-hover);
+  transform: translateY(-3px);
 }
 .type-categories .category-list-link {
   display: flex;
-  align-items: baseline;
-  gap: 0.9rem;
-  padding: 1rem 0.2rem;
-  border: none;
-  border-radius: 0;
-  background: none;
-  color: var(--arc-ink-2);
-  transition: color 0.2s ease, padding-left 0.25s cubic-bezier(0.16,1,0.3,1);
+  flex-direction: column;
+  gap: 10px;
+  padding: 20px;
+  border: none !important;
+  background: none !important;
+  color: var(--arc-ink) !important;
 }
-/* 序号:排版数字前缀 */
+/* 序号:卡片右上角的排版数字 */
 .type-categories .category-list-link::before {
   counter-increment: cat;
   content: counter(cat, decimal-leading-zero);
-  font-size: 0.78rem;
+  font-size: 0.72rem;
   font-variant-numeric: tabular-nums;
+  letter-spacing: 0.08em;
   color: var(--arc-ink-3);
-  letter-spacing: 0.05em;
-  flex-shrink: 0;
 }
-.type-categories .category-list-name { font-size: 1.05rem; font-weight: 500; }
-.type-categories .category-list-link:hover {
-  color: var(--arc-ink);
-  padding-left: 0.5rem;
-  background: none;
-}
-/* 分类计数:极弱化的数字,不做 pill */
+.type-categories .category-list-name { font-size: 1.15rem; font-weight: 600; }
 .type-categories .category-list-count {
-  margin-left: auto;
+  margin: 0;
   padding: 0;
-  font-size: 0.82rem;
+  font-size: 0.85rem;
   font-variant-numeric: tabular-nums;
   color: var(--arc-ink-3);
-  background: none;
+  background: none !important;
   border-radius: 0;
+}
+.type-categories .category-list-count::after { content: " 篇文章"; }
+/* 隐藏子分类嵌套的展开(保持卡片简洁);child 列表若有则平铺 */
+.type-categories .category-list .category-list-child { display: none; }
+
+/* ============================================================
+ * 3. ARCHIVES — Bento 网格卡片(按年份分组)
+ * .article-sort 变网格;.year 占整行做分组标题;文章项变卡片。
+ * ============================================================ */
+#archive .article-sort-title {
+  font-size: clamp(1.8rem, 5vw, 2.8rem);
+  font-weight: 200;
+  letter-spacing: -0.02em;
+  color: var(--arc-ink-3);
+  margin: 0 0 1.6rem;
+  padding: 0 0 0.5rem;
+  border-bottom: 1px solid var(--arc-hair);
+}
+
+#archive .article-sort {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 16px;
+  margin: 0;
+  padding: 0;
+  border: none;
+}
+/* 年份:占满整行的分组标题 */
+#archive .article-sort-item.year {
+  grid-column: 1 / -1;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--arc-ink);
+  letter-spacing: 0.04em;
+  padding: 1.4rem 0 0.2rem;
+  border: none;
+}
+/* 文章:bento 卡片,图在上,信息在下 */
+#archive .article-sort-item:not(.year) {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background: var(--arc-card);
+  border: 1px solid var(--arc-hair);
+  border-radius: var(--arc-radius);
+  transition: background 0.22s ease, transform 0.22s cubic-bezier(0.16,1,0.3,1);
+}
+#archive .article-sort-item:not(.year):hover {
+  background: var(--arc-card-hover);
+  transform: translateY(-3px);
+  padding-left: 0 !important;
+}
+#archive .article-sort-item::before { display: none !important; }
+
+/* 封面图:卡片顶部,黑白化(去彩色,统一调性) */
+#archive .article-sort-item-img {
+  display: block;
+  width: 100%;
+  height: 140px;
+  margin: 0;
+  overflow: hidden;
+}
+#archive .article-sort-item-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: grayscale(1) contrast(1.02);   /* 封面统一黑白 */
+  transition: transform 0.4s ease, filter 0.3s ease;
+}
+#archive .article-sort-item:hover .article-sort-item-img img {
+  transform: scale(1.04);
+  filter: grayscale(0);                   /* hover 恢复彩色,做小彩蛋 */
+}
+
+#archive .article-sort-item-info { padding: 14px 16px 16px; }
+#archive .article-sort-item-time {
+  display: block;
+  font-size: 0.75rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--arc-ink-3);
+  margin-bottom: 6px;
+}
+#archive .article-sort-item-time i { display: none; }
+#archive .article-sort-item-title {
+  font-size: 0.95rem;
+  font-weight: 600;
+  line-height: 1.45;
+  color: var(--arc-ink);
 }
