@@ -23,7 +23,7 @@
   height: -moz-fit-content !important;
   height: fit-content !important;
   min-height: 0 !important;
-  padding: 3.4rem 3rem 3rem !important;  /* 上 3.4rem 呼吸间距, 内容更从容 */
+  padding: 3.5rem 3rem !important;   /* 上下边距一致(各 3.5rem), 左右 3rem */
 }
 /* 词云页内容区离导航栏更远 */
 .page:has(.tagcloud-wrap) #content-inner { padding-top: 4.5rem !important; }
@@ -34,12 +34,12 @@
   align-items: baseline;      /* 基线对齐: 大小字沿文字基线排, 编辑式排版感 */
   align-content: center;
   justify-content: center;
-  gap: 0.9em 1.1em;           /* 行距 0.9em 列距 1.1em: 拉开节奏, 更疏朗 */
-  min-height: 240px;          /* 给词云区一个从容高度, 更有存在感 */
+  gap: 1.1em 1.1em;           /* 行距/列距: 拉开节奏, 更疏朗 */
+  min-height: 380px;          /* 加大词云区高度, 更挺拔更有存在感 */
   max-width: 900px;
   margin: 0.5rem auto;
   padding: 0.5rem;
-  line-height: 1.25;
+  line-height: 1.3;
 }
 
 .tagcloud-item {
