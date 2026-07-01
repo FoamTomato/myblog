@@ -99,8 +99,17 @@ html, body, #web_bg, .layout, #body-wrap,
   background-image: none !important;
 }
 /* footer 文字在浅色烟雾上要可读 */
-#footer, #footer a { color: var(--font-color, #333); }
-[data-theme="dark"] #footer, [data-theme="dark"] #footer a { color: rgba(255,255,255,0.75); }
+/* footer 文字在青绿烟雾背景上要清晰:用深墨色 + 轻微白描边提可读性 */
+#footer, #footer a, #footer span, #footer .footer-separator {
+  color: #0a3a42 !important;                                 /* 深青墨,对比足 */
+  text-shadow: 0 1px 2px rgba(255,255,255,0.5);              /* 浅底衬托 */
+}
+#footer a:hover { color: #06565e !important; }
+[data-theme="dark"] #footer, [data-theme="dark"] #footer a,
+[data-theme="dark"] #footer span {
+  color: rgba(230,245,243,0.9) !important;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+}
 
 /* ---- 顶部 banner 透明化:去掉写死的烟雾图,露出流动背景 ---- */
 #page-header,
