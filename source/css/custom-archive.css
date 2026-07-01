@@ -1,0 +1,150 @@
+/* ============================================================
+ * 归档类页面重设计 — 编辑感极简
+ * 作用范围:Archives(时间线) / Tags(标签云) / Categories(分类)
+ * 方法:注入覆盖 Butterfly 默认样式,不改主题源码。
+ * dials: VARIANCE 5 / MOTION 3 / DENSITY 3
+ * 强调色锁定:--arc-accent(青绿,呼应站点 banner),全三页统一
+ * 圆角系统锁定:统一 10px(卡片) / 999px(pill)
+ * 深浅双模式:[data-theme="dark"] 均覆盖
+ * 作用域:archives 用 #archive,tags/categories 用 .type-* body class
+ * ============================================================ */
+
+:root {
+  --arc-accent: #21a3a3;          /* 青绿强调色,饱和度 < 80% */
+  --arc-accent-soft: rgba(33, 163, 163, 0.12);
+  --arc-line: rgba(0, 0, 0, 0.08);
+  --arc-text-dim: rgba(0, 0, 0, 0.45);
+  --arc-radius: 10px;
+}
+[data-theme="dark"] {
+  --arc-accent: #35c2c2;
+  --arc-accent-soft: rgba(53, 194, 194, 0.16);
+  --arc-line: rgba(255, 255, 255, 0.10);
+  --arc-text-dim: rgba(255, 255, 255, 0.45);
+}
+
+/* prefers-reduced-motion:关闭所有过渡(遵守 6.B) */
+@media (prefers-reduced-motion: reduce) {
+  #archive .article-sort-item,
+  .type-tags .tag-cloud-list a,
+  .type-categories .category-list-item a { transition: none !important; }
+}
+
+/* ============================================================
+ * 1. ARCHIVES — 竖线串联的时间线
+ * ============================================================ */
+
+#archive .article-sort {
+  margin-left: 8px;
+  padding-left: 28px;
+  border-left: 2px solid var(--arc-line);
+}
+
+/* 年份标题:强调色圆点锚在竖线上 */
+#archive .article-sort-title {
+  position: relative;
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin: 2.2rem 0 1.4rem;
+  border: none;
+}
+#archive .article-sort-title::before {
+  content: "";
+  position: absolute;
+  left: -37px;
+  top: 50%;
+  width: 12px;
+  height: 12px;
+  transform: translateY(-50%);
+  background: var(--arc-accent);
+  border-radius: 999px;
+  box-shadow: 0 0 0 4px var(--arc-accent-soft);
+}
+#archive .article-sort-title::after { display: none; }
+
+/* 每篇文章条目:小圆点 + hover 微移 */
+#archive .article-sort-item {
+  position: relative;
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+#archive .article-sort-item:not(.year)::before {
+  content: "";
+  position: absolute;
+  left: -34px;
+  top: 1.4em;
+  width: 7px;
+  height: 7px;
+  background: var(--arc-line);
+  border-radius: 999px;
+  transition: background 0.25s ease;
+}
+#archive .article-sort-item:not(.year):hover { transform: translateX(4px); }
+#archive .article-sort-item:not(.year):hover::before { background: var(--arc-accent); }
+#archive .article-sort-item-title:hover { color: var(--arc-accent); }
+#archive .article-sort-item-time { color: var(--arc-text-dim); }
+
+/* ============================================================
+ * 2. TAGS — 分级的 pill 标签云
+ * ============================================================ */
+
+.type-tags .tag-cloud-list { line-height: 2.8; }
+
+.type-tags .tag-cloud-list a {
+  display: inline-block;
+  margin: 4px 5px;
+  padding: 5px 15px;
+  border: 1px solid var(--arc-line);
+  border-radius: 999px;
+  color: inherit !important;
+  background: transparent;
+  transition:
+    color 0.22s ease,
+    border-color 0.22s ease,
+    background 0.22s ease,
+    transform 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.type-tags .tag-cloud-list a:hover {
+  color: #fff !important;
+  background: var(--arc-accent);
+  border-color: var(--arc-accent);
+  transform: translateY(-2px);
+}
+[data-theme="dark"] .type-tags .tag-cloud-list a:hover { color: #10151a !important; }
+
+/* ============================================================
+ * 3. CATEGORIES — 带强调左边框的分类行
+ * ============================================================ */
+
+.type-categories .category-list-item {
+  list-style: none;
+  margin: 0;
+}
+.type-categories .category-list-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 4px 8px 14px;
+  border-left: 3px solid transparent;
+  border-radius: 0 var(--arc-radius) var(--arc-radius) 0;
+  transition:
+    border-color 0.22s ease,
+    background 0.22s ease,
+    color 0.22s ease,
+    padding-left 0.22s ease;
+}
+.type-categories .category-list-link:hover {
+  border-left-color: var(--arc-accent);
+  background: var(--arc-accent-soft);
+  color: var(--arc-accent);
+  padding-left: 18px;
+}
+/* 分类计数:右侧柔和 pill */
+.type-categories .category-list-count {
+  margin-left: 6px;
+  padding: 0 8px;
+  font-size: 0.78em;
+  color: var(--arc-text-dim);
+  background: var(--arc-line);
+  border-radius: 999px;
+}

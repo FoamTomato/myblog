@@ -739,7 +739,7 @@ fragment_cache: true
 # 插入代码到头部 </head> 之前 和 底部 </body> 之前            //外挂方式引入自定义css和js，推荐在这里引入自定义css和js
 inject:
   head:
-    # - <link rel="stylesheet" href="/xxx.css">
+    - <link rel="stylesheet" href="/css/custom-archive.css">
   bottom:
     # - <script src="xxxx"></script>
 
