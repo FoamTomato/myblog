@@ -27,7 +27,52 @@
 @media (prefers-reduced-motion: reduce) {
   #archive .article-sort-item,
   .type-tags .tag-cloud-list a,
-  .type-categories .category-list-item { transition: none !important; }
+  .type-categories .category-list-item { transition: none !important; animation: none !important; }
+}
+
+/* ---- 清除主题原生的彩色圆点装饰(border 画的空心点) ---- */
+.type-categories .category-list-item::before,
+.type-categories .category-list-item::after,
+#archive .article-sort-title::before,
+#archive .article-sort-title::after,
+#archive .article-sort-item::before,
+#archive .article-sort-item::after {
+  content: none !important;
+  border: none !important;
+  background: none !important;
+  display: none !important;
+}
+
+/* ---- 丝滑进入动画:卡片交错淡入上浮(纯 CSS,只动 transform/opacity) ---- */
+@keyframes arcFadeUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .type-categories .category-list-item,
+  #archive .article-sort-item:not(.year) {
+    opacity: 0;
+    animation: arcFadeUp 0.55s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+  /* 交错延迟:靠 nth-child 阶梯,前 12 个各延迟 40ms */
+  .type-categories .category-list-item:nth-child(1),
+  #archive .article-sort-item:nth-child(1) { animation-delay: 0.02s; }
+  .type-categories .category-list-item:nth-child(2),
+  #archive .article-sort-item:nth-child(2) { animation-delay: 0.06s; }
+  .type-categories .category-list-item:nth-child(3),
+  #archive .article-sort-item:nth-child(3) { animation-delay: 0.10s; }
+  .type-categories .category-list-item:nth-child(4),
+  #archive .article-sort-item:nth-child(4) { animation-delay: 0.14s; }
+  .type-categories .category-list-item:nth-child(5),
+  #archive .article-sort-item:nth-child(5) { animation-delay: 0.18s; }
+  .type-categories .category-list-item:nth-child(6),
+  #archive .article-sort-item:nth-child(6) { animation-delay: 0.22s; }
+  .type-categories .category-list-item:nth-child(7),
+  #archive .article-sort-item:nth-child(7) { animation-delay: 0.26s; }
+  .type-categories .category-list-item:nth-child(8),
+  #archive .article-sort-item:nth-child(8) { animation-delay: 0.30s; }
+  .type-categories .category-list-item:nth-child(n+9),
+  #archive .article-sort-item:nth-child(n+9) { animation-delay: 0.34s; }
 }
 
 /* ============================================================
@@ -77,11 +122,21 @@
   background: var(--arc-card);
   border: 1px solid var(--arc-hair);
   border-radius: var(--arc-radius);
-  transition: background 0.22s ease, transform 0.22s cubic-bezier(0.16,1,0.3,1);
+  box-shadow: 0 0 0 rgba(0,0,0,0);
+  transition:
+    background 0.3s cubic-bezier(0.16,1,0.3,1),
+    transform 0.35s cubic-bezier(0.16,1,0.3,1),
+    box-shadow 0.35s cubic-bezier(0.16,1,0.3,1),
+    border-color 0.3s ease;
 }
 .type-categories .category-list-item:hover {
   background: var(--arc-card-hover);
-  transform: translateY(-3px);
+  transform: translateY(-4px);
+  border-color: var(--arc-ink-3);
+  box-shadow: 0 12px 28px -12px rgba(0,0,0,0.22);
+}
+[data-theme="dark"] .type-categories .category-list-item:hover {
+  box-shadow: 0 12px 30px -10px rgba(0,0,0,0.6);
 }
 .type-categories .category-list-link {
   display: flex;
@@ -157,12 +212,22 @@
   background: var(--arc-card);
   border: 1px solid var(--arc-hair);
   border-radius: var(--arc-radius);
-  transition: background 0.22s ease, transform 0.22s cubic-bezier(0.16,1,0.3,1);
+  box-shadow: 0 0 0 rgba(0,0,0,0);
+  transition:
+    background 0.3s cubic-bezier(0.16,1,0.3,1),
+    transform 0.35s cubic-bezier(0.16,1,0.3,1),
+    box-shadow 0.35s cubic-bezier(0.16,1,0.3,1),
+    border-color 0.3s ease;
 }
 #archive .article-sort-item:not(.year):hover {
   background: var(--arc-card-hover);
-  transform: translateY(-3px);
+  transform: translateY(-4px);
+  border-color: var(--arc-ink-3);
+  box-shadow: 0 14px 30px -12px rgba(0,0,0,0.24);
   padding-left: 0 !important;
+}
+[data-theme="dark"] #archive .article-sort-item:not(.year):hover {
+  box-shadow: 0 14px 32px -10px rgba(0,0,0,0.6);
 }
 #archive .article-sort-item::before { display: none !important; }
 
