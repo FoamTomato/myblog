@@ -114,6 +114,25 @@ html, body, #web_bg, .layout, #body-wrap,
 #page-header .mask,
 #page-header::before { background-color: transparent !important; }
 
+/* ---- 归档类页(分类/标签/归档)剔除页顶大 banner,内容直接靠上 ----
+ * 精确作用域:categories/tags 用 .type-*;archives 页含 #archive。
+ * 不误伤文章页(保留其封面 banner)。archives banner 图是内联 style,需 !important。*/
+.page.type-categories #page-header,
+.page.type-tags #page-header,
+.page:has(#archive) #page-header {
+  height: auto !important;
+  min-height: 0 !important;
+  padding-top: 0 !important;
+  background-image: none !important;
+  background-color: transparent !important;
+}
+.page.type-categories #page-header #page-site-info,
+.page.type-tags #page-header #page-site-info,
+.page:has(#archive) #page-header #page-site-info,
+.page.type-categories #page-header #site-title,
+.page.type-tags #page-header #site-title,
+.page:has(#archive) #page-header #site-title { display: none !important; }
+
 /* ============================================================
  * 交互增强配套样式(配合 interactions.js)
  * ============================================================ */
