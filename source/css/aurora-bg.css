@@ -118,7 +118,8 @@ html, body, #web_bg, .layout, #body-wrap,
  * 交互增强配套样式(配合 interactions.js)
  * ============================================================ */
 
-/* 2) 鼠标墨水渲染:全屏 canvas,在烟雾之上、内容之下,不挡点击 */
+/* 水塘生命体(鱼+雨涟漪)+ 鼠标墨水:全屏 canvas,烟雾之上、内容之下 */
+#pond-canvas,
 #ink-canvas {
   position: fixed;
   top: 0; left: 0;
@@ -126,8 +127,9 @@ html, body, #web_bg, .layout, #body-wrap,
   z-index: -1;                 /* 在烟雾(-2)之上、内容之下 */
   mix-blend-mode: multiply;    /* 墨色叠在浅烟上更像宣纸渗墨 */
 }
+[data-theme="dark"] #pond-canvas,
 [data-theme="dark"] #ink-canvas {
-  mix-blend-mode: screen;      /* 深色下用滤色,墨点发亮 */
+  mix-blend-mode: screen;      /* 深色下用滤色,发亮 */
 }
 
 /* 1) 滚动渐显:JS 加 .arc-reveal 初始隐藏,进入视口加 .arc-in 显现 */
