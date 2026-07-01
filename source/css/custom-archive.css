@@ -108,6 +108,17 @@
 /* ============================================================
  * 2. CATEGORIES — Bento 网格卡片
  * ============================================================ */
+/* 去掉包裹 bento 的大白框,让卡片直接浮在流动背景上,更简洁 */
+.type-categories #recent-posts,
+.type-categories .category-lists,
+.type-tags #recent-posts,
+#archive #recent-posts {
+  background: transparent !important;
+  box-shadow: none !important;
+  border: none !important;
+  padding: 0 !important;
+}
+
 .type-categories .category-list {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
@@ -156,7 +167,15 @@
   letter-spacing: 0.08em;
   color: var(--arc-ink-3);
 }
-.type-categories .category-list-name { font-size: 1.15rem; font-weight: 600; }
+.type-categories .category-list-name {
+  font-size: 1.15rem;
+  font-weight: 600;
+  transition: transform 0.35s cubic-bezier(0.16,1,0.3,1);
+}
+/* hover 微动:序号淡入下沉、分类名右移一点 */
+.type-categories .category-list-link::before { transition: opacity 0.3s ease, transform 0.35s cubic-bezier(0.16,1,0.3,1); }
+.type-categories .category-list-item:hover .category-list-link::before { opacity: 0.55; transform: translateY(-2px); }
+.type-categories .category-list-item:hover .category-list-name { transform: translateX(3px); }
 .type-categories .category-list-count {
   margin: 0;
   padding: 0;

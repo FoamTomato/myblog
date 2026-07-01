@@ -1,79 +1,104 @@
 /* ============================================================
- * 全站极光水墨背景 — 线性极光风
- * 纯 CSS 多层径向渐变 + 缓慢位移/呼吸动画,模拟极光晕染流动。
- * 零 JS,固定层不随滚动重绘(pointer-events:none),不伤性能/SEO。
- * 放在最底层(z-index:-2),内容区卡片在其上;边缘留白处透出流动感。
- * reduced-motion 下静止;深浅色各自调透明度。
+ * 全站烟雾缭绕流动背景 — 极光水墨风(统一头部/身体/底部)
+ * 纯 CSS 多层大范围柔光渐变 + 多层异速漂移 + 缓慢缩放呼吸,
+ * 模拟烟雾缭绕、极光流动。零 JS,固定层不随滚动重绘。
+ * 顶部 banner 透明化,让全站共用同一层流动背景,头身尾统一。
+ * reduced-motion 静止;深浅色各自调透明度。
  * ============================================================ */
 
-/* 极光层:固定全屏,置于所有内容之下 */
+/* 极光/烟雾层:固定全屏,最底层 */
 #aurora-bg {
   position: fixed;
   inset: 0;
   z-index: -2;
   pointer-events: none;
   overflow: hidden;
-  /* 底色打底,避免极光太跳 */
-  background: #f7f8fa;
+  background:
+    linear-gradient(160deg, #eef1f6 0%, #e9ecf4 45%, #f2eef6 100%);
 }
-[data-theme="dark"] #aurora-bg { background: #0e1116; }
+[data-theme="dark"] #aurora-bg {
+  background: linear-gradient(160deg, #0c0f14 0%, #10131a 50%, #14101a 100%);
+}
 
-/* 三团流动的极光晕染(青 / 紫 / 粉),用大范围径向渐变 + blur */
+/* 三片烟雾:各自不同渐变团 + 不同漂移节奏,叠出缭绕流动感 */
 #aurora-bg::before,
 #aurora-bg::after {
   content: "";
   position: absolute;
-  inset: -20%;
+  inset: -30%;
   background-repeat: no-repeat;
-  filter: blur(60px);
+  filter: blur(80px);          /* 大模糊 = 烟雾质感 */
   will-change: transform;
 }
 
-/* 第一层:青 + 蓝,慢速漂移 */
+/* 第一片:青 + 蓝,大团缓慢盘旋 */
 #aurora-bg::before {
   background-image:
-    radial-gradient(40% 50% at 20% 30%, rgba(56, 189, 200, 0.42), transparent 70%),
-    radial-gradient(38% 44% at 78% 24%, rgba(99, 102, 241, 0.34), transparent 70%),
-    radial-gradient(46% 52% at 62% 78%, rgba(168, 85, 247, 0.30), transparent 72%);
-  animation: auroraDrift1 26s ease-in-out infinite alternate;
+    radial-gradient(38% 46% at 22% 28%, rgba(56, 189, 200, 0.40), transparent 68%),
+    radial-gradient(34% 40% at 76% 22%, rgba(99, 102, 241, 0.32), transparent 68%),
+    radial-gradient(44% 50% at 60% 80%, rgba(168, 85, 247, 0.28), transparent 70%);
+  animation: smokeDrift1 40s ease-in-out infinite alternate;
 }
 
-/* 第二层:粉 + 青,反向漂移,叠出流动交错感 */
+/* 第二片:粉 + 青绿,反向异速飘动 */
 #aurora-bg::after {
   background-image:
-    radial-gradient(42% 48% at 82% 62%, rgba(236, 72, 153, 0.26), transparent 72%),
-    radial-gradient(40% 46% at 26% 74%, rgba(45, 212, 191, 0.30), transparent 72%),
-    radial-gradient(36% 40% at 50% 12%, rgba(129, 140, 248, 0.24), transparent 70%);
-  animation: auroraDrift2 34s ease-in-out infinite alternate;
+    radial-gradient(40% 46% at 84% 60%, rgba(236, 72, 153, 0.24), transparent 70%),
+    radial-gradient(38% 44% at 24% 76%, rgba(45, 212, 191, 0.30), transparent 70%),
+    radial-gradient(34% 38% at 52% 10%, rgba(129, 140, 248, 0.24), transparent 68%);
+  animation: smokeDrift2 52s ease-in-out infinite alternate;
 }
 
-/* 浅色模式:极光较淡,不压内容 */
-:root #aurora-bg::before { opacity: 0.75; }
-:root #aurora-bg::after  { opacity: 0.6; }
-/* 深色模式:极光可稍亮,在深底上更出彩 */
-[data-theme="dark"] #aurora-bg::before { opacity: 0.55; }
-[data-theme="dark"] #aurora-bg::after  { opacity: 0.5; }
-
-@keyframes auroraDrift1 {
-  0%   { transform: translate3d(-4%, -2%, 0) rotate(0deg) scale(1.05); }
-  100% { transform: translate3d(5%, 4%, 0) rotate(8deg) scale(1.15); }
-}
-@keyframes auroraDrift2 {
-  0%   { transform: translate3d(3%, 2%, 0) rotate(0deg) scale(1.1); }
-  100% { transform: translate3d(-5%, -3%, 0) rotate(-6deg) scale(1.02); }
+/* 第三片烟雾:一个额外的漂浮层(用一个独立子元素模拟更多层次) */
+#aurora-bg > .smoke-3 {
+  content: "";
+  position: absolute;
+  inset: -25%;
+  background:
+    radial-gradient(30% 36% at 46% 46%, rgba(147, 197, 253, 0.22), transparent 66%),
+    radial-gradient(28% 34% at 70% 40%, rgba(196, 181, 253, 0.20), transparent 66%);
+  filter: blur(90px);
+  will-change: transform;
+  animation: smokeDrift3 46s ease-in-out infinite alternate;
 }
 
-/* reduced-motion:极光静止(保留晕染,不流动) */
+:root #aurora-bg::before { opacity: 0.8; }
+:root #aurora-bg::after  { opacity: 0.65; }
+[data-theme="dark"] #aurora-bg::before { opacity: 0.5; }
+[data-theme="dark"] #aurora-bg::after  { opacity: 0.45; }
+
+@keyframes smokeDrift1 {
+  0%   { transform: translate3d(-6%, -3%, 0) rotate(0deg)  scale(1.05); }
+  50%  { transform: translate3d(3%, 5%, 0)   rotate(6deg)  scale(1.18); }
+  100% { transform: translate3d(7%, -2%, 0)  rotate(12deg) scale(1.10); }
+}
+@keyframes smokeDrift2 {
+  0%   { transform: translate3d(4%, 3%, 0)   rotate(0deg)  scale(1.12); }
+  50%  { transform: translate3d(-4%, -5%, 0) rotate(-5deg) scale(1.02); }
+  100% { transform: translate3d(-7%, 2%, 0)  rotate(-9deg) scale(1.15); }
+}
+@keyframes smokeDrift3 {
+  0%   { transform: translate3d(0, 0, 0)     scale(1); }
+  100% { transform: translate3d(5%, -4%, 0)  scale(1.2); }
+}
+
 @media (prefers-reduced-motion: reduce) {
   #aurora-bg::before,
-  #aurora-bg::after { animation: none !important; }
+  #aurora-bg::after,
+  #aurora-bg > .smoke-3 { animation: none !important; }
 }
 
-/* 让内容层背景透明,极光才能从最底层透出 */
-html,
-body,
-#web_bg,
-.layout,
-#body-wrap { background-color: transparent !important; }
-/* 内容卡片保持不透明白/深底,保证可读性(极光只在留白处透出) */
+/* ---- 全站透明化,让流动背景从头贯穿到尾 ---- */
+html, body, #web_bg, .layout, #body-wrap { background-color: transparent !important; }
 
+/* ---- 顶部 banner 透明化:去掉写死的烟雾图,露出流动背景 ---- */
+#page-header,
+#page-header.full_page,
+#page-header.not-top-img,
+#page-header::before {
+  background: transparent !important;
+  background-image: none !important;
+}
+/* banner 上的文字/遮罩去掉暗色蒙版,配透明 */
+#page-header .mask,
+#page-header::before { background-color: transparent !important; }
