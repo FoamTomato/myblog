@@ -17,7 +17,8 @@
     linear-gradient(160deg, #eef1f6 0%, #e9ecf4 45%, #f2eef6 100%);
 }
 [data-theme="dark"] #aurora-bg {
-  background: linear-gradient(160deg, #0c0f14 0%, #10131a 50%, #14101a 100%);
+  /* 深青黑底,取自参考图暗部 #071e25 / #0c1923 */
+  background: linear-gradient(160deg, #04100f 0%, #071c1e 50%, #030d0e 100%);
 }
 
 /* 三片烟雾:各自不同渐变团 + 不同漂移节奏,叠出缭绕流动感 */
@@ -68,8 +69,28 @@
 
 :root #aurora-bg::before { opacity: 0.9; }
 :root #aurora-bg::after  { opacity: 0.8; }
-[data-theme="dark"] #aurora-bg::before { opacity: 0.72; }
-[data-theme="dark"] #aurora-bg::after  { opacity: 0.66; }
+
+/* ---- dark 专属:深青黑底上的青绿烟雾(对齐参考图配色) ---- */
+[data-theme="dark"] #aurora-bg::before {
+  opacity: 0.92;
+  background-image:
+    radial-gradient(40% 48% at 22% 28%, rgba(45, 190, 180, 0.80), transparent 66%),
+    radial-gradient(36% 42% at 76% 22%, rgba(26, 130, 138, 0.70), transparent 66%),
+    radial-gradient(46% 52% at 60% 80%, rgba(56, 200, 180, 0.60), transparent 68%);
+}
+[data-theme="dark"] #aurora-bg::after {
+  opacity: 0.84;
+  background-image:
+    radial-gradient(42% 48% at 84% 60%, rgba(45, 200, 185, 0.58), transparent 68%),
+    radial-gradient(40% 46% at 24% 76%, rgba(38, 175, 175, 0.66), transparent 68%),
+    radial-gradient(36% 40% at 52% 10%, rgba(20, 150, 158, 0.56), transparent 66%);
+}
+[data-theme="dark"] #aurora-bg > .smoke-3 {
+  opacity: 0.74;
+  background:
+    radial-gradient(32% 38% at 46% 46%, rgba(90, 210, 195, 0.54), transparent 64%),
+    radial-gradient(30% 36% at 70% 40%, rgba(45, 190, 185, 0.48), transparent 64%);
+}
 
 @keyframes smokeDrift1 {
   0%   { transform: translate3d(-6%, -3%, 0) rotate(0deg)  scale(1.05); }
@@ -102,17 +123,7 @@ html, body, #web_bg, .layout, #body-wrap,
 #footer, #footer a { color: var(--font-color, #333); }
 [data-theme="dark"] #footer, [data-theme="dark"] #footer a { color: rgba(255,255,255,0.75); }
 
-/* ---- 顶部 banner 透明化:去掉写死的烟雾图,露出流动背景 ---- */
-#page-header,
-#page-header.full_page,
-#page-header.not-top-img,
-#page-header::before {
-  background: transparent !important;
-  background-image: none !important;
-}
-/* banner 上的文字/遮罩去掉暗色蒙版,配透明 */
-#page-header .mask,
-#page-header::before { background-color: transparent !important; }
+/* 顶部 banner 保留主题图片(青绿烟雾图),不透明化 —— 与下方 CSS 烟雾青绿色调连贯 */
 
 /* ============================================================
  * 交互增强配套样式(配合 interactions.js)

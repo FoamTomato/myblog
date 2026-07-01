@@ -1,0 +1,113 @@
+/* ============================================================
+ * 深青黑主题 · 玻璃质感容器 + 字体对比补强
+ * 仅作用于 [data-theme="dark"]。让青绿烟雾从最底层透出,
+ * 内容区半透明深青底 + backdrop-blur 玻璃感;字体用不透明 off-white
+ * 保证 WCAG AA 对比(半透明卡上主题默认的半透明文字会跌破对比)。
+ * 容器底色往青偏移(rgba(16,26,30) 系),与青黑烟雾统一。
+ * ============================================================ */
+
+/* ---- C1. 透明层:让 aurora 透出(补 aurora-bg.css 未覆盖的) ---- */
+[data-theme="dark"] #content-inner,
+[data-theme="dark"] #article-container,
+[data-theme="dark"] .toc-content,
+[data-theme="dark"] .aside-list-item { background: transparent; }
+
+/* ---- C2. 玻璃内容卡(半透明深青底 + blur) ---- */
+[data-theme="dark"] .card-widget,
+[data-theme="dark"] .card-info,
+[data-theme="dark"] .card-announcement,
+[data-theme="dark"] .card-recent-post,
+[data-theme="dark"] #aside-content .card-widget {
+  background: rgba(16, 26, 30, 0.56) !important;
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+[data-theme="dark"] #card-toc {
+  background: rgba(16, 26, 30, 0.62) !important;
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+}
+[data-theme="dark"] #recent-posts .recent-post-item {
+  background: rgba(14, 24, 28, 0.62) !important;
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+[data-theme="dark"] #post,
+[data-theme="dark"] #page,
+[data-theme="dark"] .post .post-content {
+  background: rgba(14, 24, 28, 0.64) !important;
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+}
+[data-theme="dark"] #post-comment,
+[data-theme="dark"] #pagination {
+  background: rgba(14, 24, 28, 0.60) !important;
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+}
+
+/* ---- C3. 导航:毛玻璃 + 固定时加不透明兜底 ---- */
+[data-theme="dark"] #nav {
+  background: rgba(10, 20, 22, 0.42) !important;
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+}
+[data-theme="dark"] #nav.nav-fixed {
+  background: rgba(10, 20, 22, 0.72) !important;
+  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(16px);
+}
+/* 回顶等右侧按钮 */
+[data-theme="dark"] #rightside button {
+  background: rgba(16, 26, 30, 0.62) !important;
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+}
+
+/* ---- C4. 内部实体块:再深一档,近不透明保可读 ---- */
+[data-theme="dark"] #article-container pre,
+[data-theme="dark"] .highlight { background: rgba(8, 15, 17, 0.82) !important; }
+[data-theme="dark"] #article-container blockquote { background: rgba(24, 36, 40, 0.5) !important; }
+[data-theme="dark"] #article-container table th { background: rgba(24, 36, 40, 0.55) !important; }
+
+/* ============================================================
+ * D. 字体对比补强(半透明玻璃卡上,不透明 off-white,非纯白)
+ * 只在 dark 生效;层级用不透明色值,禁用 opacity 降层(会随卡浮动)
+ * ============================================================ */
+
+/* 标题 / 正文 */
+[data-theme="dark"] #article-container h1,
+[data-theme="dark"] #article-container h2,
+[data-theme="dark"] .post-title { color: #eef3f1 !important; }
+[data-theme="dark"] #article-container,
+[data-theme="dark"] .post-content { color: #dbe4e2 !important; }
+
+/* 次要 / 元信息(日期/标签/摘要/阅读时长)—— 主题默认易跌破对比 */
+[data-theme="dark"] #recent-posts .article-meta,
+[data-theme="dark"] #recent-posts .content,
+[data-theme="dark"] .recent-post-info .article-meta-wrap,
+[data-theme="dark"] .post-meta,
+[data-theme="dark"] .aside-list .aside-list-item .content .comment,
+[data-theme="dark"] #post-info .post-meta { color: #a7b4b2 !important; }
+
+/* 链接:青绿(蓝色在青黑底对比不足),内联加下划线 */
+[data-theme="dark"] #article-container a { color: #5fd4c4 !important; }
+[data-theme="dark"] #article-container p a,
+[data-theme="dark"] #article-container li a { text-decoration: underline; text-underline-offset: 2px; }
+[data-theme="dark"] #article-container a:hover { color: #8fe4d6 !important; }
+
+/* 行内 code:不透明底,别用半透明 */
+[data-theme="dark"] #article-container p code,
+[data-theme="dark"] #article-container li code {
+  background: #1c2d31 !important;
+  color: #e0c9a0 !important;
+}
+
+/* 侧栏文字 / footer(字号小,给足对比) */
+[data-theme="dark"] .card-widget,
+[data-theme="dark"] .aside-content .card-widget a { color: #c2cecc; }
+[data-theme="dark"] #footer,
+[data-theme="dark"] #footer a { color: #a7b4b2 !important; }
+[data-theme="dark"] #footer a:hover { color: #eef3f1 !important; }

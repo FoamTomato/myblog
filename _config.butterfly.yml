@@ -515,7 +515,7 @@ ClickShowText:
 
 # Default display mode (網站默認的顯示模式)
 # light (default) / dark
-display_mode: light
+display_mode: dark
 
 # Beautify (美化頁面顯示)
 beautify:
@@ -741,6 +741,7 @@ inject:
   head:
     - <link rel="stylesheet" href="/css/custom-archive.css">
     - <link rel="stylesheet" href="/css/aurora-bg.css">
+    - <link rel="stylesheet" href="/css/dark-glass.css">
   bottom:
     - <div id="aurora-bg" aria-hidden="true"><div class="smoke-3"></div></div>
     - <script src="/js/interactions.js" defer></script>
