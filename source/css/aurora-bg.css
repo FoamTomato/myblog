@@ -14,7 +14,7 @@
   pointer-events: none;
   overflow: hidden;
   background:
-    linear-gradient(160deg, #eef1f6 0%, #e9ecf4 45%, #f2eef6 100%);
+    linear-gradient(160deg, #d6e2e4 0%, #cddcdf 45%, #d2e0e0 100%);
 }
 [data-theme="dark"] #aurora-bg {
   background: linear-gradient(160deg, #0c0f14 0%, #10131a 50%, #14101a 100%);
@@ -31,32 +31,32 @@
   will-change: transform;
 }
 
-/* 第一片:青 / 青绿,大团缓慢盘旋(统一青色系) */
+/* 第一片:青 / 青绿,大团缓慢盘旋(加深:更饱和的深青) */
 #aurora-bg::before {
   background-image:
-    radial-gradient(40% 48% at 22% 28%, rgba(34, 197, 200, 0.72), transparent 66%),
-    radial-gradient(36% 42% at 76% 22%, rgba(20, 160, 170, 0.60), transparent 66%),
-    radial-gradient(46% 52% at 60% 80%, rgba(45, 212, 191, 0.54), transparent 68%);
+    radial-gradient(40% 48% at 22% 28%, rgba(18, 150, 158, 0.82), transparent 66%),
+    radial-gradient(36% 42% at 76% 22%, rgba(12, 118, 130, 0.72), transparent 66%),
+    radial-gradient(46% 52% at 60% 80%, rgba(24, 170, 152, 0.66), transparent 68%);
   animation: smokeDrift1 38s ease-in-out infinite alternate;
 }
 
-/* 第二片:青绿 / 蓝青,反向异速飘动(统一青色系) */
+/* 第二片:青绿 / 蓝青,反向异速飘动(加深) */
 #aurora-bg::after {
   background-image:
-    radial-gradient(42% 48% at 84% 60%, rgba(45, 212, 191, 0.50), transparent 68%),
-    radial-gradient(40% 46% at 24% 76%, rgba(34, 197, 200, 0.56), transparent 68%),
-    radial-gradient(36% 40% at 52% 10%, rgba(14, 184, 190, 0.48), transparent 66%);
+    radial-gradient(42% 48% at 84% 60%, rgba(24, 170, 152, 0.60), transparent 68%),
+    radial-gradient(40% 46% at 24% 76%, rgba(18, 150, 158, 0.68), transparent 68%),
+    radial-gradient(36% 40% at 52% 10%, rgba(10, 130, 140, 0.60), transparent 66%);
   animation: smokeDrift2 50s ease-in-out infinite alternate;
 }
 
-/* 第三片烟雾:额外漂浮层,更多层次(青色系) */
+/* 第三片烟雾:额外漂浮层,更多层次(加深) */
 #aurora-bg > .smoke-3 {
   content: "";
   position: absolute;
   inset: -25%;
   background:
-    radial-gradient(32% 38% at 46% 46%, rgba(56, 189, 200, 0.46), transparent 64%),
-    radial-gradient(30% 36% at 70% 40%, rgba(45, 212, 191, 0.42), transparent 64%);
+    radial-gradient(32% 38% at 46% 46%, rgba(30, 165, 172, 0.56), transparent 64%),
+    radial-gradient(30% 36% at 70% 40%, rgba(24, 170, 152, 0.52), transparent 64%);
   filter: blur(70px);
   will-change: transform;
   animation: smokeDrift3 44s ease-in-out infinite alternate;

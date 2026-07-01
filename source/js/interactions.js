@@ -56,33 +56,33 @@
 
     var drops = [];             // 墨点池
     var lastX = 0, lastY = 0, lastT = 0, rafInk = 0;
-    // 深色模式偏亮青墨,浅色模式偏深青墨
+    // 深色模式偏亮青墨,浅色模式偏深青墨(整体加深)
     function inkColor(a) {
       var dark = document.documentElement.getAttribute('data-theme') === 'dark';
       return dark
-        ? 'rgba(120, 210, 205,' + a + ')'
-        : 'rgba(20, 120, 130,' + a + ')';
+        ? 'rgba(90, 190, 185,' + a + ')'
+        : 'rgba(10, 80, 92,' + a + ')';      // 更深的青墨
     }
     function spawn(x, y, speed) {
-      // 速度越快墨点越小越密,慢时墨点大(像停笔积墨)
-      var base = Math.max(3, 16 - speed * 0.6);
+      // 速度越快墨点越小越密,慢时墨点大(像停笔积墨)—— 整体放大晕染范围
+      var base = Math.max(6, 30 - speed * 0.9);
       drops.push({
-        x: x + (Math.random() - 0.5) * 6,
-        y: y + (Math.random() - 0.5) * 6,
+        x: x + (Math.random() - 0.5) * 8,
+        y: y + (Math.random() - 0.5) * 8,
         r: base * (0.6 + Math.random() * 0.6),
-        max: base * (1.8 + Math.random() * 1.2),
-        a: 0.32 + Math.random() * 0.16,
+        max: base * (2.4 + Math.random() * 1.6),   // 扩散终点更大
+        a: 0.40 + Math.random() * 0.18,            // 墨色更浓
         life: 1
       });
-      if (drops.length > 90) drops.splice(0, drops.length - 90);  // 上限,防堆积
+      if (drops.length > 110) drops.splice(0, drops.length - 110);  // 上限,防堆积
     }
     function render() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       for (var i = drops.length - 1; i >= 0; i--) {
         var d = drops[i];
-        d.life -= 0.018;                     // 淡出速度
+        d.life -= 0.007;                     // 淡出更慢(消失延迟更长)
         if (d.life <= 0) { drops.splice(i, 1); continue; }
-        d.r += (d.max - d.r) * 0.06;         // 扩散变大
+        d.r += (d.max - d.r) * 0.045;        // 扩散变大(略慢,晕开更自然)
         var alpha = d.a * d.life;
         var g = ctx.createRadialGradient(d.x, d.y, 0, d.x, d.y, d.r);
         g.addColorStop(0, inkColor(alpha));
