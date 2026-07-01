@@ -142,6 +142,15 @@ html, body, #web_bg, .layout, #body-wrap,
 .page.type-tags #page-header #site-title,
 .page:has(#archive) #page-header #site-title { display: none !important; }
 
+/* 去 banner 后给内容区顶部预留呼吸空间(否则白卡紧贴导航) */
+.page.type-categories #content-inner,
+.page.type-tags #content-inner,
+.page:has(#archive) #content-inner { padding-top: 2.5rem !important; }
+/* 导航栏本身在这几页也要有个不透明兜底,避免内容顶上来后穿透 */
+.page.type-categories #page-header,
+.page.type-tags #page-header,
+.page:has(#archive) #page-header { padding-bottom: 0.5rem !important; }
+
 /* ============================================================
  * 交互增强配套样式(配合 interactions.js)
  * ============================================================ */
