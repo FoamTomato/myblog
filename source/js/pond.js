@@ -39,6 +39,30 @@
     var fish = [];
     // 伪随机(不用 Math.random 也行,但这里用于视觉抖动可接受)
     function rand(a, b) { return a + Math.random() * (b - a); }
+
+    // 鱼的锦鲤配色:body=主色,belly=腹/次色(红白/金白用),多数仍是青墨。
+    // 每种色给 rgb 三元组,绘制时按传入 alpha 生成 rgba。
+    var FISH_PALETTES = [
+      { name: 'ink',    body: null,            belly: null },              // 青墨(默认,占多数)
+      { name: 'gold',   body: [214, 168, 70],  belly: null },              // 金
+      { name: 'red',    body: [200, 74, 62],   belly: null },              // 红
+      { name: 'cyan',   body: [46, 170, 175],  belly: null },              // 青
+      { name: 'black',  body: [38, 42, 46],    belly: null },              // 黑
+      { name: 'redwhite', body: [205, 78, 66], belly: [240, 240, 238] },   // 红白(丹顶/红白锦鲤)
+      { name: 'goldwhite', body: [216, 172, 74], belly: [242, 240, 232] }  // 金白
+    ];
+    function pickPalette() {
+      // 60% 仍是青墨,40% 随机彩色 —— "偶尔出现"
+      if (Math.random() < 0.6) return FISH_PALETTES[0];
+      return FISH_PALETTES[1 + Math.floor(Math.random() * (FISH_PALETTES.length - 1))];
+    }
+    // 按调色板取色:pal 无 body 时回退到青墨 ink();有则用其 rgb
+    function fishColor(pal, part, a) {
+      var rgb = (part === 'belly' && pal.belly) ? pal.belly : pal.body;
+      if (!rgb) return ink(a);                                  // 青墨鱼
+      return 'rgba(' + rgb[0] + ',' + rgb[1] + ',' + rgb[2] + ',' + a + ')';
+    }
+
     for (var i = 0; i < FISH_N; i++) {
       fish.push({
         x: rand(0.1, 0.9) * W,
@@ -47,7 +71,8 @@
         speed: rand(0.25, 0.55),        // 慢速游动
         size: rand(16, 30),
         wob: rand(0, Math.PI * 2),      // 摆尾相位
-        turn: rand(-0.004, 0.004)       // 转向倾向
+        turn: rand(-0.004, 0.004),      // 转向倾向
+        pal: pickPalette()
       });
     }
 
@@ -62,7 +87,8 @@
         speed: rand(0.35, 0.7),         // 略快,显得更灵动
         size: rand(26, 42),             // 略大,细节看得清
         wob: rand(0, Math.PI * 2),
-        turn: rand(-0.004, 0.004)
+        turn: rand(-0.004, 0.004),
+        pal: pickPalette()
       });
     }
     function drawFish(f, t) {
@@ -85,22 +111,32 @@
       ctx.rotate(f.a);
       var s = f.size;
       var tail = Math.sin(f.wob) * s * 0.28;   // 尾摆幅度
-      // 身体(水墨椭圆,头朝 +x)
+      var colored = !!f.pal.body;              // 彩色鱼 alpha 更实,才显色
+      var aBody = colored ? 0.55 : 0.28;
+      var aTail = colored ? 0.42 : 0.20;
+      // 身体(椭圆,头朝 +x)
       ctx.beginPath();
       ctx.moveTo(s * 0.55, 0);
       ctx.quadraticCurveTo(0, -s * 0.32, -s * 0.5, tail * 0.4);
       ctx.quadraticCurveTo(-s * 0.2, 0, -s * 0.5, tail * 0.4);
       ctx.quadraticCurveTo(0, s * 0.32, s * 0.55, 0);
       ctx.closePath();
-      ctx.fillStyle = ink(0.28);
+      ctx.fillStyle = fishColor(f.pal, 'body', aBody);
       ctx.fill();
+      // 红白/金白:腹侧叠一块次色斑
+      if (f.pal.belly) {
+        ctx.beginPath();
+        ctx.ellipse(s * 0.1, 0, s * 0.32, s * 0.16, 0, 0, Math.PI * 2);
+        ctx.fillStyle = fishColor(f.pal, 'belly', 0.5);
+        ctx.fill();
+      }
       // 尾鳍(三角,随摆动)
       ctx.beginPath();
       ctx.moveTo(-s * 0.42, tail * 0.3);
       ctx.lineTo(-s * 0.9, tail - s * 0.28);
       ctx.lineTo(-s * 0.9, tail + s * 0.28);
       ctx.closePath();
-      ctx.fillStyle = ink(0.20);
+      ctx.fillStyle = fishColor(f.pal, 'body', aTail);
       ctx.fill();
       ctx.restore();
     }
@@ -127,6 +163,10 @@
       var tail = w * s * 0.5;            // 尾摆
       var body = w * s * 0.05;           // 身体随摆动的轻微 S 形
 
+      var colored = !!f.pal.body;
+      var aBody = colored ? 0.6 : 0.34;
+      var aFin = colored ? 0.42 : 0.22;
+
       ctx.save();
       ctx.translate(f.x, f.y);
       ctx.rotate(f.a);
@@ -138,8 +178,16 @@
       ctx.bezierCurveTo(-s * 0.62, -body, -s * 0.62, body, -s * 0.55, body + s * 0.10);        // 尾柄圆转
       ctx.bezierCurveTo(-s * 0.1, s * 0.34, s * 0.5, s * 0.30, s * 0.72, 0);                     // 下缘 -> 吻部
       ctx.closePath();
-      ctx.fillStyle = ink(0.34);
+      ctx.fillStyle = fishColor(f.pal, 'body', aBody);
       ctx.fill();
+
+      // 红白/金白:身体中前段叠次色斑块(锦鲤花纹)
+      if (f.pal.belly) {
+        ctx.beginPath();
+        ctx.ellipse(s * 0.18, -s * 0.02, s * 0.34, s * 0.2, 0, 0, Math.PI * 2);
+        ctx.fillStyle = fishColor(f.pal, 'belly', 0.55);
+        ctx.fill();
+      }
 
       // 尾鳍:两片飘动的贝塞尔叶片
       ctx.beginPath();
@@ -149,7 +197,7 @@
       ctx.moveTo(-s * 0.5, body * 0.4);
       ctx.quadraticCurveTo(-s * 0.85, tail + s * 0.02, -s * 1.05, tail + s * 0.34);
       ctx.quadraticCurveTo(-s * 0.78, tail * 0.5, -s * 0.5, body * 0.4);
-      ctx.fillStyle = ink(0.22);
+      ctx.fillStyle = fishColor(f.pal, 'body', aFin);
       ctx.fill();
 
       // 背鳍(上)
@@ -157,7 +205,7 @@
       ctx.moveTo(s * 0.15, -s * 0.30);
       ctx.quadraticCurveTo(-s * 0.05, -s * 0.55, -s * 0.28, -s * 0.28);
       ctx.closePath();
-      ctx.fillStyle = ink(0.18);
+      ctx.fillStyle = fishColor(f.pal, 'body', colored ? 0.34 : 0.18);
       ctx.fill();
 
       // 胸鳍(下,随摆动)
@@ -165,7 +213,7 @@
       ctx.moveTo(s * 0.18, s * 0.22);
       ctx.quadraticCurveTo(s * 0.0, s * 0.42 + w * s * 0.06, -s * 0.12, s * 0.22);
       ctx.closePath();
-      ctx.fillStyle = ink(0.16);
+      ctx.fillStyle = fishColor(f.pal, 'body', colored ? 0.30 : 0.16);
       ctx.fill();
 
       // 眼睛(小点,点睛)
@@ -257,22 +305,32 @@
           ctx.lineTo(Math.cos(ang) * r * 0.9, Math.sin(ang) * r * 0.9);
           ctx.stroke();
         }
-        // 荷花 / 睡莲花(部分叶子上)
+        // 荷花 / 睡莲花(部分叶子上)—— 粉红色
         if (l.flower) {
           var fr = r * 0.42;
           ctx.translate(-r * 0.1, -r * 0.1);
-          for (var p = 0; p < 6; p++) {
-            var pa = p * Math.PI / 3 + l.bobA * 0.3;
+          // 外层花瓣(浅粉,8 片)
+          for (var p = 0; p < 8; p++) {
+            var pa = p * Math.PI / 4 + l.bobA * 0.3;
             ctx.beginPath();
-            ctx.ellipse(Math.cos(pa) * fr * 0.5, Math.sin(pa) * fr * 0.5,
-                        fr * 0.55, fr * 0.22, pa, 0, Math.PI * 2);
-            ctx.fillStyle = ink(0.12);
+            ctx.ellipse(Math.cos(pa) * fr * 0.55, Math.sin(pa) * fr * 0.55,
+                        fr * 0.6, fr * 0.24, pa, 0, Math.PI * 2);
+            ctx.fillStyle = 'rgba(238, 158, 190, 0.42)';   // 浅粉
             ctx.fill();
           }
-          // 花心
+          // 内层花瓣(深粉,6 片,略内收)
+          for (var q = 0; q < 6; q++) {
+            var qa = q * Math.PI / 3 + l.bobA * 0.3 + 0.4;
+            ctx.beginPath();
+            ctx.ellipse(Math.cos(qa) * fr * 0.34, Math.sin(qa) * fr * 0.34,
+                        fr * 0.42, fr * 0.18, qa, 0, Math.PI * 2);
+            ctx.fillStyle = 'rgba(226, 110, 158, 0.5)';    // 深粉
+            ctx.fill();
+          }
+          // 花心(黄)
           ctx.beginPath();
-          ctx.arc(0, 0, fr * 0.28, 0, Math.PI * 2);
-          ctx.fillStyle = ink(0.20);
+          ctx.arc(0, 0, fr * 0.24, 0, Math.PI * 2);
+          ctx.fillStyle = 'rgba(240, 208, 110, 0.6)';      // 金黄花蕊
           ctx.fill();
         }
         ctx.restore();

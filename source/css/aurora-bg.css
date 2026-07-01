@@ -125,12 +125,13 @@ html, body, #web_bg, .layout, #body-wrap,
   top: 0; left: 0;
   pointer-events: none;
   z-index: -1;                 /* 在烟雾(-2)之上、内容之下 */
-  mix-blend-mode: multiply;    /* 墨色叠在浅烟上更像宣纸渗墨 */
 }
-[data-theme="dark"] #pond-canvas,
-[data-theme="dark"] #ink-canvas {
-  mix-blend-mode: screen;      /* 深色下用滤色,发亮 */
-}
+/* pond 用 normal 混合:让锦鲤彩色鱼/粉红荷花保持真实颜色(multiply 会压暗失真) */
+#pond-canvas { mix-blend-mode: normal; }
+/* 鼠标墨水仍用 multiply,青墨渗入更自然 */
+#ink-canvas { mix-blend-mode: multiply; }
+[data-theme="dark"] #ink-canvas { mix-blend-mode: screen; }
+[data-theme="dark"] #pond-canvas { mix-blend-mode: normal; }
 
 /* 1) 滚动渐显:JS 加 .arc-reveal 初始隐藏,进入视口加 .arc-in 显现 */
 @media (prefers-reduced-motion: no-preference) {
