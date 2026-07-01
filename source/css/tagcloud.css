@@ -6,6 +6,16 @@
    - 频率"淡浅"完全由 color 的明度表达(高频深、低频浅), 不用 opacity。
    - opacity 只归入场动画独占, 从 0 -> 1, 互不打架。 */
 
+/* 词云页白卡高度贴合内容(否则白卡被 .layout 的 flex 交叉轴拉伸到大半屏,
+   词云只占顶部一小块, 下方一大片空白)。白卡 = .layout > div:first-child(#page)。
+   主题给它 align-self:flex-start, 但仍随 .layout(flex:1 占满 body-wrap 100vh)
+   在高度上被撑。这里显式让它高度贴合内容。作用域限定词云页, 不影响它页。 */
+.page:has(.tagcloud-wrap) #page {
+  height: -moz-fit-content !important;
+  height: fit-content !important;   /* 高度贴合内容, 不再被拉伸 */
+  min-height: 0 !important;
+}
+
 .tagcloud-wrap {
   display: flex;
   flex-wrap: wrap;
@@ -13,7 +23,7 @@
   justify-content: center;
   gap: 0.35em 0.9em;        /* 行距 列距 */
   max-width: 960px;
-  margin: 1.2rem auto 2.4rem;
+  margin: 1rem auto 1.4rem;
   padding: 0 0.5rem;
   line-height: 1.35;
 }
