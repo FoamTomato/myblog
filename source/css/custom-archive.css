@@ -1,150 +1,171 @@
 /* ============================================================
- * 归档类页面重设计 — 编辑感极简
- * 作用范围:Archives(时间线) / Tags(标签云) / Categories(分类)
- * 方法:注入覆盖 Butterfly 默认样式,不改主题源码。
- * dials: VARIANCE 5 / MOTION 3 / DENSITY 3
- * 强调色锁定:--arc-accent(青绿,呼应站点 banner),全三页统一
- * 圆角系统锁定:统一 10px(卡片) / 999px(pill)
- * 深浅双模式:[data-theme="dark"] 均覆盖
- * 作用域:archives 用 #archive,tags/categories 用 .type-* body class
+ * 归档类页面重设计 v2 — 黑白编辑排版风(无彩色)
+ * Archives(时间线) / Tags(标签云) / Categories(分类)
+ * 设计哲学:零强调色。层次全部靠 字号阶梯 / 字重对比 /
+ *           超细分隔线 / 大留白 建立。像一本排版讲究的杂志。
+ * 方法:注入覆盖 Butterfly,不改主题源码。
+ * 深浅双模式;prefers-reduced-motion;可访问对比达标。
+ * 作用域:#archive / .type-tags / .type-categories
  * ============================================================ */
 
 :root {
-  --arc-accent: #21a3a3;          /* 青绿强调色,饱和度 < 80% */
-  --arc-accent-soft: rgba(33, 163, 163, 0.12);
-  --arc-line: rgba(0, 0, 0, 0.08);
-  --arc-text-dim: rgba(0, 0, 0, 0.45);
-  --arc-radius: 10px;
+  --arc-ink: #111;              /* 主墨色 */
+  --arc-ink-2: rgba(0,0,0,0.55);   /* 次级 */
+  --arc-ink-3: rgba(0,0,0,0.35);   /* 弱化 */
+  --arc-hair: rgba(0,0,0,0.12);    /* 细线 */
+  --arc-hair-2: rgba(0,0,0,0.06);  /* 更细的底线 */
+  --arc-fill: rgba(0,0,0,0.04);    /* 极浅填充 */
 }
 [data-theme="dark"] {
-  --arc-accent: #35c2c2;
-  --arc-accent-soft: rgba(53, 194, 194, 0.16);
-  --arc-line: rgba(255, 255, 255, 0.10);
-  --arc-text-dim: rgba(255, 255, 255, 0.45);
+  --arc-ink: #f2f2f2;
+  --arc-ink-2: rgba(255,255,255,0.60);
+  --arc-ink-3: rgba(255,255,255,0.38);
+  --arc-hair: rgba(255,255,255,0.16);
+  --arc-hair-2: rgba(255,255,255,0.08);
+  --arc-fill: rgba(255,255,255,0.05);
 }
 
-/* prefers-reduced-motion:关闭所有过渡(遵守 6.B) */
 @media (prefers-reduced-motion: reduce) {
   #archive .article-sort-item,
+  #archive .article-sort-item-title,
   .type-tags .tag-cloud-list a,
-  .type-categories .category-list-item a { transition: none !important; }
+  .type-categories .category-list-link { transition: none !important; }
 }
 
 /* ============================================================
- * 1. ARCHIVES — 竖线串联的时间线
+ * 1. ARCHIVES — 报刊式时间线
+ * 年份做成巨大的排版数字(轻量,弱化),文章挂在其右侧。
+ * 用超细底线分隔,而不是圆点装饰。编辑感来自留白与字号差。
  * ============================================================ */
 
 #archive .article-sort {
-  margin-left: 8px;
-  padding-left: 28px;
-  border-left: 2px solid var(--arc-line);
+  margin-left: 0;
+  padding-left: 0;
+  border-left: none;
 }
 
-/* 年份标题:强调色圆点锚在竖线上 */
+/* 年份:超大细体数字,低调但有存在感 */
 #archive .article-sort-title {
-  position: relative;
-  font-size: 1.5rem;
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  margin: 2.2rem 0 1.4rem;
+  font-size: clamp(2.4rem, 7vw, 4rem);
+  font-weight: 200;
+  letter-spacing: -0.03em;
+  color: var(--arc-ink-3);
+  margin: 3rem 0 1rem;
+  padding: 0 0 0.6rem;
   border: none;
+  border-bottom: 1px solid var(--arc-hair);
+  line-height: 1;
 }
-#archive .article-sort-title::before {
-  content: "";
-  position: absolute;
-  left: -37px;
-  top: 50%;
-  width: 12px;
-  height: 12px;
-  transform: translateY(-50%);
-  background: var(--arc-accent);
-  border-radius: 999px;
-  box-shadow: 0 0 0 4px var(--arc-accent-soft);
-}
+#archive .article-sort-title::before,
 #archive .article-sort-title::after { display: none; }
 
-/* 每篇文章条目:小圆点 + hover 微移 */
+/* 文章条目:细底线分隔的一行,时间在右,标题在左 */
 #archive .article-sort-item {
-  position: relative;
-  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1.2rem;
+  padding: 0.85rem 0;
+  border-bottom: 1px solid var(--arc-hair-2);
+  transition: padding-left 0.25s cubic-bezier(0.16,1,0.3,1);
 }
-#archive .article-sort-item:not(.year)::before {
-  content: "";
-  position: absolute;
-  left: -34px;
-  top: 1.4em;
-  width: 7px;
-  height: 7px;
-  background: var(--arc-line);
-  border-radius: 999px;
-  transition: background 0.25s ease;
+#archive .article-sort-item:hover { padding-left: 0.6rem; }
+#archive .article-sort-item::before { display: none !important; }
+
+#archive .article-sort-item-info { flex: 1; min-width: 0; }
+#archive .article-sort-item-title {
+  font-size: 1.02rem;
+  font-weight: 500;
+  color: var(--arc-ink);
+  transition: opacity 0.2s ease;
 }
-#archive .article-sort-item:not(.year):hover { transform: translateX(4px); }
-#archive .article-sort-item:not(.year):hover::before { background: var(--arc-accent); }
-#archive .article-sort-item-title:hover { color: var(--arc-accent); }
-#archive .article-sort-item-time { color: var(--arc-text-dim); }
+#archive .article-sort-item:hover .article-sort-item-title { opacity: 0.6; }
+#archive .article-sort-item-time {
+  flex-shrink: 0;
+  font-size: 0.8rem;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
+  color: var(--arc-ink-3);
+}
+#archive .article-sort-item-time i { display: none; }  /* 去掉时钟图标,纯排版 */
 
 /* ============================================================
- * 2. TAGS — 分级的 pill 标签云
+ * 2. TAGS — 排版化标签墙(无 pill 底,无彩色)
+ * 标签之间用中点/间距分隔,hover 用下划线+加深,像文字链接。
+ * 层次靠 Butterfly 自带的字号差(按文章数)+ 我们的字重。
  * ============================================================ */
 
-.type-tags .tag-cloud-list { line-height: 2.8; }
-
+.type-tags .tag-cloud-list {
+  line-height: 2.4;
+  max-width: 60rem;
+  margin: 0 auto;
+  text-align: left;
+}
 .type-tags .tag-cloud-list a {
   display: inline-block;
-  margin: 4px 5px;
-  padding: 5px 15px;
-  border: 1px solid var(--arc-line);
-  border-radius: 999px;
-  color: inherit !important;
-  background: transparent;
-  transition:
-    color 0.22s ease,
-    border-color 0.22s ease,
-    background 0.22s ease,
-    transform 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  margin: 0.15rem 0.7rem 0.15rem 0;
+  padding: 0.1rem 0;
+  border: none;
+  border-radius: 0;
+  background: none;
+  color: var(--arc-ink-2) !important;
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: color 0.2s ease, border-color 0.2s ease;
 }
 .type-tags .tag-cloud-list a:hover {
-  color: #fff !important;
-  background: var(--arc-accent);
-  border-color: var(--arc-accent);
-  transform: translateY(-2px);
+  color: var(--arc-ink) !important;
+  border-bottom-color: var(--arc-ink);
+  background: none !important;
+  transform: none !important;
 }
-[data-theme="dark"] .type-tags .tag-cloud-list a:hover { color: #10151a !important; }
 
 /* ============================================================
- * 3. CATEGORIES — 带强调左边框的分类行
+ * 3. CATEGORIES — 编号列表式分类(杂志目录感)
+ * 每个分类一行,左侧序号(排版数字),右侧计数弱化。
+ * 细底线分隔,hover 整行加深 + 序号显现。
  * ============================================================ */
 
+.type-categories .category-list { counter-reset: cat; padding: 0; }
 .type-categories .category-list-item {
   list-style: none;
   margin: 0;
+  border-bottom: 1px solid var(--arc-hair-2);
 }
 .type-categories .category-list-link {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 4px 8px 14px;
-  border-left: 3px solid transparent;
-  border-radius: 0 var(--arc-radius) var(--arc-radius) 0;
-  transition:
-    border-color 0.22s ease,
-    background 0.22s ease,
-    color 0.22s ease,
-    padding-left 0.22s ease;
+  display: flex;
+  align-items: baseline;
+  gap: 0.9rem;
+  padding: 1rem 0.2rem;
+  border: none;
+  border-radius: 0;
+  background: none;
+  color: var(--arc-ink-2);
+  transition: color 0.2s ease, padding-left 0.25s cubic-bezier(0.16,1,0.3,1);
 }
+/* 序号:排版数字前缀 */
+.type-categories .category-list-link::before {
+  counter-increment: cat;
+  content: counter(cat, decimal-leading-zero);
+  font-size: 0.78rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--arc-ink-3);
+  letter-spacing: 0.05em;
+  flex-shrink: 0;
+}
+.type-categories .category-list-name { font-size: 1.05rem; font-weight: 500; }
 .type-categories .category-list-link:hover {
-  border-left-color: var(--arc-accent);
-  background: var(--arc-accent-soft);
-  color: var(--arc-accent);
-  padding-left: 18px;
+  color: var(--arc-ink);
+  padding-left: 0.5rem;
+  background: none;
 }
-/* 分类计数:右侧柔和 pill */
+/* 分类计数:极弱化的数字,不做 pill */
 .type-categories .category-list-count {
-  margin-left: 6px;
-  padding: 0 8px;
-  font-size: 0.78em;
-  color: var(--arc-text-dim);
-  background: var(--arc-line);
-  border-radius: 999px;
+  margin-left: auto;
+  padding: 0;
+  font-size: 0.82rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--arc-ink-3);
+  background: none;
+  border-radius: 0;
 }
