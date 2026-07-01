@@ -118,21 +118,16 @@ html, body, #web_bg, .layout, #body-wrap,
  * 交互增强配套样式(配合 interactions.js)
  * ============================================================ */
 
-/* 2) 鼠标跟随光晕:柔和白光,混合模式让它在烟雾上发亮 */
-#cursor-glow {
+/* 2) 鼠标墨水渲染:全屏 canvas,在烟雾之上、内容之下,不挡点击 */
+#ink-canvas {
   position: fixed;
   top: 0; left: 0;
-  width: 500px; height: 500px;
-  border-radius: 50%;
   pointer-events: none;
-  z-index: -1;                 /* 在极光(-2)之上、内容之下 */
-  background: radial-gradient(circle, rgba(255,255,255,0.55), transparent 62%);
-  mix-blend-mode: soft-light;
-  will-change: transform;
+  z-index: -1;                 /* 在烟雾(-2)之上、内容之下 */
+  mix-blend-mode: multiply;    /* 墨色叠在浅烟上更像宣纸渗墨 */
 }
-[data-theme="dark"] #cursor-glow {
-  background: radial-gradient(circle, rgba(180,210,255,0.30), transparent 62%);
-  mix-blend-mode: screen;
+[data-theme="dark"] #ink-canvas {
+  mix-blend-mode: screen;      /* 深色下用滤色,墨点发亮 */
 }
 
 /* 1) 滚动渐显:JS 加 .arc-reveal 初始隐藏,进入视口加 .arc-in 显现 */

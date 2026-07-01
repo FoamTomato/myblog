@@ -33,27 +33,81 @@
 
     if (reduce || isTouch) return;
 
-    /* ---------- 2) 鼠标跟随光晕 ---------- */
-    var glow = document.getElementById('cursor-glow');
-    if (!glow) {
-      glow = document.createElement('div');
-      glow.id = 'cursor-glow';
-      glow.setAttribute('aria-hidden', 'true');
-      document.body.appendChild(glow);
+    /* ---------- 2) 鼠标墨水渲染(Canvas 墨迹拖尾) ---------- */
+    // 鼠标移动时沿轨迹撒墨点,墨点扩散变大 + 淡出,像毛笔划过宣纸的青墨晕染
+    var canvas = document.getElementById('ink-canvas');
+    if (!canvas) {
+      canvas = document.createElement('canvas');
+      canvas.id = 'ink-canvas';
+      canvas.setAttribute('aria-hidden', 'true');
+      document.body.appendChild(canvas);
     }
-    var gx = window.innerWidth / 2, gy = window.innerHeight / 2, tx = gx, ty = gy, rafGlow = 0;
-    function moveGlow() {
-      // 缓动跟随(lerp),更丝滑
-      gx += (tx - gx) * 0.12;
-      gy += (ty - gy) * 0.12;
-      glow.style.transform = 'translate3d(' + (gx - 250) + 'px,' + (gy - 250) + 'px,0)';
-      if (Math.abs(tx - gx) > 0.5 || Math.abs(ty - gy) > 0.5) {
-        rafGlow = requestAnimationFrame(moveGlow);
-      } else { rafGlow = 0; }
+    var ctx = canvas.getContext('2d');
+    var dpr = Math.min(window.devicePixelRatio || 1, 2);
+    function resize() {
+      canvas.width = window.innerWidth * dpr;
+      canvas.height = window.innerHeight * dpr;
+      canvas.style.width = window.innerWidth + 'px';
+      canvas.style.height = window.innerHeight + 'px';
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+    resize();
+    window.addEventListener('resize', resize, { passive: true });
+
+    var drops = [];             // 墨点池
+    var lastX = 0, lastY = 0, lastT = 0, rafInk = 0;
+    // 深色模式偏亮青墨,浅色模式偏深青墨
+    function inkColor(a) {
+      var dark = document.documentElement.getAttribute('data-theme') === 'dark';
+      return dark
+        ? 'rgba(120, 210, 205,' + a + ')'
+        : 'rgba(20, 120, 130,' + a + ')';
+    }
+    function spawn(x, y, speed) {
+      // 速度越快墨点越小越密,慢时墨点大(像停笔积墨)
+      var base = Math.max(3, 16 - speed * 0.6);
+      drops.push({
+        x: x + (Math.random() - 0.5) * 6,
+        y: y + (Math.random() - 0.5) * 6,
+        r: base * (0.6 + Math.random() * 0.6),
+        max: base * (1.8 + Math.random() * 1.2),
+        a: 0.32 + Math.random() * 0.16,
+        life: 1
+      });
+      if (drops.length > 90) drops.splice(0, drops.length - 90);  // 上限,防堆积
+    }
+    function render() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      for (var i = drops.length - 1; i >= 0; i--) {
+        var d = drops[i];
+        d.life -= 0.018;                     // 淡出速度
+        if (d.life <= 0) { drops.splice(i, 1); continue; }
+        d.r += (d.max - d.r) * 0.06;         // 扩散变大
+        var alpha = d.a * d.life;
+        var g = ctx.createRadialGradient(d.x, d.y, 0, d.x, d.y, d.r);
+        g.addColorStop(0, inkColor(alpha));
+        g.addColorStop(0.6, inkColor(alpha * 0.5));
+        g.addColorStop(1, inkColor(0));
+        ctx.fillStyle = g;
+        ctx.beginPath();
+        ctx.arc(d.x, d.y, d.r, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      if (drops.length) { rafInk = requestAnimationFrame(render); }
+      else { rafInk = 0; ctx.clearRect(0, 0, canvas.width, canvas.height); }
     }
     window.addEventListener('pointermove', function (ev) {
-      tx = ev.clientX; ty = ev.clientY;
-      if (!rafGlow) rafGlow = requestAnimationFrame(moveGlow);
+      var now = ev.timeStamp || performance.now();
+      var dx = ev.clientX - lastX, dy = ev.clientY - lastY, dt = now - lastT || 16;
+      var speed = Math.sqrt(dx * dx + dy * dy) / dt * 16;   // 归一化速度
+      // 在上一点到当前点之间插值撒墨,连成连续墨迹
+      var dist = Math.sqrt(dx * dx + dy * dy);
+      var steps = Math.min(6, Math.max(1, Math.floor(dist / 14)));
+      for (var s = 1; s <= steps; s++) {
+        spawn(lastX + dx * s / steps, lastY + dy * s / steps, speed);
+      }
+      lastX = ev.clientX; lastY = ev.clientY; lastT = now;
+      if (!rafInk) rafInk = requestAnimationFrame(render);
     }, { passive: true });
 
     /* ---------- 3) 卡片 3D 倾斜 ---------- */
