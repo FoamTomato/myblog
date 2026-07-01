@@ -1,0 +1,79 @@
+/* ============================================================
+ * 全站极光水墨背景 — 线性极光风
+ * 纯 CSS 多层径向渐变 + 缓慢位移/呼吸动画,模拟极光晕染流动。
+ * 零 JS,固定层不随滚动重绘(pointer-events:none),不伤性能/SEO。
+ * 放在最底层(z-index:-2),内容区卡片在其上;边缘留白处透出流动感。
+ * reduced-motion 下静止;深浅色各自调透明度。
+ * ============================================================ */
+
+/* 极光层:固定全屏,置于所有内容之下 */
+#aurora-bg {
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  pointer-events: none;
+  overflow: hidden;
+  /* 底色打底,避免极光太跳 */
+  background: #f7f8fa;
+}
+[data-theme="dark"] #aurora-bg { background: #0e1116; }
+
+/* 三团流动的极光晕染(青 / 紫 / 粉),用大范围径向渐变 + blur */
+#aurora-bg::before,
+#aurora-bg::after {
+  content: "";
+  position: absolute;
+  inset: -20%;
+  background-repeat: no-repeat;
+  filter: blur(60px);
+  will-change: transform;
+}
+
+/* 第一层:青 + 蓝,慢速漂移 */
+#aurora-bg::before {
+  background-image:
+    radial-gradient(40% 50% at 20% 30%, rgba(56, 189, 200, 0.42), transparent 70%),
+    radial-gradient(38% 44% at 78% 24%, rgba(99, 102, 241, 0.34), transparent 70%),
+    radial-gradient(46% 52% at 62% 78%, rgba(168, 85, 247, 0.30), transparent 72%);
+  animation: auroraDrift1 26s ease-in-out infinite alternate;
+}
+
+/* 第二层:粉 + 青,反向漂移,叠出流动交错感 */
+#aurora-bg::after {
+  background-image:
+    radial-gradient(42% 48% at 82% 62%, rgba(236, 72, 153, 0.26), transparent 72%),
+    radial-gradient(40% 46% at 26% 74%, rgba(45, 212, 191, 0.30), transparent 72%),
+    radial-gradient(36% 40% at 50% 12%, rgba(129, 140, 248, 0.24), transparent 70%);
+  animation: auroraDrift2 34s ease-in-out infinite alternate;
+}
+
+/* 浅色模式:极光较淡,不压内容 */
+:root #aurora-bg::before { opacity: 0.75; }
+:root #aurora-bg::after  { opacity: 0.6; }
+/* 深色模式:极光可稍亮,在深底上更出彩 */
+[data-theme="dark"] #aurora-bg::before { opacity: 0.55; }
+[data-theme="dark"] #aurora-bg::after  { opacity: 0.5; }
+
+@keyframes auroraDrift1 {
+  0%   { transform: translate3d(-4%, -2%, 0) rotate(0deg) scale(1.05); }
+  100% { transform: translate3d(5%, 4%, 0) rotate(8deg) scale(1.15); }
+}
+@keyframes auroraDrift2 {
+  0%   { transform: translate3d(3%, 2%, 0) rotate(0deg) scale(1.1); }
+  100% { transform: translate3d(-5%, -3%, 0) rotate(-6deg) scale(1.02); }
+}
+
+/* reduced-motion:极光静止(保留晕染,不流动) */
+@media (prefers-reduced-motion: reduce) {
+  #aurora-bg::before,
+  #aurora-bg::after { animation: none !important; }
+}
+
+/* 让内容层背景透明,极光才能从最底层透出 */
+html,
+body,
+#web_bg,
+.layout,
+#body-wrap { background-color: transparent !important; }
+/* 内容卡片保持不透明白/深底,保证可读性(极光只在留白处透出) */
+
