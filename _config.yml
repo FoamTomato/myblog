@@ -13,12 +13,12 @@ timezone: ''
 
 # URL
 ## Set your site url here. For example, if you use GitHub Page, set url as 'https://username.github.io/project'
-url: https://foamtomato.github.io
+url: https://xiaohang.site
 permalink: :year/:month/:day/:title/
 permalink_defaults:
 pretty_urls:
-  trailing_index: true
-  trailing_html: true
+  trailing_index: false
+  trailing_html: false
 
 # Directory
 source_dir: source
@@ -93,6 +93,21 @@ search:
   path: search.json
   field: post
   content: true
+
+# Sitemap 索引结构 (自定义生成器 scripts/sitemap-index.js)
+#   主索引 sitemap.xml -> 按年份分片的子图 sitemap-<year>.xml
+#   百度专用 baidusitemap.xml 同结构 -> baidusitemap-<year>.xml
+sitemap_index:
+  # 索引/子图输出路径模板,{year} 会被替换
+  index: sitemap.xml
+  child: sitemap-{year}.xml
+  baidu_index: baidusitemap.xml
+  baidu_child: baidusitemap-{year}.xml
+  # 是否把 分类页/标签页 也纳入(归到最新年份的子图)
+  include_tags: true
+  include_categories: true
+  # 是否纳入首页/归档等静态页(归到最新年份子图)
+  include_pages: true
 
 # Deployment
 ## Docs: https://hexo.io/docs/one-command-deployment
