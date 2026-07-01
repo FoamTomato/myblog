@@ -130,6 +130,7 @@ def main():
     changed = 0
     skipped_unchanged = skipped_dup = 0
     new_seen = {}
+    written_files = []  # 本轮实际写入的文件名(用于发布后推送百度)
 
     for key, etag in objs:
         prev = seen.get(key)
@@ -164,6 +165,7 @@ def main():
 
         open(os.path.join(POSTS_DIR, target), 'w', encoding='utf-8').write(text)
         ex_hashes.add(h)
+        written_files.append(target)
         if title:
             ex_titles.setdefault(title, target)
         new_seen[key] = {'etag': etag, 'sha256': h, 'filename': target}
@@ -173,6 +175,11 @@ def main():
 
     state['objects'] = new_seen
     save_state(state)
+
+    # 记录本轮新增/更新的文件名 stem(供发布后拼 URL 主动推送百度)
+    new_stems = [os.path.splitext(t)[0] for t in written_files]
+    with open(os.path.join(ROOT, '.new-posts.txt'), 'w', encoding='utf-8') as f:
+        f.write('\n'.join(new_stems))
 
     log(f'\n新增/更新 {changed} 篇 | 增量跳过 {skipped_unchanged} | 内容去重 {skipped_dup}')
     print(f'CHANGED={1 if changed else 0}')

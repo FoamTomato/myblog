@@ -78,6 +78,13 @@ jobs:
           echo "Deployed. Verifying..."
           curl -sI --max-time 20 https://xiaohang.site/sitemap.xml | head -1
 
+      - name: Push new URLs to Baidu (主动推送)
+        if: steps.sync.outputs.changed == '1'
+        env:
+          SITE: https://xiaohang.site
+          BAIDU_PUSH_TOKEN: ${{ secrets.BAIDU_PUSH_TOKEN }}
+        run: python scripts/baidu_push.py
+
       - name: Summary
         run: |
           echo "changed=${{ steps.sync.outputs.changed }}  count=${{ steps.sync.outputs.count }}" >> $GITHUB_STEP_SUMMARY
