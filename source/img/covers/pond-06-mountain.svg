@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <linearGradient id="c6bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#e2ecec"/>
+      <stop offset="0.5" stop-color="#d0e0df"/>
+      <stop offset="1" stop-color="#bcd3d2"/>
+    </linearGradient>
+    <radialGradient id="c6sun" cx="0.72" cy="0.28" r="0.28">
+      <stop offset="0" stop-color="#7fd6c9" stop-opacity="0.6"/>
+      <stop offset="1" stop-color="#7fd6c9" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="c6water" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#a9cccb"/>
+      <stop offset="1" stop-color="#8fbcbb"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="800" fill="url(#c6bg)"/>
+  <circle cx="864" cy="224" r="200" fill="url(#c6sun)"/>
+
+  <!-- 远山三层,水墨深浅 -->
+  <path d="M0,420 C160,340 300,380 460,320 C620,260 760,340 900,300 C1020,266 1120,320 1200,300 L1200,460 L0,460 Z"
+        fill="#0e7c88" fill-opacity="0.22"/>
+  <path d="M0,460 C180,400 340,440 520,400 C700,360 840,430 1000,400 C1100,382 1160,410 1200,400 L1200,470 L0,470 Z"
+        fill="#0e6f7a" fill-opacity="0.32"/>
+
+  <!-- 水面 -->
+  <rect x="0" y="460" width="1200" height="340" fill="url(#c6water)"/>
+
+  <!-- 倒影(山,翻转淡化) -->
+  <path d="M0,500 C180,560 340,520 520,560 C700,600 840,530 1000,560 C1100,578 1160,550 1200,560 L1200,490 L0,490 Z"
+        fill="#0e6f7a" fill-opacity="0.14"/>
+
+  <!-- 水面波光横纹,缓慢流动 -->
+  <g stroke="#e8f2f1" stroke-opacity="0.5" fill="none" stroke-width="2" stroke-linecap="round">
+    <path d="M120,540 q40,-6 80,0 t80,0">
+      <animate attributeName="stroke-opacity" dur="4s" repeatCount="indefinite" values="0.5;0.15;0.5"/>
+      <animateTransform attributeName="transform" type="translate" dur="12s" repeatCount="indefinite" values="0,0;40,0;0,0"/>
+    </path>
+    <path d="M700,600 q40,-6 80,0 t80,0">
+      <animate attributeName="stroke-opacity" dur="5s" repeatCount="indefinite" values="0.4;0.1;0.4"/>
+      <animateTransform attributeName="transform" type="translate" dur="14s" repeatCount="indefinite" values="0,0;-40,0;0,0"/>
+    </path>
+    <path d="M360,660 q40,-6 80,0 t80,0">
+      <animate attributeName="stroke-opacity" dur="4.5s" repeatCount="indefinite" values="0.45;0.12;0.45"/>
+      <animateTransform attributeName="transform" type="translate" dur="13s" repeatCount="indefinite" values="0,0;36,0;0,0"/>
+    </path>
+  </g>
+
+  <!-- 一叶扁舟横渡 -->
+  <g fill="#0a3a42" fill-opacity="0.7">
+    <animateTransform attributeName="transform" type="translate" dur="40s" repeatCount="indefinite"
+      values="-120,0; 1320,0; -120,0" keyTimes="0;0.5;1"/>
+    <path d="M0,520 q40,22 80,0 q-40,10 -80,0 Z"/>
+    <line x1="40" y1="520" x2="40" y2="488" stroke="#0a3a42" stroke-width="2.5"/>
+  </g>
+</svg>

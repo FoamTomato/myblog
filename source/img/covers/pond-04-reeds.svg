@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <linearGradient id="c4bg" x1="0" y1="0" x2="0.2" y2="1">
+      <stop offset="0" stop-color="#dde9e9"/>
+      <stop offset="0.6" stop-color="#c6dbdb"/>
+      <stop offset="1" stop-color="#aecac9"/>
+    </linearGradient>
+    <radialGradient id="c4glow" cx="0.7" cy="0.4" r="0.7">
+      <stop offset="0" stop-color="#12969e" stop-opacity="0.28"/>
+      <stop offset="1" stop-color="#12969e" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="1200" height="800" fill="url(#c4bg)"/>
+  <rect width="1200" height="800" fill="url(#c4glow)"/>
+
+  <!-- 水底水草:多株,底部固定、梢部摆动 -->
+  <g fill="none" stroke-linecap="round">
+    <path stroke="#0e6f66" stroke-opacity="0.55" stroke-width="10" d="M180,800 C170,640 210,560 190,420">
+      <animate attributeName="d" dur="6s" repeatCount="indefinite"
+        values="M180,800 C170,640 210,560 190,420;M180,800 C170,640 150,560 210,420;M180,800 C170,640 210,560 190,420"/>
+    </path>
+    <path stroke="#1a8f82" stroke-opacity="0.5" stroke-width="8" d="M240,800 C250,660 210,580 250,440">
+      <animate attributeName="d" dur="7.2s" repeatCount="indefinite"
+        values="M240,800 C250,660 210,580 250,440;M240,800 C250,660 290,580 220,440;M240,800 C250,660 210,580 250,440"/>
+    </path>
+    <path stroke="#0e6f66" stroke-opacity="0.5" stroke-width="9" d="M980,800 C990,650 950,560 990,410">
+      <animate attributeName="d" dur="6.6s" repeatCount="indefinite"
+        values="M980,800 C990,650 950,560 990,410;M980,800 C990,650 1030,560 950,410;M980,800 C990,650 950,560 990,410"/>
+    </path>
+    <path stroke="#1a8f82" stroke-opacity="0.45" stroke-width="7" d="M1040,800 C1030,670 1070,590 1030,470">
+      <animate attributeName="d" dur="8s" repeatCount="indefinite"
+        values="M1040,800 C1030,670 1070,590 1030,470;M1040,800 C1030,670 990,590 1070,470;M1040,800 C1030,670 1070,590 1030,470"/>
+    </path>
+  </g>
+
+  <!-- 上升气泡 -->
+  <g fill="#0e7c88" fill-opacity="0.35">
+    <circle cx="220" cy="700" r="6">
+      <animate attributeName="cy" dur="6s" repeatCount="indefinite" values="700;120"/>
+      <animate attributeName="fill-opacity" dur="6s" repeatCount="indefinite" values="0.35;0"/>
+    </circle>
+    <circle cx="260" cy="600" r="4">
+      <animate attributeName="cy" dur="7s" begin="1.5s" repeatCount="indefinite" values="600;120"/>
+      <animate attributeName="fill-opacity" dur="7s" begin="1.5s" repeatCount="indefinite" values="0.3;0"/>
+    </circle>
+    <circle cx="1000" cy="680" r="5">
+      <animate attributeName="cy" dur="6.5s" begin="0.8s" repeatCount="indefinite" values="680;120"/>
+      <animate attributeName="fill-opacity" dur="6.5s" begin="0.8s" repeatCount="indefinite" values="0.32;0"/>
+    </circle>
+  </g>
+
+  <!-- 一条鱼横穿 -->
+  <g fill="#12969e" fill-opacity="0.55">
+    <animateTransform attributeName="transform" type="translate" dur="19s" repeatCount="indefinite"
+      values="-160,300; 1360,360; -160,300" keyTimes="0;0.5;1" additive="sum"/>
+    <path d="M0,0 C30,-24 92,-24 122,0 C92,24 30,24 0,0 Z"/>
+    <path d="M118,0 C142,-20 162,-20 170,-4 C158,-2 150,4 170,4 C162,20 142,20 118,0 Z"/>
+  </g>
+</svg>

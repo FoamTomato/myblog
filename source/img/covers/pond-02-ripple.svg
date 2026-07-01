@@ -1,0 +1,73 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <linearGradient id="c2bg" x1="0" y1="0" x2="0.4" y2="1">
+      <stop offset="0" stop-color="#d3e2e3"/>
+      <stop offset="0.6" stop-color="#c2d8d9"/>
+      <stop offset="1" stop-color="#b0cccc"/>
+    </linearGradient>
+    <radialGradient id="c2glow" cx="0.6" cy="0.35" r="0.8">
+      <stop offset="0" stop-color="#12969e" stop-opacity="0.3"/>
+      <stop offset="1" stop-color="#12969e" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="1200" height="800" fill="url(#c2bg)"/>
+  <rect width="1200" height="800" fill="url(#c2glow)"/>
+
+  <!-- 多组雨落涟漪,错峰扩散 -->
+  <g stroke="#0e7c88" fill="none">
+    <g stroke-width="2.4">
+      <circle cx="360" cy="300" r="8" stroke-opacity="0.5">
+        <animate attributeName="r" dur="4s" repeatCount="indefinite" values="8;120"/>
+        <animate attributeName="stroke-opacity" dur="4s" repeatCount="indefinite" values="0.5;0"/>
+      </circle>
+      <circle cx="360" cy="300" r="8" stroke-opacity="0.4">
+        <animate attributeName="r" dur="4s" begin="1.3s" repeatCount="indefinite" values="8;100"/>
+        <animate attributeName="stroke-opacity" dur="4s" begin="1.3s" repeatCount="indefinite" values="0.4;0"/>
+      </circle>
+    </g>
+    <g stroke-width="2.4">
+      <circle cx="820" cy="480" r="8" stroke-opacity="0.5">
+        <animate attributeName="r" dur="4.6s" begin="0.8s" repeatCount="indefinite" values="8;140"/>
+        <animate attributeName="stroke-opacity" dur="4.6s" begin="0.8s" repeatCount="indefinite" values="0.5;0"/>
+      </circle>
+      <circle cx="820" cy="480" r="8" stroke-opacity="0.4">
+        <animate attributeName="r" dur="4.6s" begin="2.4s" repeatCount="indefinite" values="8;110"/>
+        <animate attributeName="stroke-opacity" dur="4.6s" begin="2.4s" repeatCount="indefinite" values="0.4;0"/>
+      </circle>
+    </g>
+    <g stroke-width="2">
+      <circle cx="600" cy="170" r="6" stroke-opacity="0.45">
+        <animate attributeName="r" dur="5.2s" begin="2s" repeatCount="indefinite" values="6;90"/>
+        <animate attributeName="stroke-opacity" dur="5.2s" begin="2s" repeatCount="indefinite" values="0.45;0"/>
+      </circle>
+      <circle cx="1000" cy="240" r="6" stroke-opacity="0.4">
+        <animate attributeName="r" dur="5.8s" begin="3.1s" repeatCount="indefinite" values="6;95"/>
+        <animate attributeName="stroke-opacity" dur="5.8s" begin="3.1s" repeatCount="indefinite" values="0.4;0"/>
+      </circle>
+      <circle cx="220" cy="560" r="6" stroke-opacity="0.4">
+        <animate attributeName="r" dur="5.4s" begin="1.1s" repeatCount="indefinite" values="6;85"/>
+        <animate attributeName="stroke-opacity" dur="5.4s" begin="1.1s" repeatCount="indefinite" values="0.4;0"/>
+      </circle>
+    </g>
+  </g>
+
+  <!-- 斜雨丝 -->
+  <g stroke="#0e7c88" stroke-opacity="0.18" stroke-width="1.6">
+    <line x1="200" y1="-40" x2="150" y2="60">
+      <animate attributeName="y1" dur="0.9s" repeatCount="indefinite" values="-40;760"/>
+      <animate attributeName="y2" dur="0.9s" repeatCount="indefinite" values="60;860"/>
+    </line>
+    <line x1="500" y1="-80" x2="450" y2="20">
+      <animate attributeName="y1" dur="1.1s" repeatCount="indefinite" values="-80;720"/>
+      <animate attributeName="y2" dur="1.1s" repeatCount="indefinite" values="20;820"/>
+    </line>
+    <line x1="780" y1="-30" x2="730" y2="70">
+      <animate attributeName="y1" dur="1s" repeatCount="indefinite" values="-30;770"/>
+      <animate attributeName="y2" dur="1s" repeatCount="indefinite" values="70;870"/>
+    </line>
+    <line x1="1040" y1="-60" x2="990" y2="40">
+      <animate attributeName="y1" dur="1.05s" repeatCount="indefinite" values="-60;740"/>
+      <animate attributeName="y2" dur="1.05s" repeatCount="indefinite" values="40;840"/>
+    </line>
+  </g>
+</svg>

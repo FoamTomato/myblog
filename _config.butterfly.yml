@@ -118,8 +118,14 @@ cover:
   # left/right/both
   position: both
   # When cover is not set, the default cover is displayed (當沒有設置cover時，默認的封面顯示)
-  default_cover: 
-    - https://i.loli.net/2020/05/01/gkihqEjXxJ5UZ1C.jpg
+  # 水塘水墨主题:一组本地动态 SVG 插画,Butterfly 会给未设封面的文章随机挑一张
+  default_cover:
+    - /img/covers/pond-01-fish.svg
+    - /img/covers/pond-02-ripple.svg
+    - /img/covers/pond-03-lotus.svg
+    - /img/covers/pond-04-reeds.svg
+    - /img/covers/pond-05-koi.svg
+    - /img/covers/pond-06-mountain.svg
 
 # Replace Broken Images (替換無法顯示的圖片)
 error_img:

@@ -183,6 +183,10 @@ html, body, #web_bg, .layout, #body-wrap,
   #archive .article-sort-item.arc-reveal { animation: none !important; }
 }
 
+/* 剔除侧边栏作者卡片里孤立的 social 社交图标行(github 圆图标);
+ * "Follow Me" 按钮(#card-info-btn)已指向 github,此行重复,去掉更干净 */
+.card-info-social-icons { display: none !important; }
+
 /* 4) 点击按压反馈:卡片与链接按下时微缩,物理感 */
 .type-categories .category-list-item:active,
 #archive .article-sort-item:not(.year):active {

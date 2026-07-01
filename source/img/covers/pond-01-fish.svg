@@ -1,0 +1,69 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <linearGradient id="c1bg" x1="0" y1="0" x2="0.3" y2="1">
+      <stop offset="0" stop-color="#dfeaeb"/>
+      <stop offset="0.55" stop-color="#cfe0e1"/>
+      <stop offset="1" stop-color="#bcd4d4"/>
+    </linearGradient>
+    <radialGradient id="c1glow" cx="0.35" cy="0.3" r="0.7">
+      <stop offset="0" stop-color="#18aa98" stop-opacity="0.28"/>
+      <stop offset="1" stop-color="#18aa98" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="1200" height="800" fill="url(#c1bg)"/>
+  <rect width="1200" height="800" fill="url(#c1glow)"/>
+
+  <!-- 淡淡水波横纹 -->
+  <g stroke="#0e7c88" stroke-opacity="0.12" fill="none" stroke-width="2">
+    <path d="M0,560 Q300,540 600,560 T1200,560">
+      <animate attributeName="d" dur="9s" repeatCount="indefinite"
+        values="M0,560 Q300,540 600,560 T1200,560;M0,560 Q300,580 600,560 T1200,560;M0,560 Q300,540 600,560 T1200,560"/>
+    </path>
+    <path d="M0,640 Q300,660 600,640 T1200,640">
+      <animate attributeName="d" dur="11s" repeatCount="indefinite"
+        values="M0,640 Q300,660 600,640 T1200,640;M0,640 Q300,620 600,640 T1200,640;M0,640 Q300,660 600,640 T1200,640"/>
+    </path>
+  </g>
+
+  <!-- 大鱼:整体游动 + 尾巴摆动 -->
+  <g>
+    <animateTransform attributeName="transform" type="translate" dur="22s" repeatCount="indefinite"
+      values="-260,120; 1460,-40; -260,120" keyTimes="0;0.5;1" additive="sum"/>
+    <g fill="#0e6f7a" fill-opacity="0.82">
+      <path d="M0,0 C60,-52 190,-52 250,0 C190,52 60,52 0,0 Z"/>
+      <!-- 尾 -->
+      <path d="M240,0 C300,-46 340,-46 356,-8 C340,-6 320,4 356,8 C340,46 300,46 240,0 Z">
+        <animateTransform attributeName="transform" type="rotate" dur="1.6s" repeatCount="indefinite"
+          values="-16 246 0; 16 246 0; -16 246 0"/>
+      </path>
+    </g>
+    <circle cx="60" cy="-8" r="8" fill="#e8f2f1"/>
+    <circle cx="60" cy="-8" r="4" fill="#0a3a42"/>
+  </g>
+
+  <!-- 小鱼群:反向游动 -->
+  <g fill="#12969e" fill-opacity="0.5">
+    <animateTransform attributeName="transform" type="translate" dur="16s" repeatCount="indefinite"
+      values="1360,430; -160,520; 1360,430" keyTimes="0;0.5;1" additive="sum"/>
+    <g>
+      <path d="M0,0 C22,-18 68,-18 90,0 C68,18 22,18 0,0 Z"/>
+      <path d="M86,0 C104,-14 118,-14 124,0 C118,14 104,14 86,0 Z"/>
+    </g>
+    <g transform="translate(70,60)">
+      <path d="M0,0 C18,-14 54,-14 72,0 C54,14 18,14 0,0 Z"/>
+      <path d="M68,0 C82,-11 94,-11 99,0 C94,11 82,11 68,0 Z"/>
+    </g>
+  </g>
+
+  <!-- 零星涟漪 -->
+  <g stroke="#0e7c88" fill="none" stroke-width="2">
+    <circle cx="920" cy="240" r="6" stroke-opacity="0.4">
+      <animate attributeName="r" dur="5s" repeatCount="indefinite" values="6;70"/>
+      <animate attributeName="stroke-opacity" dur="5s" repeatCount="indefinite" values="0.4;0"/>
+    </circle>
+    <circle cx="300" cy="200" r="6" stroke-opacity="0.35">
+      <animate attributeName="r" dur="6s" begin="2s" repeatCount="indefinite" values="6;60"/>
+      <animate attributeName="stroke-opacity" dur="6s" begin="2s" repeatCount="indefinite" values="0.35;0"/>
+    </circle>
+  </g>
+</svg>

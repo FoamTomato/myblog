@@ -1,0 +1,63 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <linearGradient id="c5bg" x1="0" y1="0" x2="0.3" y2="1">
+      <stop offset="0" stop-color="#dfeaea"/>
+      <stop offset="0.6" stop-color="#c9dddc"/>
+      <stop offset="1" stop-color="#b4cfce"/>
+    </linearGradient>
+    <radialGradient id="c5glow" cx="0.5" cy="0.5" r="0.7">
+      <stop offset="0" stop-color="#18aa98" stop-opacity="0.24"/>
+      <stop offset="1" stop-color="#18aa98" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="1200" height="800" fill="url(#c5bg)"/>
+  <rect width="1200" height="800" fill="url(#c5glow)"/>
+
+  <!-- 锦鲤:绕圈游 + 尾摆(红白) -->
+  <g>
+    <animateTransform attributeName="transform" type="rotate" dur="26s" repeatCount="indefinite"
+      values="0 600 400; 360 600 400"/>
+    <g transform="translate(600,180)">
+      <g fill="#f4f6f5"><!-- 白底身 -->
+        <path d="M0,0 C50,-46 170,-46 220,0 C170,46 50,46 0,0 Z"/>
+      </g>
+      <!-- 红斑 -->
+      <path d="M40,-20 C70,-34 110,-30 120,-6 C96,4 56,4 40,-20 Z" fill="#d24a3a" fill-opacity="0.9"/>
+      <path d="M150,-8 C176,-18 196,-10 196,4 C176,14 158,10 150,-8 Z" fill="#d24a3a" fill-opacity="0.85"/>
+      <!-- 尾 -->
+      <path d="M212,0 C256,-40 292,-40 306,-6 C292,-4 276,4 306,6 C292,40 256,40 212,0 Z" fill="#f4f6f5">
+        <animateTransform attributeName="transform" type="rotate" dur="1.5s" repeatCount="indefinite"
+          values="-14 216 0; 14 216 0; -14 216 0"/>
+      </path>
+      <circle cx="46" cy="-6" r="7" fill="#0a3a42"/>
+    </g>
+  </g>
+
+  <!-- 金鲤:另一半径绕游 -->
+  <g>
+    <animateTransform attributeName="transform" type="rotate" dur="34s" repeatCount="indefinite"
+      values="180 600 400; -180 600 400"/>
+    <g transform="translate(600,600)">
+      <g fill="#e0a63c" fill-opacity="0.92">
+        <path d="M0,0 C40,-36 132,-36 172,0 C132,36 40,36 0,0 Z"/>
+        <path d="M166,0 C200,-30 226,-30 238,-4 C226,-2 214,4 238,4 C226,30 200,30 166,0 Z">
+          <animateTransform attributeName="transform" type="rotate" dur="1.7s" repeatCount="indefinite"
+            values="-14 170 0; 14 170 0; -14 170 0"/>
+        </path>
+      </g>
+      <circle cx="38" cy="-5" r="6" fill="#5a3a10"/>
+    </g>
+  </g>
+
+  <!-- 中心涟漪 -->
+  <g stroke="#0e7c88" fill="none" stroke-width="2">
+    <circle cx="600" cy="400" r="10" stroke-opacity="0.35">
+      <animate attributeName="r" dur="6s" repeatCount="indefinite" values="10;160"/>
+      <animate attributeName="stroke-opacity" dur="6s" repeatCount="indefinite" values="0.35;0"/>
+    </circle>
+    <circle cx="600" cy="400" r="10" stroke-opacity="0.3">
+      <animate attributeName="r" dur="6s" begin="2s" repeatCount="indefinite" values="10;140"/>
+      <animate attributeName="stroke-opacity" dur="6s" begin="2s" repeatCount="indefinite" values="0.3;0"/>
+    </circle>
+  </g>
+</svg>
