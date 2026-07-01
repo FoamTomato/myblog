@@ -25,8 +25,7 @@
   min-height: 0 !important;
   padding: 3.5rem 3rem !important;   /* 上下边距一致(各 3.5rem), 左右 3rem */
 }
-/* 词云页内容区离导航栏更远 */
-.page:has(.tagcloud-wrap) #content-inner { padding-top: 4.5rem !important; }
+/* 内容区顶部间距统一由 aurora-bg.css 管理(四子页一致 4.5rem) */
 
 .tagcloud-wrap {
   display: flex;

@@ -123,34 +123,36 @@ html, body, #web_bg, .layout, #body-wrap,
 #page-header .mask,
 #page-header::before { background-color: transparent !important; }
 
-/* ---- 归档类页(分类/标签/归档)剔除页顶大 banner,内容直接靠上 ----
- * 作用域:categories 用 .type-categories;archives 页含 #archive;
+/* ---- 子页面(分类/标签/归档/关于)剔除页顶大 banner + 标题,内容直接靠上 ----
+ * 作用域:categories/about 用 .type-*;archives 页含 #archive;
  * tags 页去掉 type 后仅 .page,用 :has(.tagcloud-wrap) 精确命中词云页。
  * 不误伤文章页(保留其封面 banner)。banner 图是内联 style,需 !important。*/
 .page.type-categories #page-header,
+.page.type-about #page-header,
 .page:has(#archive) #page-header,
 .page:has(.tagcloud-wrap) #page-header {
   height: auto !important;
   min-height: 0 !important;
   padding-top: 0 !important;
-  padding-bottom: 0.5rem !important;   /* 兜底,避免内容顶上来后穿透 */
+  padding-bottom: 0 !important;
   background-image: none !important;
   background-color: transparent !important;
 }
+/* 剔除页顶标题区(categories 的分类标题 / about 的"关于"两字 等) */
 .page.type-categories #page-header #page-site-info,
+.page.type-about #page-header #page-site-info,
 .page:has(#archive) #page-header #page-site-info,
 .page:has(.tagcloud-wrap) #page-header #page-site-info,
 .page.type-categories #page-header #site-title,
+.page.type-about #page-header #site-title,
 .page:has(#archive) #page-header #site-title,
 .page:has(.tagcloud-wrap) #page-header #site-title { display: none !important; }
 
-/* 去 banner 后给内容区顶部预留呼吸空间(否则白卡紧贴导航) */
+/* 去 banner 后给内容区顶部预留充足呼吸空间,四页统一、保持空旷 */
 .page.type-categories #content-inner,
+.page.type-about #content-inner,
 .page:has(#archive) #content-inner,
-.page:has(.tagcloud-wrap) #content-inner { padding-top: 3rem !important; }
-
-/* 关于页保留其 banner,但内容区与上方也留出统一呼吸间距 */
-.page.type-about #content-inner { padding-top: 2rem !important; }
+.page:has(.tagcloud-wrap) #content-inner { padding-top: 4.5rem !important; }
 
 /* ============================================================
  * 交互增强配套样式(配合 interactions.js)
