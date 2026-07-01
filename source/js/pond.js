@@ -50,6 +50,21 @@
         turn: rand(-0.004, 0.004)       // 转向倾向
       });
     }
+
+    /* 写实贝塞尔鱼(数量少,更精致) */
+    var REAL_N = reduce ? 0 : (small ? 1 : 2);
+    var realFish = [];
+    for (var j = 0; j < REAL_N; j++) {
+      realFish.push({
+        x: rand(0.15, 0.85) * W,
+        y: rand(0.2, 0.8) * H,
+        a: rand(0, Math.PI * 2),
+        speed: rand(0.35, 0.7),         // 略快,显得更灵动
+        size: rand(26, 42),             // 略大,细节看得清
+        wob: rand(0, Math.PI * 2),
+        turn: rand(-0.004, 0.004)
+      });
+    }
     function drawFish(f, t) {
       f.wob += 0.12;
       // 偶尔改变转向,自然游动
@@ -87,6 +102,78 @@
       ctx.closePath();
       ctx.fillStyle = ink(0.20);
       ctx.fill();
+      ctx.restore();
+    }
+
+    /* 复用的游动更新(边界回游 + 环绕) */
+    function swim(f, wobStep, jitter) {
+      f.wob += wobStep;
+      if (Math.random() < 0.01) f.turn = rand(-0.006, 0.006);
+      f.a += f.turn + Math.sin(f.wob) * jitter;
+      f.x += Math.cos(f.a) * f.speed;
+      f.y += Math.sin(f.a) * f.speed;
+      var m = 70;
+      if (f.x < m) f.a += 0.03; if (f.x > W - m) f.a += 0.03;
+      if (f.y < m) f.a += 0.03; if (f.y > H - m) f.a += 0.03;
+      if (f.x < -60) f.x = W + 60; if (f.x > W + 60) f.x = -60;
+      if (f.y < -60) f.y = H + 60; if (f.y > H + 60) f.y = -60;
+    }
+
+    /* ---------- 写实贝塞尔鱼 ---------- */
+    function drawRealisticFish(f) {
+      swim(f, 0.14, 0.008);
+      var s = f.size;
+      var w = Math.sin(f.wob);
+      var tail = w * s * 0.5;            // 尾摆
+      var body = w * s * 0.05;           // 身体随摆动的轻微 S 形
+
+      ctx.save();
+      ctx.translate(f.x, f.y);
+      ctx.rotate(f.a);
+
+      // 身体:贝塞尔流线型(头在 +x,尾在 -x),上下对称的两段三次曲线
+      ctx.beginPath();
+      ctx.moveTo(s * 0.72, 0);                                   // 吻部
+      ctx.bezierCurveTo(s * 0.5, -s * 0.30, -s * 0.1, -s * 0.34, -s * 0.55, -body - s * 0.10); // 上缘 -> 尾柄
+      ctx.bezierCurveTo(-s * 0.62, -body, -s * 0.62, body, -s * 0.55, body + s * 0.10);        // 尾柄圆转
+      ctx.bezierCurveTo(-s * 0.1, s * 0.34, s * 0.5, s * 0.30, s * 0.72, 0);                     // 下缘 -> 吻部
+      ctx.closePath();
+      ctx.fillStyle = ink(0.34);
+      ctx.fill();
+
+      // 尾鳍:两片飘动的贝塞尔叶片
+      ctx.beginPath();
+      ctx.moveTo(-s * 0.5, body * 0.4);
+      ctx.quadraticCurveTo(-s * 0.85, tail - s * 0.02, -s * 1.05, tail - s * 0.34);
+      ctx.quadraticCurveTo(-s * 0.78, tail * 0.5, -s * 0.5, body * 0.4);
+      ctx.moveTo(-s * 0.5, body * 0.4);
+      ctx.quadraticCurveTo(-s * 0.85, tail + s * 0.02, -s * 1.05, tail + s * 0.34);
+      ctx.quadraticCurveTo(-s * 0.78, tail * 0.5, -s * 0.5, body * 0.4);
+      ctx.fillStyle = ink(0.22);
+      ctx.fill();
+
+      // 背鳍(上)
+      ctx.beginPath();
+      ctx.moveTo(s * 0.15, -s * 0.30);
+      ctx.quadraticCurveTo(-s * 0.05, -s * 0.55, -s * 0.28, -s * 0.28);
+      ctx.closePath();
+      ctx.fillStyle = ink(0.18);
+      ctx.fill();
+
+      // 胸鳍(下,随摆动)
+      ctx.beginPath();
+      ctx.moveTo(s * 0.18, s * 0.22);
+      ctx.quadraticCurveTo(s * 0.0, s * 0.42 + w * s * 0.06, -s * 0.12, s * 0.22);
+      ctx.closePath();
+      ctx.fillStyle = ink(0.16);
+      ctx.fill();
+
+      // 眼睛(小点,点睛)
+      ctx.beginPath();
+      ctx.arc(s * 0.46, -s * 0.06, s * 0.045, 0, Math.PI * 2);
+      ctx.fillStyle = ink(0.5);
+      ctx.fill();
+
       ctx.restore();
     }
 
@@ -138,6 +225,7 @@
       if (rainTimer > rand(70, 130)) { spawnRipple(); rainTimer = 0; }
       drawRipples();
       for (var i = 0; i < fish.length; i++) drawFish(fish[i], t);
+      for (var k = 0; k < realFish.length; k++) drawRealisticFish(realFish[k]);
       raf = requestAnimationFrame(loop);
     }
 
@@ -145,6 +233,7 @@
     else {
       // 静止:画一帧鱼,不动
       for (var i = 0; i < fish.length; i++) drawFish(fish[i], 0);
+      for (var k = 0; k < realFish.length; k++) drawRealisticFish(realFish[k]);
     }
 
     // 页面隐藏时暂停,省电省性能
