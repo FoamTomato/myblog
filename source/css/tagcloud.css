@@ -6,61 +6,100 @@
    - 频率"淡浅"完全由 color 的明度表达(高频深、低频浅), 不用 opacity。
    - opacity 只归入场动画独占, 从 0 -> 1, 互不打架。 */
 
-/* 词云页白卡高度贴合内容(否则白卡被 .layout 的 flex 交叉轴拉伸到大半屏,
-   词云只占顶部一小块, 下方一大片空白)。白卡 = .layout > div:first-child(#page)。
-   主题给它 align-self:flex-start, 但仍随 .layout(flex:1 占满 body-wrap 100vh)
-   在高度上被撑。这里显式让它高度贴合内容。作用域限定词云页, 不影响它页。 */
+/* ============================================================
+ * 词云布局 —— 编辑式分层设计(ui-ux-pro-max 规范)
+ * 设计要点:
+ *  · 顶部充足呼吸间距(白卡内上 padding 拉大, 离导航更远)
+ *  · 词云区更高更有存在感(min-height + 垂直居中 + 拉开行距)
+ *  · 基线对齐(baseline)= 杂志式文字排版, 不是无序居中平铺
+ *  · hover 只动 transform/color, 不引起布局位移(稳定 hover)
+ *  · 角标精致小上标; 高频标签下方一道细墨线做视觉锚点
+ * ============================================================ */
+
+/* 词云页白卡: 高度贴合内容, 但给一个从容的最小高度 + 大内边距,
+   让词云在卡片里舒展呼吸, 顶部离导航留足空间。
+   白卡 = .layout > div:first-child(#page)。作用域限定词云页。 */
 .page:has(.tagcloud-wrap) #page {
   height: -moz-fit-content !important;
-  height: fit-content !important;   /* 高度贴合内容, 不再被拉伸 */
+  height: fit-content !important;
   min-height: 0 !important;
+  padding: 3.4rem 3rem 3rem !important;  /* 上 3.4rem 呼吸间距, 内容更从容 */
 }
+/* 词云页内容区离导航栏更远 */
+.page:has(.tagcloud-wrap) #content-inner { padding-top: 4.5rem !important; }
 
 .tagcloud-wrap {
   display: flex;
   flex-wrap: wrap;
-  align-items: center;      /* 不同字号沿中线对齐, 词云更聚拢 */
+  align-items: baseline;      /* 基线对齐: 大小字沿文字基线排, 编辑式排版感 */
+  align-content: center;
   justify-content: center;
-  gap: 0.35em 0.9em;        /* 行距 列距 */
-  max-width: 960px;
-  margin: 1rem auto 1.4rem;
-  padding: 0 0.5rem;
-  line-height: 1.35;
+  gap: 0.9em 1.1em;           /* 行距 0.9em 列距 1.1em: 拉开节奏, 更疏朗 */
+  min-height: 240px;          /* 给词云区一个从容高度, 更有存在感 */
+  max-width: 900px;
+  margin: 0.5rem auto;
+  padding: 0.5rem;
+  line-height: 1.25;
 }
 
 .tagcloud-item {
+  position: relative;
   display: inline-flex;
   align-items: baseline;
   text-decoration: none;
   border: 0;
+  padding-bottom: 0.08em;     /* 给下方墨线留位 */
+  cursor: pointer;
   /* 字号/颜色/font-weight 由内联 style 提供; opacity 交给下面的入场动画 */
-  transition: transform .22s ease, color .22s ease;
+  transition: transform .24s cubic-bezier(0.16,1,0.3,1), color .24s ease;
   will-change: transform;
-  opacity: 0;               /* 初始隐藏, 由动画淡入到 1 */
-  transform: translateY(6px);
-  animation: tagcloud-in .45s ease both;
+  opacity: 0;                 /* 初始隐藏, 由动画淡入到 1 */
+  transform: translateY(8px);
+  animation: tagcloud-in .5s cubic-bezier(0.16,1,0.3,1) both;
   animation-delay: var(--tc-delay, 0ms);
 }
 
 @keyframes tagcloud-in {
-  from { opacity: 0; transform: translateY(6px); }
+  from { opacity: 0; transform: translateY(8px); }
   to   { opacity: 1; transform: translateY(0); }
+}
+
+/* 高频标签(level 3/4)下方一道渐隐细墨线, 做视觉锚点、强化层次。
+   墨线用伪元素, hover 时延展, 不占布局(不引起位移)。 */
+.tagcloud-item[data-tc-level="4"]::after,
+.tagcloud-item[data-tc-level="3"]::after {
+  content: "";
+  position: absolute;
+  left: 0; right: 0.9em;      /* 右侧让开角标 */
+  bottom: -0.02em;
+  height: 2px;
+  background: linear-gradient(90deg, currentColor, transparent);
+  opacity: 0.35;
+  transform: scaleX(0.85);
+  transform-origin: left;
+  transition: transform .24s ease, opacity .24s ease;
 }
 
 .tagcloud-item:hover,
 .tagcloud-item:focus-visible {
-  color: #06565e !important; /* 悬浮统一提亮到最深青墨 */
-  transform: translateY(-2px) scale(1.06);
+  color: #06565e !important;  /* 悬浮统一提亮到最深青墨 */
+  transform: translateY(-3px);
   outline: none;
+}
+.tagcloud-item:hover::after,
+.tagcloud-item:focus-visible::after {
+  transform: scaleX(1);
+  opacity: 0.6;
 }
 
 .tagcloud-name { white-space: nowrap; }
 
 .tagcloud-count {
-  font-size: 0.5em;         /* 相对当前标签字号缩小的角标 */
-  margin-left: 0.15em;
-  opacity: 0.55;
-  font-weight: 400;
+  font-size: 0.42em;          /* 更精致的小上标 */
+  margin-left: 0.25em;
+  opacity: 0.5;
+  font-weight: 500;
+  letter-spacing: 0.02em;
   vertical-align: super;
 }
 
@@ -93,8 +132,10 @@
   }
 }
 
-/* 移动端收紧间距 */
+/* 移动端: 收紧间距与内边距, 词云最小高度降低避免过高 */
 @media (max-width: 600px) {
-  .tagcloud-wrap { gap: 0.3em 0.7em; margin: 0.8rem auto 1.6rem; }
+  .page:has(.tagcloud-wrap) #page { padding: 2rem 1.2rem 2rem !important; }
+  .page:has(.tagcloud-wrap) #content-inner { padding-top: 2.5rem !important; }
+  .tagcloud-wrap { gap: 0.6em 0.8em; min-height: 160px; margin: 0.3rem auto; }
   .tagcloud-item { max-width: 100%; }
 }
