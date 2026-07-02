@@ -173,17 +173,18 @@ html, body, #web_bg, .layout, #body-wrap,
 [data-theme="dark"] #ink-canvas { mix-blend-mode: screen; }
 [data-theme="dark"] #pond-canvas { mix-blend-mode: normal; }
 
-/* 1) 滚动渐显:JS 加 .arc-reveal 初始隐藏,进入视口加 .arc-in 显现 */
+/* 1) 滚动渐显:内容默认可见;仅当 JS 成功加 .arc-reveal 时才压初始态,
+ *    进入视口 JS 再加 .arc-in 显现。JS 另有兜底定时器强制显示(见 interactions.js),
+ *    因此即便 IO 卡住也不会永久隐藏。绝不让动画链路把整页藏没。 */
 @media (prefers-reduced-motion: no-preference) {
-  .arc-reveal {
+  .arc-reveal:not(.arc-in) {
     opacity: 0;
     transform: translateY(20px);
+  }
+  .arc-reveal {
     transition: opacity 0.6s cubic-bezier(0.16,1,0.3,1), transform 0.6s cubic-bezier(0.16,1,0.3,1);
   }
   .arc-reveal.arc-in { opacity: 1; transform: translateY(0); }
-  /* JS 接管进入动画后,关掉 custom-archive.css 里的 CSS keyframe 进入,避免打架 */
-  .type-categories .category-list-item.arc-reveal,
-  #archive .article-sort-item.arc-reveal { animation: none !important; }
 }
 
 /* 剔除侧边栏作者卡片里孤立的 social 社交图标行(github 圆图标);

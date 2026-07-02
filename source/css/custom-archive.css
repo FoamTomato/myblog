@@ -14,6 +14,17 @@
   --arc-card: #fafafa;
   --arc-card-hover: #f2f2f2;
   --arc-radius: 16px;
+
+  /* 分类卡青绿水墨色板(与全站 teal 主题呼应) */
+  --cat-accent: #12969e;              /* 主青墨(序号/竖线/胶囊字) */
+  --cat-accent-soft: rgba(18,150,158,0.45);
+  --cat-name: #0a3a42;                /* 名称:深青墨 */
+  --cat-name-hover: #06565e;
+  --cat-card: rgba(18,150,158,0.045);  /* 极淡青墨晕:在白色 #page 上仍清晰可辨 */
+  --cat-card-hover: rgba(18,150,158,0.085);
+  --cat-hair: rgba(18,150,158,0.18);
+  --cat-pill: rgba(18,150,158,0.10);
+  --cat-pill-border: rgba(18,150,158,0.22);
 }
 [data-theme="dark"] {
   --arc-ink: #f2f2f2;
@@ -22,6 +33,16 @@
   --arc-hair: rgba(255,255,255,0.12);
   --arc-card: rgba(255,255,255,0.04);
   --arc-card-hover: rgba(255,255,255,0.08);
+
+  --cat-accent: #4fc7cf;
+  --cat-accent-soft: rgba(79,199,207,0.4);
+  --cat-name: #e6f7f8;
+  --cat-name-hover: #ffffff;
+  --cat-card: rgba(255,255,255,0.05);
+  --cat-card-hover: rgba(255,255,255,0.09);
+  --cat-hair: rgba(120,210,215,0.16);
+  --cat-pill: rgba(79,199,207,0.14);
+  --cat-pill-border: rgba(79,199,207,0.28);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -43,36 +64,14 @@
   display: none !important;
 }
 
-/* ---- 丝滑进入动画:卡片交错淡入上浮(纯 CSS,只动 transform/opacity) ---- */
+/* ---- 丝滑进入动画:卡片交错淡入上浮(纯 CSS,只动 transform/opacity)
+ * 关键:内容默认可见(opacity:1)。进入动画只在"JS 已接管并标记 .arc-reveal"时
+ * 才把初始态压到 0(见 aurora-bg.css 的 .arc-reveal 规则),由 IntersectionObserver
+ * 加 .arc-in 显现,并有 JS 兜底强制显示。若 JS/IO 任一环节失败,卡片仍是可见的 —
+ * 绝不因动画链路故障而整页空白。 ---- */
 @keyframes arcFadeUp {
   from { opacity: 0; transform: translateY(16px); }
   to   { opacity: 1; transform: translateY(0); }
-}
-@media (prefers-reduced-motion: no-preference) {
-  .type-categories .category-list-item,
-  #archive .article-sort-item:not(.year) {
-    opacity: 0;
-    animation: arcFadeUp 0.55s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-  }
-  /* 交错延迟:靠 nth-child 阶梯,前 12 个各延迟 40ms */
-  .type-categories .category-list-item:nth-child(1),
-  #archive .article-sort-item:nth-child(1) { animation-delay: 0.02s; }
-  .type-categories .category-list-item:nth-child(2),
-  #archive .article-sort-item:nth-child(2) { animation-delay: 0.06s; }
-  .type-categories .category-list-item:nth-child(3),
-  #archive .article-sort-item:nth-child(3) { animation-delay: 0.10s; }
-  .type-categories .category-list-item:nth-child(4),
-  #archive .article-sort-item:nth-child(4) { animation-delay: 0.14s; }
-  .type-categories .category-list-item:nth-child(5),
-  #archive .article-sort-item:nth-child(5) { animation-delay: 0.18s; }
-  .type-categories .category-list-item:nth-child(6),
-  #archive .article-sort-item:nth-child(6) { animation-delay: 0.22s; }
-  .type-categories .category-list-item:nth-child(7),
-  #archive .article-sort-item:nth-child(7) { animation-delay: 0.26s; }
-  .type-categories .category-list-item:nth-child(8),
-  #archive .article-sort-item:nth-child(8) { animation-delay: 0.30s; }
-  .type-categories .category-list-item:nth-child(n+9),
-  #archive .article-sort-item:nth-child(n+9) { animation-delay: 0.34s; }
 }
 
 /* ============================================================
@@ -119,73 +118,120 @@
   padding: 0 !important;
 }
 
+/* ---- 分类卡:青绿水墨调,序号水印 + 名称主体 + 篇数细标,层次和谐 ----
+ * 真实 DOM(Butterfly 5.5.4):
+ *   <li.category-list-item>
+ *     <a.category-list-link>分类名</a>      ← 名称 = 链接自身文本(无 name span)
+ *     <span.category-list-count>15</span>    ← 篇数 = 链接的兄弟节点(在 li 内、a 外)
+ * 因此把 li 做成卡片容器(relative 定位),序号用 li::before 水印在右上角,
+ * 名称(a)与篇数(span)在卡片内自然纵向排布,彼此呼应而不各自孤立。*/
 .type-categories .category-list {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: 14px;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  gap: 16px;
   counter-reset: cat;
   padding: 0;
   margin: 0;
 }
 .type-categories .category-list-item {
+  position: relative;          /* 承载右上角序号水印 + 底部篇数定位 */
   list-style: none;
   margin: 0;
-  background: var(--arc-card);
-  border: 1px solid var(--arc-hair);
-  border-radius: var(--arc-radius);
-  box-shadow: 0 0 0 rgba(0,0,0,0);
+  min-height: 132px;
+  padding: 20px 22px 18px;
+  overflow: hidden;
+  background: var(--cat-card);
+  border: 1px solid var(--cat-hair);
+  border-radius: 18px;
+  box-shadow: 0 1px 0 rgba(255,255,255,0.5) inset, 0 0 0 rgba(0,0,0,0);
   transition:
-    background 0.3s cubic-bezier(0.16,1,0.3,1),
-    transform 0.35s cubic-bezier(0.16,1,0.3,1),
-    box-shadow 0.35s cubic-bezier(0.16,1,0.3,1),
-    border-color 0.3s ease;
+    background 0.28s ease,
+    transform 0.3s cubic-bezier(0.16,1,0.3,1),
+    box-shadow 0.3s cubic-bezier(0.16,1,0.3,1),
+    border-color 0.28s ease;
 }
-.type-categories .category-list-item:hover {
-  background: var(--arc-card-hover);
-  transform: translateY(-4px);
-  border-color: var(--arc-ink-3);
-  box-shadow: 0 12px 28px -12px rgba(0,0,0,0.22);
+/* 左侧一道青墨竖线做统一视觉锚点,hover 时加粗提亮 */
+.type-categories .category-list-item::after {
+  content: "";
+  position: absolute;
+  left: 0; top: 18px; bottom: 18px;
+  width: 3px;
+  border-radius: 0 3px 3px 0;
+  background: linear-gradient(180deg, var(--cat-accent), transparent);
+  opacity: 0.55;
+  transition: opacity 0.28s ease, top 0.3s ease, bottom 0.3s ease;
 }
-[data-theme="dark"] .type-categories .category-list-item:hover {
-  box-shadow: 0 12px 30px -10px rgba(0,0,0,0.6);
-}
-.type-categories .category-list-link {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  padding: 20px;
-  border: none !important;
-  background: none !important;
-  color: var(--arc-ink) !important;
-}
-/* 序号:卡片右上角的排版数字 */
-.type-categories .category-list-link::before {
+/* 序号:右上角大号淡青水印,装饰而不抢戏 */
+.type-categories .category-list-item::before {
   counter-increment: cat;
   content: counter(cat, decimal-leading-zero);
-  font-size: 0.72rem;
+  position: absolute;
+  top: 12px; right: 16px;
+  font-size: 1.5rem;
+  font-weight: 700;
   font-variant-numeric: tabular-nums;
-  letter-spacing: 0.08em;
-  color: var(--arc-ink-3);
+  letter-spacing: 0.02em;
+  line-height: 1;
+  color: var(--cat-accent);
+  opacity: 0.16;
+  transition: opacity 0.3s ease, transform 0.3s cubic-bezier(0.16,1,0.3,1);
 }
-.type-categories .category-list-name {
-  font-size: 1.15rem;
-  font-weight: 600;
-  transition: transform 0.35s cubic-bezier(0.16,1,0.3,1);
+.type-categories .category-list-item:hover {
+  background: var(--cat-card-hover);
+  transform: translateY(-4px);
+  border-color: var(--cat-accent-soft);
+  box-shadow: 0 14px 30px -14px rgba(10,58,66,0.35);
 }
-/* hover 微动:序号淡入下沉、分类名右移一点 */
-.type-categories .category-list-link::before { transition: opacity 0.3s ease, transform 0.35s cubic-bezier(0.16,1,0.3,1); }
-.type-categories .category-list-item:hover .category-list-link::before { opacity: 0.55; transform: translateY(-2px); }
-.type-categories .category-list-item:hover .category-list-name { transform: translateX(3px); }
-.type-categories .category-list-count {
+[data-theme="dark"] .type-categories .category-list-item:hover {
+  box-shadow: 0 14px 32px -12px rgba(0,0,0,0.6);
+}
+.type-categories .category-list-item:hover::before {
+  opacity: 0.3;
+  transform: translateY(-2px) scale(1.04);
+}
+.type-categories .category-list-item:hover::after {
+  opacity: 1; top: 14px; bottom: 14px;
+}
+/* 名称:卡片主体,深青墨,占据视觉重心 */
+.type-categories .category-list-link {
+  display: block;
   margin: 0;
-  padding: 0;
-  font-size: 0.85rem;
-  font-variant-numeric: tabular-nums;
-  color: var(--arc-ink-3);
+  padding: 0 2.4rem 0 0;       /* 右侧让开序号水印 */
+  border: none !important;
   background: none !important;
-  border-radius: 0;
+  color: var(--cat-name) !important;
+  font-size: 1.18rem;
+  font-weight: 600;
+  line-height: 1.35;
+  letter-spacing: 0.01em;
+  transition: color 0.24s ease, transform 0.3s cubic-bezier(0.16,1,0.3,1);
 }
-.type-categories .category-list-count::after { content: " 篇文章"; }
+.type-categories .category-list-item:hover .category-list-link {
+  color: var(--cat-name-hover) !important;
+  transform: translateX(2px);
+}
+/* 篇数:卡片底部一枚精致青墨胶囊标,与名称同调呼应 */
+.type-categories .category-list-count {
+  position: absolute;
+  left: 22px; bottom: 18px;
+  margin: 0;
+  padding: 2px 10px;
+  font-size: 0.74rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.5;
+  color: var(--cat-accent) !important;
+  background: var(--cat-pill) !important;
+  border: 1px solid var(--cat-pill-border);
+  border-radius: 999px;
+  transition: background 0.24s ease, color 0.24s ease, border-color 0.24s ease;
+}
+.type-categories .category-list-count::after { content: " 篇"; }
+.type-categories .category-list-item:hover .category-list-count {
+  color: #fff !important;
+  background: var(--cat-accent) !important;
+  border-color: var(--cat-accent) !important;
+}
 /* 隐藏子分类嵌套的展开(保持卡片简洁);child 列表若有则平铺 */
 .type-categories .category-list .category-list-child { display: none; }
 

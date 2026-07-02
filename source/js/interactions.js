@@ -18,8 +18,14 @@
     ));
 
     /* ---------- 1) 滚动渐显 ---------- */
-    // 归档页文章多,进入动画用 IO 触发(替代纯 CSS 的固定延迟,更自然)
+    // 归档页文章多,进入动画用 IO 触发(替代纯 CSS 的固定延迟,更自然)。
+    // 关键兜底:阈值放宽 + 定时器强制显示。若 IO 因懒加载图片高度未定、
+    // pjax 时机等原因迟迟不触发,1.2s 后强制给所有卡片加 .arc-in,
+    // 确保永远不会因动画链路故障而整页空白。
     if (!reduce && 'IntersectionObserver' in window) {
+      var revealAll = function () {
+        cards.forEach(function (c) { c.classList.add('arc-in'); });
+      };
       var io = new IntersectionObserver(function (entries) {
         entries.forEach(function (e) {
           if (e.isIntersecting) {
@@ -27,8 +33,10 @@
             io.unobserve(e.target);
           }
         });
-      }, { threshold: 0.12, rootMargin: '0px 0px -8% 0px' });
+      }, { threshold: 0.01, rootMargin: '0px 0px 0px 0px' });
       cards.forEach(function (c) { c.classList.add('arc-reveal'); io.observe(c); });
+      // 兜底:1.2s 后无论 IO 是否触发,全部显现(幂等,arc-in 已加则无副作用)
+      setTimeout(revealAll, 1200);
     }
 
     if (reduce || isTouch) return;
