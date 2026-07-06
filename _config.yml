@@ -104,7 +104,9 @@ sitemap_index:
   baidu_index: baidusitemap.xml
   baidu_child: baidusitemap-{year}.xml
   # 是否把 分类页/标签页 也纳入(归到最新年份的子图)
-  include_tags: true
+  # 标签页不进 sitemap:290+ 个标签页属于薄内容,会稀释抓取配额、
+  # 触发 GSC「已抓取-尚未编入索引」;页面本身仍可访问、仍有 canonical
+  include_tags: false
   include_categories: true
   # 是否纳入首页/归档等静态页(归到最新年份子图)
   include_pages: true

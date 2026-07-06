@@ -4,7 +4,12 @@ on:
   schedule:
     # 每天 UTC 18:00 = 北京时间次日 02:00 拉取一次
     - cron: '0 18 * * *'
-  workflow_dispatch: {}   # 支持手动触发
+  workflow_dispatch:      # 支持手动触发
+    inputs:
+      force_publish:
+        description: '强制 build+部署(跳过 COS 变更检测,用于配置/主题/脚本改动)'
+        type: boolean
+        default: false
 
 concurrency:
   group: blog-publish
@@ -47,20 +52,20 @@ jobs:
           git push
 
       - name: Setup Node
-        if: steps.sync.outputs.changed == '1'
+        if: steps.sync.outputs.changed == '1' || inputs.force_publish == true
         uses: actions/setup-node@v4
         with:
           node-version: '20'
 
       - name: Install deps & build
-        if: steps.sync.outputs.changed == '1'
+        if: steps.sync.outputs.changed == '1' || inputs.force_publish == true
         run: |
           npm ci || npm install
           npx hexo clean
           npx hexo generate
 
       - name: Setup SSH deploy key
-        if: steps.sync.outputs.changed == '1'
+        if: steps.sync.outputs.changed == '1' || inputs.force_publish == true
         run: |
           mkdir -p ~/.ssh
           echo "${{ secrets.DEPLOY_SSH_KEY }}" > ~/.ssh/deploy_key
@@ -68,7 +73,7 @@ jobs:
           ssh-keyscan -H ${{ secrets.DEPLOY_HOST }} >> ~/.ssh/known_hosts 2>/dev/null
 
       - name: Deploy public/ to server (rsync)
-        if: steps.sync.outputs.changed == '1'
+        if: steps.sync.outputs.changed == '1' || inputs.force_publish == true
         env:
           HOST: ${{ secrets.DEPLOY_HOST }}
         run: |
@@ -79,7 +84,7 @@ jobs:
           curl -sI --max-time 20 https://xiaohang.site/sitemap.xml | head -1
 
       - name: Push new URLs to Baidu (主动推送)
-        if: steps.sync.outputs.changed == '1'
+        if: steps.sync.outputs.changed == '1' || inputs.force_publish == true
         env:
           SITE: https://xiaohang.site
           BAIDU_PUSH_TOKEN: ${{ secrets.BAIDU_PUSH_TOKEN }}

@@ -33,9 +33,22 @@ hexo.extend.generator.register('sitemap_index', function (locals) {
       .replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&apos;')
 
   // 拼绝对 URL:兼容 permalink 生成的相对 path
+  // 统一规范化:去掉尾部 index.html(与页面 canonical 一致),
+  // 并对中文/全角字符做百分号编码(sitemap 协议要求 RFC-3986 编码,
+  // 也保证与 <link rel="canonical"> 输出的编码形式完全一致)
   const abs = (p) => {
-    if (/^https?:\/\//i.test(p)) return p
-    return base + '/' + String(p).replace(/^\/+/, '')
+    let s = String(p).replace(/index\.html$/, '')
+    if (!/^https?:\/\//i.test(s)) s = base + '/' + s.replace(/^\/+/, '')
+    return encodeURI(s)
+  }
+
+  // 只允许真正的 HTML 页面进 sitemap:
+  // 排除被 Hexo 误当作 page 的 css/js 等静态资源,以及搜索引擎验证文件
+  const isIndexablePage = (p) => {
+    const s = String(p).replace(/index\.html$/, '')
+    if (!/(\/|\.html)$/.test(s) && s !== '') return false
+    if (/(baidu_verify|google[0-9a-f]+\.html|BingSiteAuth)/i.test(s)) return false
+    return true
   }
 
   const toISO = (m) => {
@@ -74,11 +87,16 @@ hexo.extend.generator.register('sitemap_index', function (locals) {
   const extra = [] // 仅进谷歌图,不进百度图
   const collect = (list) => {
     list.forEach((item) => {
-      if (!item.path) return
+      if (!item.path || !isIndexablePage(item.path)) return
       const iso = toISO(item.updated) || toISO(item.date) || null
       extra.push({ loc: abs(item.path), lastmodISO: iso })
     })
   }
+  // 首页(hexo-generator-index 生成,不在 locals.pages 里)
+  extra.push({
+    loc: base + '/',
+    lastmodISO: toISO(posts[0] && (posts[0].updated || posts[0].date))
+  })
   if (includeCategories) collect(locals.categories.toArray())
   if (includeTags) collect(locals.tags.toArray())
   if (includePages) collect(locals.pages.toArray().filter((p) => p.sitemap !== false))
