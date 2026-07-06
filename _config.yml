@@ -63,7 +63,18 @@ index_generator:
 
 # Category & Tag
 default_category: uncategorized
+# 分类页 URL 用英文 slug(检索友好),与文章 permalink 前缀保持一致
+# 老中文分类 URL 由 scripts/redirect-alias.js 自动生成跳转页
 category_map:
+  AI与大模型: ai-llm
+  AI编程工具: ai-coding
+  Java新特性: java
+  性能优化: performance
+  数据库: database
+  中间件与架构: architecture
+  工程实践: engineering
+  前端开发: frontend
+  技术随笔: notes
 tag_map:
 
 # Metadata elements
