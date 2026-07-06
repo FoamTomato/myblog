@@ -8,3 +8,4 @@ Disallow: /page/
 
 Sitemap: https://xiaohang.site/sitemap.xml
 Sitemap: https://xiaohang.site/baidusitemap.xml
+Sitemap: https://xiaohang.site/skills/sitemap.xml
