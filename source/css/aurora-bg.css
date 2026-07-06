@@ -168,8 +168,9 @@ html, body, #web_bg, .layout, #body-wrap,
 }
 /* pond 用 normal 混合:让锦鲤彩色鱼/粉红荷花保持真实颜色(multiply 会压暗失真) */
 #pond-canvas { mix-blend-mode: normal; }
-/* 鼠标墨水仍用 multiply,青墨渗入更自然 */
-#ink-canvas { mix-blend-mode: multiply; }
+/* 鼠标白云:用 screen —— 白色叠上去是"提亮、晕出一片淡云",轻盈通透
+ * (multiply 会让白消失,不能用)。深浅色底同理都用 screen。 */
+#ink-canvas { mix-blend-mode: screen; }
 [data-theme="dark"] #ink-canvas { mix-blend-mode: screen; }
 [data-theme="dark"] #pond-canvas { mix-blend-mode: normal; }
 

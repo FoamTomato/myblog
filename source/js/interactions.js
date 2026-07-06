@@ -62,58 +62,92 @@
     resize();
     window.addEventListener('resize', resize, { passive: true });
 
-    var drops = [];             // 墨点池
-    var lastX = 0, lastY = 0, lastT = 0, rafInk = 0;
-    // 深色模式偏亮青墨,浅色模式偏深青墨(整体加深)
-    function inkColor(a) {
+    // 白云晕染拖尾:鼠标过处像晕开一片淡淡的白云飘过 —— 柔白团向外洇开、
+    // 大小随机,浓度很淡,缓缓扩散再慢慢化去,轻盈通透。
+    var dabs = [];              // 云团池(每团 = 一次落笔洇开的白云)
+    var lastX = 0, lastY = 0, lastT = 0, rafInk = 0, hasLast = false;
+    // 浅白:两种模式都用近白,靠 screen/lighter 混合提亮成云(深色底更透亮)。
+    function cloudColor(a) {
       var dark = document.documentElement.getAttribute('data-theme') === 'dark';
       return dark
-        ? 'rgba(90, 190, 185,' + a + ')'
-        : 'rgba(10, 80, 92,' + a + ')';      // 更深的青墨
+        ? 'rgba(235, 250, 250,' + a + ')'
+        : 'rgba(255, 255, 255,' + a + ')';   // 纯白云
     }
-    function spawn(x, y, speed) {
-      // 速度越快墨点越小越密,慢时墨点大(像停笔积墨)—— 整体放大晕染范围
-      var base = Math.max(6, 30 - speed * 0.9);
-      drops.push({
-        x: x + (Math.random() - 0.5) * 8,
-        y: y + (Math.random() - 0.5) * 8,
-        r: base * (0.6 + Math.random() * 0.6),
-        max: base * (2.4 + Math.random() * 1.6),   // 扩散终点更大
-        a: 0.40 + Math.random() * 0.18,            // 墨色更浓
-        life: 1
+
+    // 沿轨迹晕一团白云:大而软,随机扩散大小(辐射大),浓度极淡
+    function dab(x, y, speed) {
+      // 核心半径很大(云是大团、辐射极广);慢移更大,快移略小
+      var base = 70 - Math.min(20, speed * 0.24);
+      dabs.push({
+        // 位置大幅随机抖开:落点不紧贴轨迹,零散点染,避免连成跟随指针的亮带
+        x: x + (Math.random() - 0.5) * 46,
+        y: y + (Math.random() - 0.5) * 46,
+        r: base * (0.8 + Math.random() * 0.5),      // 初始云核
+        maxR: base * (4.0 + Math.random() * 3.5),   // 辐射再加 + 随机差异大(大小随机)
+        // 极极淡的白:单团几乎无法察觉,靠密集叠加透出一抹若有若无的轻云
+        a: 0.008 + Math.random() * 0.014,
+        life: 1,
+        // rise = 浮现进度 0→1:云缓缓显形而非一出现就最亮,
+        // 等它最浓时鼠标早已走远 → 消除"白斑紧跟指针"的移动感
+        rise: 0,
+        riseSpeed: 0.012 + Math.random() * 0.01,    // 浮现很慢(~1.5s 才到最浓)
+        decay: 0.0013 + Math.random() * 0.0010,     // 化去极慢(约 15~18s),悠然弥散
+        spread: 0.25 + Math.random() * 0.3          // 洇开更慢:缓缓铺展到极大辐射
       });
-      if (drops.length > 110) drops.splice(0, drops.length - 110);  // 上限,防堆积
+      if (dabs.length > 240) dabs.splice(0, dabs.length - 240);
     }
+
     function render() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      for (var i = drops.length - 1; i >= 0; i--) {
-        var d = drops[i];
-        d.life -= 0.007;                     // 淡出更慢(消失延迟更长)
-        if (d.life <= 0) { drops.splice(i, 1); continue; }
-        d.r += (d.max - d.r) * 0.045;        // 扩散变大(略慢,晕开更自然)
-        var alpha = d.a * d.life;
+      // lighter 叠加:多团淡白累积成更亮更实的云,自然连成一片(而非硬边圆)
+      ctx.globalCompositeOperation = 'lighter';
+      for (var i = dabs.length - 1; i >= 0; i--) {
+        var d = dabs[i];
+        d.life -= d.decay;
+        if (d.life <= 0) { dabs.splice(i, 1); continue; }
+        // 洇开:半径向 maxR 缓慢逼近(先快后慢,像云慢慢舒展)
+        if (d.r < d.maxR) d.r += (d.maxR - d.r) * 0.02 + d.spread;
+        // 淡入:rise 缓缓从 0 涨到 1(云慢慢浮现,不紧跟指针);淡出:life 减到 0。
+        if (d.rise < 1) d.rise += d.riseSpeed;
+        var fadeIn = d.rise < 1 ? d.rise : 1;
+        var fadeOut = d.life;                        // 线性淡出,配合极小 decay 很缓
+        var al = d.a * fadeIn * fadeOut;
+        // 大幅羽化的径向渐变,无明显边界 = 云的通透质感
         var g = ctx.createRadialGradient(d.x, d.y, 0, d.x, d.y, d.r);
-        g.addColorStop(0, inkColor(alpha));
-        g.addColorStop(0.6, inkColor(alpha * 0.5));
-        g.addColorStop(1, inkColor(0));
+        g.addColorStop(0, cloudColor(al));
+        g.addColorStop(0.4, cloudColor(al * 0.5));
+        g.addColorStop(1, cloudColor(0));
         ctx.fillStyle = g;
         ctx.beginPath();
         ctx.arc(d.x, d.y, d.r, 0, Math.PI * 2);
         ctx.fill();
       }
-      if (drops.length) { rafInk = requestAnimationFrame(render); }
-      else { rafInk = 0; ctx.clearRect(0, 0, canvas.width, canvas.height); }
+      ctx.globalCompositeOperation = 'source-over';
+      if (dabs.length) {
+        rafInk = requestAnimationFrame(render);
+      } else {
+        rafInk = 0;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+      }
     }
+
+    var acc = 0;   // 累计移动距离:攒够一段才点染一团,落点稀疏
     window.addEventListener('pointermove', function (ev) {
       var now = ev.timeStamp || performance.now();
+      if (!hasLast) { lastX = ev.clientX; lastY = ev.clientY; lastT = now; hasLast = true; return; }
       var dx = ev.clientX - lastX, dy = ev.clientY - lastY, dt = now - lastT || 16;
-      var speed = Math.sqrt(dx * dx + dy * dy) / dt * 16;   // 归一化速度
-      // 在上一点到当前点之间插值撒墨,连成连续墨迹
       var dist = Math.sqrt(dx * dx + dy * dy);
-      var steps = Math.min(6, Math.max(1, Math.floor(dist / 14)));
-      for (var s = 1; s <= steps; s++) {
-        spawn(lastX + dx * s / steps, lastY + dy * s / steps, speed);
+      var speed = dist / dt * 16;            // 归一化速度
+      if (dist < 0.5) { lastT = now; return; }
+
+      // 稀疏点染:每累计移动 ~55px 才在附近随机晕一团(不再沿轨迹密集撒成亮带)。
+      // 配合 dab 里的大位置抖动 + 慢淡入,云是零散、缓缓浮现的,无跟随指针的移动感。
+      acc += dist;
+      while (acc >= 55) {
+        acc -= 55;
+        dab(ev.clientX, ev.clientY, speed);
       }
+
       lastX = ev.clientX; lastY = ev.clientY; lastT = now;
       if (!rafInk) rafInk = requestAnimationFrame(render);
     }, { passive: true });

@@ -78,7 +78,9 @@ katex:
 # --------------------------------------
 
 # Favicon（網站圖標）
-favicon: /img/favicon.png
+# 新版:青墨猫头 + 鱼塘水波(喵喵鱼塘主题)。SVG 矢量,任意尺寸最清晰;
+# 旧浏览器回退 favicon.ico(含 16/32/48/64 多尺寸)。
+favicon: /img/favicon.svg
 
 # Avatar (頭像)
 avatar:
@@ -585,6 +587,11 @@ aside:
   card_author:
     enable: true
     description:
+    button:
+      enable: true
+      icon: fab fa-github
+      text: Follow Me
+      link: https://github.com/FoamTomato
   card_announcement:
     enable: true
     content: 👋 欢迎来到喵喵鱼塘!这里记录 Java 后端工程实践、AI 与大模型应用开发的实战笔记与系统化教程。愿你有所收获 🍅
@@ -746,6 +753,8 @@ fragment_cache: true
 # 插入代码到头部 </head> 之前 和 底部 </body> 之前            //外挂方式引入自定义css和js，推荐在这里引入自定义css和js
 inject:
   head:
+    # easyya.ai AI 流量追踪埋点(收集 AI 引擎访问数据);async 不阻塞渲染
+    - <script src="https://proxy.geotrax.work/tracker.js?site=xiaohang.site" async></script>
     - <link rel="stylesheet" href="/css/custom-archive.css">
     - <link rel="stylesheet" href="/css/aurora-bg.css">
     - <link rel="stylesheet" href="/css/tagcloud.css">
