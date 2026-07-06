@@ -422,6 +422,8 @@ site_verification:
     content: En5KpJx9cywrtPBN7zCvCtrFH6P_uSuvLHGNS0rkXSQ
   - name: baidu-site-verification
     content: codeva-I4HbGRCdjO
+  - name: msvalidate.01
+    content: 222336D79C3F67FD91808C8CB678BD4A
 
 # Beautify/Effect (美化/效果) //自定义美化效果，没有css经验请绕行
 # --------------------------------------

@@ -114,6 +114,10 @@ sitemap_index:
   child: sitemap-{year}.xml
   baidu_index: baidusitemap.xml
   baidu_child: baidusitemap-{year}.xml
+  # Bing 专用索引:内容与谷歌图同构(含分类/静态页),仅换文件名,
+  # 方便在 Bing Webmaster Tools 提交一个专属 URL
+  bing_index: bingsitemap.xml
+  bing_child: bingsitemap-{year}.xml
   # 是否把 分类页/标签页 也纳入(归到最新年份的子图)
   # 标签页不进 sitemap:290+ 个标签页属于薄内容,会稀释抓取配额、
   # 触发 GSC「已抓取-尚未编入索引」;页面本身仍可访问、仍有 canonical
@@ -123,8 +127,7 @@ sitemap_index:
   include_pages: true
 
 # Deployment
-## Docs: https://hexo.io/docs/one-command-deployment
-deploy:
-  type: git
-  repo: https://github.com/FoamTomato/FoamTomato.github.io.git
-  branch: master
+# 本站不用 GitHub Pages。线上是自建服务器 117.72.182.195 上的 nginx 静态托管,
+# 直接把 public/ rsync 进 nginx 服务的 Docker 卷。
+# 手动发布: npm run deploy  (= hexo clean && generate && rsync 到服务器卷)
+# 自动发布: .github/workflows/sync-cos-publish.yml (COS 同步后 build + rsync)

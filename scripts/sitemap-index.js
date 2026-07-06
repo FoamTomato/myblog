@@ -9,6 +9,8 @@
  *   sitemap-<year>.xml     <- 该年文章 + (最新年份额外含 分类/标签/静态页)
  *   baidusitemap.xml       <- 百度 sitemapindex
  *   baidusitemap-<year>.xml<- 百度子图(仅文章,无 changefreq/priority)
+ *   bingsitemap.xml        <- Bing sitemapindex(内容同谷歌图)
+ *   bingsitemap-<year>.xml <- Bing 子图(= 谷歌子图内容,含分类/静态页)
  *
  * 增量语义:索引里每个子图的 <lastmod> = 该子图内最新的 updated 时间。
  * 改/发一篇某年的文章,只有那一年的子图 lastmod 变化,
@@ -24,6 +26,8 @@ hexo.extend.generator.register('sitemap_index', function (locals) {
   const childTpl = opt.child || 'sitemap-{year}.xml'
   const baiduIndexPath = opt.baidu_index || 'baidusitemap.xml'
   const baiduChildTpl = opt.baidu_child || 'baidusitemap-{year}.xml'
+  const bingIndexPath = opt.bing_index || 'bingsitemap.xml'
+  const bingChildTpl = opt.bing_child || 'bingsitemap-{year}.xml'
   const includeTags = opt.include_tags !== false
   const includeCategories = opt.include_categories !== false
   const includePages = opt.include_pages !== false
@@ -48,6 +52,8 @@ hexo.extend.generator.register('sitemap_index', function (locals) {
     const s = String(p).replace(/index\.html$/, '')
     if (!/(\/|\.html)$/.test(s) && s !== '') return false
     if (/(baidu_verify|google[0-9a-f]+\.html|BingSiteAuth)/i.test(s)) return false
+    // IndexNow key 文件(<32位hex>.txt)不进 sitemap
+    if (/^\/?[0-9a-f]{8,}\.txt$/i.test(s)) return false
     return true
   }
 
@@ -134,6 +140,7 @@ hexo.extend.generator.register('sitemap_index', function (locals) {
   const years = Object.keys(byYear).sort() // 升序,索引里旧->新
   const googleChildren = []
   const baiduChildren = []
+  const bingChildren = []
 
   years.forEach((year) => {
     // 谷歌子图:该年文章 + (若是最新年)额外页
@@ -147,6 +154,11 @@ hexo.extend.generator.register('sitemap_index', function (locals) {
       .map((e) => e.lastmodISO).filter(Boolean).sort().pop()
     googleChildren.push({ path: childPath, lastmod: ymd(gLast) })
 
+    // Bing 子图:与谷歌子图内容同构(同 gEntries、同 changefreq/priority),仅换文件名
+    const bingChildPath = bingChildTpl.replace('{year}', year)
+    routes.push({ path: bingChildPath, data: renderUrlset(gEntries, { withMeta: true }) })
+    bingChildren.push({ path: bingChildPath, lastmod: ymd(gLast) })
+
     // 百度子图:仅该年文章,无 changefreq/priority
     const bChildPath = baiduChildTpl.replace('{year}', year)
     routes.push({ path: bChildPath, data: renderUrlset(byYear[year], { withMeta: false }) })
@@ -157,6 +169,7 @@ hexo.extend.generator.register('sitemap_index', function (locals) {
 
   routes.push({ path: indexPath, data: renderIndex(googleChildren) })
   routes.push({ path: baiduIndexPath, data: renderIndex(baiduChildren) })
+  routes.push({ path: bingIndexPath, data: renderIndex(bingChildren) })
 
   return routes
 })

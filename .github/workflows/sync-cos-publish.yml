@@ -90,6 +90,13 @@ jobs:
           BAIDU_PUSH_TOKEN: ${{ secrets.BAIDU_PUSH_TOKEN }}
         run: python scripts/baidu_push.py
 
+      - name: Push new URLs to Bing (IndexNow)
+        if: steps.sync.outputs.changed == '1' || inputs.force_publish == true
+        env:
+          SITE: https://xiaohang.site
+          INDEXNOW_KEY: 9bd5098a7a404536bd8eaed9ae7c35d4
+        run: python scripts/indexnow_push.py
+
       - name: Summary
         run: |
           echo "changed=${{ steps.sync.outputs.changed }}  count=${{ steps.sync.outputs.count }}" >> $GITHUB_STEP_SUMMARY
