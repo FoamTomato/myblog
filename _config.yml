@@ -83,7 +83,10 @@ meta_generator: true
 # Date / Time format
 date_format: YYYY-MM-DD
 time_format: HH:mm:ss
-updated_option: 'mtime'
+# 用 date 而非文件 mtime 作为 updated:本站经 rsync/COS 同步部署,
+# 所有 .md 的 mtime 会塌缩成部署当天,导致 sitemap lastmod 全站同一天(失真)。
+# 'date' 让没有手写 updated 的文章回退到真实发布日期。
+updated_option: 'date'
 
 # Pagination
 per_page: 10

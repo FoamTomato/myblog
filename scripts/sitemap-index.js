@@ -12,7 +12,8 @@
  *
  * 注:Bing 用与谷歌相同的标准 sitemap.xml,不单独产 bing 图(避免冗余副本)。
  *
- * 增量语义:索引里每个子图的 <lastmod> = 该子图内最新的 updated 时间。
+ * 增量语义:索引里每个子图的 <lastmod> = 该子图内最新的文章时间
+ * (真实发布日 date 为准,有手写 updated 且更晚时取 updated)。
  * 改/发一篇某年的文章,只有那一年的子图 lastmod 变化,
  * 搜索引擎按 lastmod 只重抓变化的子图,实现"按平台规则自动增量"。
  */
@@ -56,7 +57,10 @@ hexo.extend.generator.register('sitemap_index', function (locals) {
   }
 
   const toISO = (m) => {
-    // m 是 moment 对象(Hexo 注入)或可被 new Date 解析的值
+    // m 是 moment 对象(Hexo 注入)或可被 new Date 解析的值。
+    // 优先用 moment.format 保留本地时区:否则 toISOString() 转 UTC 会把
+    // 东八区的 'YYYY-MM-DD 00:00' 拉回前一天,导致 lastmod 全站偏一天。
+    if (m && typeof m.format === 'function') return m.format('YYYY-MM-DDTHH:mm:ssZ')
     if (m && typeof m.toISOString === 'function') return m.toISOString()
     if (m && typeof m.toDate === 'function') return m.toDate().toISOString()
     return null
@@ -75,11 +79,13 @@ hexo.extend.generator.register('sitemap_index', function (locals) {
 
   posts.forEach((post) => {
     if (post.sitemap === false) return
-    const dateObj = post.updated || post.date
-    const iso = toISO(dateObj)
-    // 年份取发布日期(归档路径按发布年),lastmod 取更新时间
-    const pubISO = toISO(post.date) || iso
-    const year = pubISO ? pubISO.slice(0, 4) : 'undated'
+    // lastmod 取真实发布日期 date 为基准;仅当存在“真实的、晚于 date 的 updated”
+    // (front-matter 手写)才用 updated。配合 updated_option:'date',没手写 updated
+    // 的文章 post.updated == post.date,不会再被 mtime 污染成部署当天。
+    const pubISO = toISO(post.date)
+    const updISO = toISO(post.updated)
+    const iso = (updISO && (!pubISO || updISO > pubISO)) ? updISO : pubISO
+    const year = pubISO ? pubISO.slice(0, 4) : (iso ? iso.slice(0, 4) : 'undated')
     if (latestYear === null || year > latestYear) latestYear = year
     pushEntry(year, abs(post.path), iso)
   })
