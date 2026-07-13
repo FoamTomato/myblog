@@ -41,7 +41,12 @@ def parse_fm(text):
 
 
 def url_from_stem(stem):
-    """由 _posts 文件名 stem 读 front-matter,按 permalink 拼完整 URL。"""
+    """由 _posts 文件名 stem 读 front-matter,按 permalink 拼完整 URL。
+
+    独立静态页记为 'pages/xxx.html'(带子目录+后缀),直接映射成 /pages/xxx.html。
+    """
+    if stem.lower().endswith('.html'):
+        return f'{SITE}/{stem.lstrip("/")}'
     path = os.path.join(POSTS_DIR, stem + '.md')
     if not os.path.exists(path):
         return None

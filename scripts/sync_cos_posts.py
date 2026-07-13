@@ -20,6 +20,7 @@ from qcloud_cos import CosConfig, CosS3Client
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 POSTS_DIR = os.path.join(ROOT, 'source', '_posts')
+PAGES_DIR = os.path.join(ROOT, 'source', 'pages')  # 纯 .html 独立静态页(skip_render)
 STATE_FILE = os.path.join(ROOT, '.cos-sync-state.json')
 
 REGION = os.environ.get('COS_REGION', 'ap-hongkong')
@@ -98,7 +99,11 @@ def safe_filename(key, title, used_names):
 
 
 def list_cos_objects(client):
-    """分页列出 PREFIX 下所有 .md 对象 -> [(key, etag)]。"""
+    """分页列出 PREFIX 下所有 .md / .html 对象 -> [(key, etag)]。
+
+    .md  -> Hexo 正式文章(带 front-matter,进列表/分类/sitemap)
+    .html -> 独立静态页(原样拷贝到 source/pages/,skip_render)
+    """
     out = []
     marker = ''
     while True:
@@ -106,7 +111,8 @@ def list_cos_objects(client):
                                    Marker=marker, MaxKeys=1000)
         for c in resp.get('Contents', []):
             key = c['Key']
-            if key.endswith('/') or not key.lower().endswith('.md'):
+            k = key.lower()
+            if key.endswith('/') or not (k.endswith('.md') or k.endswith('.html')):
                 continue
             out.append((key, c['ETag'].strip('"')))
         if resp.get('IsTruncated') == 'true':
@@ -138,6 +144,22 @@ def main():
         if prev and prev.get('etag') == etag:
             new_seen[key] = prev
             skipped_unchanged += 1
+            continue
+
+        # ── .html 独立静态页:原样拷贝到 source/pages/,不套主题模板 ──
+        if key.lower().endswith('.html'):
+            resp = client.get_object(Bucket=BUCKET, Key=key)
+            raw = resp['Body'].get_raw_stream().read()
+            os.makedirs(PAGES_DIR, exist_ok=True)
+            base = os.path.basename(key)
+            # 复用同 key 上次写过的文件名(更新场景),否则用 basename
+            target = (prev or {}).get('filename') or base
+            with open(os.path.join(PAGES_DIR, target), 'wb') as fh:
+                fh.write(raw)
+            written_files.append(os.path.join('pages', target))
+            new_seen[key] = {'etag': etag, 'filename': target, 'kind': 'html'}
+            log(f'  [html] {key} -> source/pages/{target}')
+            changed += 1
             continue
 
         resp = client.get_object(Bucket=BUCKET, Key=key)
