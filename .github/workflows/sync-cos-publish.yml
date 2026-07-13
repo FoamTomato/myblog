@@ -39,7 +39,7 @@ jobs:
           COS_SECRET_KEY: ${{ secrets.COS_SECRET_KEY }}
           COS_REGION: ap-hongkong
           COS_BUCKET: xiaohang-1403701833
-          COS_PREFIX: posts/
+          COS_PREFIX: en/blog/
         run: python scripts/sync_cos_posts.py
 
       - name: Commit sync state & new posts
