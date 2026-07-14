@@ -4,6 +4,11 @@
       "etag": "d38a5dfba9701fa1e66b2ce446707e42",
       "filename": "java-virtual-threads-project-loom-complete-guide.md",
       "sha256": "4c434548ae0e9d0fb64d6e2338838cfdf1eac8cb4d4f02ef12744132d8aafb43"
+    },
+    "en/blog/technology/spring-ai-quickstart-java-openai-local-llm-guide.html": {
+      "etag": "a9c8ea2ddd0dc96448c03120988ecdf8",
+      "filename": "spring-ai-quickstart-java-openai-local-llm-guide.md",
+      "sha256": "0cfd60e100cb478ec0c153cf76b4e741fbb58cefeeeacd4020968cf6e0f8b816"
     }
   }
 }
