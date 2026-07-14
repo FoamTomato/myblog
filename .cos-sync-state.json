@@ -1,3 +1,9 @@
 {
-  "objects": {}
+  "objects": {
+    "en/blog/technology/java-virtual-threads-project-loom-complete-guide.html": {
+      "etag": "d38a5dfba9701fa1e66b2ce446707e42",
+      "filename": "java-virtual-threads-project-loom-complete-guide.md",
+      "sha256": "4c434548ae0e9d0fb64d6e2338838cfdf1eac8cb4d4f02ef12744132d8aafb43"
+    }
+  }
 }
