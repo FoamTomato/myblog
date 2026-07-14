@@ -29,7 +29,6 @@ category_dir: categories
 code_dir: downloads/code
 i18n_dir: :lang
 skip_render:
-  - 'pages/**'   # 从 COS 同步来的纯 .html 独立静态页,原样拷贝不套主题模板
 
 # Writing
 new_post_name: :title.md

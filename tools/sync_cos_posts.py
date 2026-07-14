@@ -20,7 +20,6 @@ from qcloud_cos import CosConfig, CosS3Client
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 POSTS_DIR = os.path.join(ROOT, 'source', '_posts')
-PAGES_DIR = os.path.join(ROOT, 'source', 'pages')  # 纯 .html 独立静态页(skip_render)
 STATE_FILE = os.path.join(ROOT, '.cos-sync-state.json')
 
 REGION = os.environ.get('COS_REGION', 'ap-hongkong')

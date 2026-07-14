@@ -40,7 +40,7 @@ jobs:
           COS_REGION: ap-hongkong
           COS_BUCKET: xiaohang-1403701833
           COS_PREFIX: en/blog/
-        run: python scripts/sync_cos_posts.py
+        run: python tools/sync_cos_posts.py
 
       - name: Commit sync state & new posts
         if: steps.sync.outputs.changed == '1'
@@ -88,14 +88,14 @@ jobs:
         env:
           SITE: https://xiaohang.site
           BAIDU_PUSH_TOKEN: ${{ secrets.BAIDU_PUSH_TOKEN }}
-        run: python scripts/baidu_push.py
+        run: python tools/baidu_push.py
 
       - name: Push new URLs to Bing (IndexNow)
         if: steps.sync.outputs.changed == '1' || inputs.force_publish == true
         env:
           SITE: https://xiaohang.site
           INDEXNOW_KEY: 9bd5098a7a404536bd8eaed9ae7c35d4
-        run: python scripts/indexnow_push.py
+        run: python tools/indexnow_push.py
 
       - name: Summary
         run: |
