@@ -63,6 +63,151 @@ def parse_title(text):
     return tm.group(1).strip() if tm else None
 
 
+# ────────────────────────────────────────────────────────────────
+# HTML -> Hexo Markdown 文章
+# 针对 SEO 生成流程产出的成品 HTML(<article><main> 正文 + <meta> 元数据
+# + pygments/codehilite 代码块),自动抽正文转 Markdown、拼 front-matter,
+# 使其成为进首页/分类/sitemap 的正式文章,而非独立静态页。
+# ────────────────────────────────────────────────────────────────
+import html as _html
+
+
+def _meta(src, name, attr='name'):
+    m = re.search(rf'<meta {attr}="{re.escape(name)}" content="([^"]*)"', src)
+    return _html.unescape(m.group(1)) if m else ''
+
+
+def _yaml_escape(s):
+    """front-matter 标量值:含特殊字符时用双引号包裹并转义。"""
+    s = (s or '').strip().replace('\n', ' ')
+    if s and re.search(r'[:#\[\]{},&*!|>\'"%@`]', s):
+        return '"' + s.replace('\\', '\\\\').replace('"', '\\"') + '"'
+    return s
+
+
+def html_to_markdown_post(src, key, default_date):
+    """把成品 HTML 转成带 front-matter 的 Markdown 文本;无法识别正文时返回 None。"""
+    # 1) 元数据
+    description = _meta(src, 'description')
+    pub = _meta(src, 'article:published_time', 'name') or default_date
+    pub = pub.strip()[:10] or default_date
+    # keywords -> tags(逗号分隔,可能为空)
+    kw = _meta(src, 'keywords')
+    tags = [t.strip() for t in re.split(r'[,，]', kw) if t.strip()]
+
+    # 标题:优先 og:title / <h1> / <title>
+    title = (_meta(src, 'og:title', 'property')
+             or _meta(src, 'title', 'property'))
+    if not title:
+        h1 = re.search(r'<h1[^>]*>(.*?)</h1>', src, re.S)
+        title = re.sub(r'<[^>]+>', '', h1.group(1)).strip() if h1 else ''
+    if not title:
+        tt = re.search(r'<title>(.*?)</title>', src, re.S)
+        title = re.sub(r'<[^>]+>', '', tt.group(1)).strip() if tt else 'Untitled'
+    title = _html.unescape(title)
+
+    # 2) 正文容器:<main> 优先,退化到 <article> / <body>
+    for pat in (r'<main[^>]*>(.*)</main>',
+                r'<article[^>]*>(.*)</article>',
+                r'<body[^>]*>(.*)</body>'):
+        mm = re.search(pat, src, re.S)
+        if mm:
+            body = mm.group(1)
+            break
+    else:
+        return None
+
+    # 3) 代码块:先抽出占位保护,避免后续去标签误伤代码里的 < >
+    blocks = []
+
+    def stash_code(m):
+        inner = re.sub(r'<br\s*/?>', '\n', m.group(1))
+        inner = re.sub(r'<[^>]+>', '', inner)      # 剥 span
+        code = _html.unescape(inner)
+        lang = 'java'
+        if re.search(r'^\s*#|application\.ya?ml|spring:', code) and ';' not in code:
+            lang = 'yaml'
+        blocks.append(f'```{lang}\n' + code.strip('\n') + '\n```')
+        return f'\n\x00CODE{len(blocks) - 1}\x00\n'
+
+    body = re.sub(r'<div class="codehilite"><pre>(.*?)</pre></div>',
+                  stash_code, body, flags=re.S)
+    body = re.sub(r'<pre[^>]*><code[^>]*>(.*?)</code></pre>',
+                  stash_code, body, flags=re.S)
+
+    # 行内 code
+    body = re.sub(r'<code>(.*?)</code>',
+                  lambda m: '`' + _html.unescape(re.sub(r'<[^>]+>', '', m.group(1))) + '`',
+                  body, flags=re.S)
+
+    # 表格
+    def conv_table(m):
+        t = m.group(0)
+        heads = [_html.unescape(re.sub(r'<[^>]+>', '', h)).strip()
+                 for h in re.findall(r'<th[^>]*>(.*?)</th>', t, re.S)]
+        out = []
+        if heads:
+            out.append('| ' + ' | '.join(heads) + ' |')
+            out.append('| ' + ' | '.join('---' for _ in heads) + ' |')
+        for r in re.findall(r'<tr[^>]*>(.*?)</tr>', t, re.S):
+            tds = re.findall(r'<td[^>]*>(.*?)</td>', r, re.S)
+            if not tds:
+                continue
+            cells = [_html.unescape(re.sub(r'<[^>]+>', '', c)).strip().replace('\n', ' ')
+                     for c in tds]
+            out.append('| ' + ' | '.join(cells) + ' |')
+        return '\n' + '\n'.join(out) + '\n'
+
+    body = re.sub(r'<table>.*?</table>', conv_table, body, flags=re.S)
+
+    def inline(s):
+        s = re.sub(r'<strong>(.*?)</strong>', r'**\1**', s, flags=re.S)
+        s = re.sub(r'<b>(.*?)</b>', r'**\1**', s, flags=re.S)
+        s = re.sub(r'<em>(.*?)</em>', r'*\1*', s, flags=re.S)
+        s = re.sub(r'<a [^>]*href="([^"]*)"[^>]*>(.*?)</a>', r'[\2](\1)', s, flags=re.S)
+        s = re.sub(r'<br\s*/?>', '  \n', s)
+        return s
+
+    for lvl in (4, 3, 2):
+        body = re.sub(rf'<h{lvl}[^>]*>(.*?)</h{lvl}>',
+                      lambda m, l=lvl: f'\n{"#" * l} ' + inline(m.group(1)).strip() + '\n',
+                      body, flags=re.S)
+    body = re.sub(r'<img [^>]*alt="([^"]*)"[^>]*src="([^"]*)"[^>]*>', r'![\1](\2)', body)
+    body = re.sub(r'<img [^>]*src="([^"]*)"[^>]*alt="([^"]*)"[^>]*>', r'![\2](\1)', body)
+    body = re.sub(r'<img [^>]*src="([^"]*)"[^>]*>', r'![](\1)', body)
+
+    def conv_bq(m):
+        inner = re.sub(r'</?p>', '', inline(m.group(1))).strip()
+        return '\n' + '\n'.join('> ' + ln for ln in inner.split('\n')) + '\n'
+
+    body = re.sub(r'<blockquote>(.*?)</blockquote>', conv_bq, body, flags=re.S)
+    body = re.sub(r'<ul>(.*?)</ul>',
+                  lambda m: '\n' + '\n'.join('- ' + inline(i).strip().replace('\n', ' ')
+                                             for i in re.findall(r'<li>(.*?)</li>', m.group(1), re.S)) + '\n',
+                  body, flags=re.S)
+    body = re.sub(r'<ol>(.*?)</ol>',
+                  lambda m: '\n' + '\n'.join(f'{n}. ' + inline(i).strip().replace('\n', ' ')
+                                             for n, i in enumerate(re.findall(r'<li>(.*?)</li>', m.group(1), re.S), 1)) + '\n',
+                  body, flags=re.S)
+    body = re.sub(r'<p>(.*?)</p>',
+                  lambda m: '\n' + inline(m.group(1)).strip() + '\n', body, flags=re.S)
+    body = re.sub(r'<hr\s*/?>', '\n---\n', body)
+    body = re.sub(r'<[^>]+>', '', body)            # 去残留标签
+    body = _html.unescape(body)
+    body = re.sub(r'\x00CODE(\d+)\x00', lambda m: blocks[int(m.group(1))], body)  # 填回代码
+    body = re.sub(r'\n{3,}', '\n\n', body).strip()
+
+    fm = ['---', f'title: {_yaml_escape(title)}',
+          f'date: {pub} 00:00:00', 'categories:', '  - 技术随笔']
+    if tags:
+        fm.append('tags:')
+        fm += [f'  - {_yaml_escape(t)}' for t in tags]
+    if description:
+        fm.append(f'description: {_yaml_escape(description)}')
+    fm.append('---')
+    return '\n'.join(fm) + '\n\n' + body + '\n'
+
+
 def existing_index():
     """扫已入库文章 -> (正文 hash 集合, 标题->文件名, 文件名集合)。"""
     hashes, titles, names = set(), {}, set()
@@ -85,8 +230,10 @@ def existing_index():
 
 
 def safe_filename(key, title, used_names):
-    """由 COS key 的 basename 生成文件名;标题/文件名冲突时加数字后缀。"""
+    """由 COS key 的 basename 生成文件名;标题/文件名冲突时加数字后缀。
+    .html/.htm 等成品页统一落成 .md(去掉原扩展名)。"""
     base = os.path.basename(key)
+    base = re.sub(r'\.html?$', '', base, flags=re.I)  # 剥 .html/.htm
     if not base.endswith('.md'):
         base += '.md'
     stem, ext = base[:-3], '.md'
@@ -101,8 +248,9 @@ def safe_filename(key, title, used_names):
 def list_cos_objects(client):
     """分页列出 PREFIX 下所有 .md / .html 对象 -> [(key, etag)]。
 
-    .md  -> Hexo 正式文章(带 front-matter,进列表/分类/sitemap)
-    .html -> 独立静态页(原样拷贝到 source/pages/,skip_render)
+    .md   -> 直接作为 Hexo 文章
+    .html -> 成品页,自动转成带 front-matter 的 Markdown 文章
+    两者最终都进首页/分类/sitemap。
     """
     out = []
     marker = ''
@@ -146,24 +294,20 @@ def main():
             skipped_unchanged += 1
             continue
 
-        # ── .html 独立静态页:原样拷贝到 source/pages/,不套主题模板 ──
-        if key.lower().endswith('.html'):
-            resp = client.get_object(Bucket=BUCKET, Key=key)
-            raw = resp['Body'].get_raw_stream().read()
-            os.makedirs(PAGES_DIR, exist_ok=True)
-            base = os.path.basename(key)
-            # 复用同 key 上次写过的文件名(更新场景),否则用 basename
-            target = (prev or {}).get('filename') or base
-            with open(os.path.join(PAGES_DIR, target), 'wb') as fh:
-                fh.write(raw)
-            written_files.append(os.path.join('pages', target))
-            new_seen[key] = {'etag': etag, 'filename': target, 'kind': 'html'}
-            log(f'  [html] {key} -> source/pages/{target}')
-            changed += 1
-            continue
-
         resp = client.get_object(Bucket=BUCKET, Key=key)
-        text = resp['Body'].get_raw_stream().read().decode('utf-8')
+        raw = resp['Body'].get_raw_stream().read().decode('utf-8')
+
+        # ── .html 成品页 -> 自动转成带 front-matter 的 Markdown 正式文章 ──
+        if key.lower().endswith('.html'):
+            default_date = '2026-01-01'
+            md = html_to_markdown_post(raw, key, default_date)
+            if not md:
+                log(f'  [html-skip] {key} 未能解析出正文(无 main/article/body),跳过')
+                new_seen[key] = {'etag': etag}
+                continue
+            text = md  # 交给下面统一的 md 去重/写入逻辑
+        else:
+            text = raw
         h = body_sha256(text)
 
         # 第 2 层:内容 hash 命中已有 -> 内容级去重
