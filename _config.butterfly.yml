@@ -417,9 +417,8 @@ baidu_site_verification:
 qihu_site_verification:
 
 # 站长验证 meta(本主题版本实际生效的字段,遍历渲染成 <meta name content>)
+# 注:Google 已改用 DNS TXT 记录验证(2026-07-14 起),故移除 google-site-verification meta。
 site_verification:
-  - name: google-site-verification
-    content: En5KpJx9cywrtPBN7zCvCtrFH6P_uSuvLHGNS0rkXSQ
   - name: baidu-site-verification
     content: codeva-I4HbGRCdjO
   - name: msvalidate.01
