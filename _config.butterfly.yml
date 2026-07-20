@@ -754,8 +754,6 @@ fragment_cache: true
 # 插入代码到头部 </head> 之前 和 底部 </body> 之前            //外挂方式引入自定义css和js，推荐在这里引入自定义css和js
 inject:
   head:
-    # easyya.ai AI 流量追踪埋点(收集 AI 引擎访问数据);async 不阻塞渲染
-    - <script src="https://proxy.geotrax.work/tracker.js?site=xiaohang.site" async></script>
     - <link rel="stylesheet" href="/css/custom-archive.css">
     - <link rel="stylesheet" href="/css/aurora-bg.css">
     - <link rel="stylesheet" href="/css/tagcloud.css">
